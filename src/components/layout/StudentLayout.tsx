@@ -19,7 +19,8 @@ export function StudentLayout({ children }: StudentLayoutProps) {
     { path: '/student/achievements', icon: Award, label: 'Achievements' },
   ]
 
-  const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/')
+  const isActive = (path: string) =>
+    location.pathname === path || (path.includes('/', 1) && location.pathname.startsWith(path + '/'))
 
   return (
     <div className="flex min-h-screen bg-paper">

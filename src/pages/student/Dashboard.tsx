@@ -1,6 +1,16 @@
+import { Flame, Trophy, Video, ClipboardList, ArrowRight, CalendarDays } from 'lucide-react'
 import { Card, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { CURRENT_STUDENT, generateCalendarData, WEEK_SCORES } from '@/lib/mockData'
+import {
+  CURRENT_STUDENT,
+  generateCalendarData,
+  WEEK_SCORES,
+  MILESTONES,
+  SESSIONS,
+  ACHIEVEMENTS,
+  today,
+} from '@/lib/mockData'
+import { format, subDays } from 'date-fns'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useNavigate } from 'react-router-dom'
 
@@ -8,14 +18,22 @@ export function StudentDashboard() {
   const navigate = useNavigate()
   const calendarData = generateCalendarData()
 
+  const todayEntry = calendarData[format(today, 'yyyy-MM-dd')]
+  const yesterdayEntry = calendarData[format(subDays(today, 1), 'yyyy-MM-dd')]
+  const nextSession = SESSIONS.find((s) => s.status === 'scheduled')
+  const quranComplete = Math.round((CURRENT_STUDENT.unitsCompleted / CURRENT_STUDENT.totalUnits) * 100)
+  const upcomingMilestones = MILESTONES.filter((m) => m.percentage > quranComplete).slice(0, 3)
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-semibold text-ink">Assalamu alaikum, {CURRENT_STUDENT.name}</h1>
-        <p className="mt-0.5 text-sm text-ink/55">{CURRENT_STUDENT.className}</p>
+        <p className="mt-0.5 text-sm text-ink/55">
+          {CURRENT_STUDENT.className} • {CURRENT_STUDENT.teacherName}
+        </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3 sm:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-4 sm:grid-cols-2">
         <Card>
           <CardContent className="space-y-2">
             <div className="font-display text-3xl font-semibold text-ink">{CURRENT_STUDENT.avgScore}%</div>
@@ -25,77 +43,158 @@ export function StudentDashboard() {
         </Card>
         <Card>
           <CardContent className="space-y-2">
+            <Flame className="h-6 w-6 text-clay-600" />
             <div className="font-display text-3xl font-semibold text-green-700">{CURRENT_STUDENT.streak}</div>
             <div className="text-sm text-ink/50">Day streak</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="space-y-2">
-            <div className="font-display text-3xl font-semibold text-ink">
-              {Math.round((CURRENT_STUDENT.unitsCompleted / CURRENT_STUDENT.totalUnits) * 100)}%
-            </div>
+            <div className="font-display text-3xl font-semibold text-ink">{quranComplete}%</div>
             <div className="text-sm text-ink/50">Quran complete</div>
             <div className="text-xs text-ink/40">Est. {CURRENT_STUDENT.estimatedCompletion}</div>
           </CardContent>
         </Card>
+        <Card>
+          <CardContent className="space-y-2">
+            <Trophy className="h-6 w-6 text-gold-600" />
+            <div className="font-display text-3xl font-semibold text-ink">{CURRENT_STUDENT.points}</div>
+            <div className="text-sm text-ink/50">Points • Rank #{CURRENT_STUDENT.rank} of {CURRENT_STUDENT.totalStudents}</div>
+          </CardContent>
+        </Card>
       </div>
-
-      <Card>
-        <CardTitle className="mb-4">This week's scores</CardTitle>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={WEEK_SCORES}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E4E0D3" />
-            <XAxis dataKey="day" stroke="#1C2620" />
-            <YAxis stroke="#1C2620" />
-            <Tooltip contentStyle={{ backgroundColor: '#FBFAF6', border: '1px solid #E4E0D3' }} />
-            <Bar dataKey="score" fill="#2F6B4F" radius={[8, 8, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
-          <CardTitle className="mb-3">Today's target</CardTitle>
-          <CardContent className="space-y-3">
-            <div className="rounded-md border border-line p-4">
-              <div className="font-arabic text-xl leading-relaxed text-ink">
-                بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ
-              </div>
-              <p className="mt-3 text-sm text-ink/60">Juz 1, Pages 16–17</p>
-            </div>
-            <Button className="w-full">Record session</Button>
-          </CardContent>
+          <CardTitle className="mb-4">This week's scores</CardTitle>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={WEEK_SCORES}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E4E0D3" />
+              <XAxis dataKey="day" stroke="#1C2620" />
+              <YAxis stroke="#1C2620" />
+              <Tooltip contentStyle={{ backgroundColor: '#FBFAF6', border: '1px solid #E4E0D3' }} />
+              <Bar dataKey="score" fill="#2F6B4F" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </Card>
 
+        <div className="space-y-4">
+          <Card>
+            <CardTitle className="mb-3">Today's target</CardTitle>
+            <CardContent className="space-y-3">
+              <div className="rounded-md border border-line p-4">
+                <div className="font-arabic text-xl leading-relaxed text-ink">
+                  بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ
+                </div>
+                <p className="mt-3 text-sm text-ink/60">{todayEntry?.target ?? 'Juz 1, Pages 16–17'}</p>
+              </div>
+              <Button className="w-full">Record session</Button>
+            </CardContent>
+          </Card>
+
+          {nextSession && (
+            <Card>
+              <CardContent className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <Video className="h-8 w-8 shrink-0 text-sky-600" />
+                  <div>
+                    <div className="text-sm font-medium text-ink">Next live session</div>
+                    <div className="text-xs text-ink/50">
+                      {format(new Date(`${nextSession.date}T${nextSession.time}`), 'EEE, h:mm a')} •{' '}
+                      {nextSession.duration} min • {nextSession.lessonTitle}
+                    </div>
+                  </div>
+                </div>
+                <Button size="sm" onClick={() => window.open(nextSession.meetUrl, '_blank')}>
+                  Join
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardTitle className="mb-3">Progress milestones</CardTitle>
-          <CardContent className="space-y-2">
-            {[
-              { name: 'Juz 5', progress: 16.7 },
-              { name: 'Juz 10', progress: 33.3 },
-              { name: 'Juz 15 (50%)', progress: 50 },
-            ].map((m) => (
+          <CardContent className="space-y-3">
+            {upcomingMilestones.map((m) => (
               <div key={m.name}>
                 <div className="flex items-baseline justify-between">
                   <span className="font-display text-sm font-medium text-ink">{m.name}</span>
-                  <span className="text-xs text-ink/50">{Math.round(m.progress)}%</span>
+                  <span className="text-xs text-ink/50">Est. {m.projectedDate}</span>
                 </div>
                 <div className="mt-1 h-1.5 flex-1 rounded-full bg-line">
                   <div
                     className="h-full rounded-full bg-green-600"
-                    style={{ width: `${Math.min(m.progress, 100)}%` }}
+                    style={{ width: `${Math.min((quranComplete / m.percentage) * 100, 100)}%` }}
                   />
                 </div>
               </div>
             ))}
+            <button
+              onClick={() => navigate('/student/calendar')}
+              className="inline-flex items-center gap-1 text-sm font-medium text-green-700 hover:text-green-800"
+            >
+              <CalendarDays className="h-4 w-4" />
+              View full calendar
+            </button>
           </CardContent>
         </Card>
-      </div>
 
-      <div className="grid gap-3 md:grid-cols-3">
-        <Button variant="secondary" onClick={() => navigate('/student/calendar')}>View calendar</Button>
-        <Button variant="secondary" onClick={() => navigate('/student/reports')}>My reports</Button>
-        <Button variant="secondary" onClick={() => navigate('/student/achievements')}>Achievements</Button>
+        <div className="space-y-4">
+          {yesterdayEntry && yesterdayEntry.score !== null && (
+            <Card>
+              <CardTitle className="mb-3">Yesterday's report</CardTitle>
+              <CardContent className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <ClipboardList className="h-8 w-8 shrink-0 text-green-700" />
+                  <div className="text-sm text-ink/70">
+                    Scored <span className="font-semibold text-ink">{yesterdayEntry.score}%</span> on{' '}
+                    {yesterdayEntry.target} with {yesterdayEntry.mistakes}{' '}
+                    {yesterdayEntry.mistakes === 1 ? 'mistake' : 'mistakes'} in{' '}
+                    {yesterdayEntry.durationMinutes} min.
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate('/student/reports')}
+                  className="inline-flex items-center gap-1 text-sm font-medium text-green-700 hover:text-green-800"
+                >
+                  See full report
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card>
+            <CardTitle className="mb-3">Recent achievements</CardTitle>
+            <CardContent className="space-y-2">
+              {ACHIEVEMENTS.slice(0, 3).map((a) => (
+                <div key={a.id} className="flex items-center gap-3">
+                  <span
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+                    style={{ backgroundColor: `${a.badgeColor}26` }}
+                  >
+                    <Trophy className="h-4 w-4" style={{ color: a.badgeColor }} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium text-ink">{a.badgeName}</div>
+                    <div className="truncate text-xs text-ink/50">{a.description}</div>
+                  </div>
+                  <span className="text-xs font-semibold text-gold-700">+{a.points}</span>
+                </div>
+              ))}
+              <button
+                onClick={() => navigate('/student/achievements')}
+                className="inline-flex items-center gap-1 text-sm font-medium text-green-700 hover:text-green-800"
+              >
+                View all achievements
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

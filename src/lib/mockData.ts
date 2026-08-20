@@ -275,6 +275,59 @@ export const SESSIONS = [
   },
 ]
 
+export const TEACHER_SCHEDULE = [
+  {
+    id: 'sched-1',
+    date: format(today, 'yyyy-MM-dd'),
+    time: '09:00',
+    duration: 30,
+    studentName: 'Fatima Hassan',
+    className: 'Beginner Juz Reading',
+    lessonTitle: 'Juz 1, Pages 18–19',
+    meetUrl: 'https://meet.google.com/abc-defg-hij',
+  },
+  {
+    id: 'sched-2',
+    date: format(today, 'yyyy-MM-dd'),
+    time: '11:00',
+    duration: 45,
+    studentName: 'Ahmed Malik',
+    className: 'Beginner Juz Reading',
+    lessonTitle: 'Juz 1, Pages 16–17',
+    meetUrl: 'https://meet.google.com/abc-defg-hij',
+  },
+  {
+    id: 'sched-3',
+    date: format(today, 'yyyy-MM-dd'),
+    time: '13:30',
+    duration: 30,
+    studentName: 'Mariam Khan',
+    className: 'Beginner Juz Reading',
+    lessonTitle: 'Juz 1, Pages 12–13',
+    meetUrl: 'https://meet.google.com/abc-defg-hij',
+  },
+  {
+    id: 'sched-4',
+    date: format(today, 'yyyy-MM-dd'),
+    time: '15:00',
+    duration: 45,
+    studentName: 'Hassan Ali',
+    className: 'Advanced Qaida',
+    lessonTitle: 'Noorani Qaida, Lesson 8',
+    meetUrl: 'https://meet.google.com/klm-nopq-rst',
+  },
+  {
+    id: 'sched-5',
+    date: format(today, 'yyyy-MM-dd'),
+    time: '17:00',
+    duration: 30,
+    studentName: 'Zainab Qureshi',
+    className: 'Weekend Batch',
+    lessonTitle: 'Surah Al-Fatiha revision',
+    meetUrl: 'https://meet.google.com/uvw-xyza-bcd',
+  },
+]
+
 export const LESSONS = [
   {
     id: 'lesson-1',

@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { BookOpenText, LayoutGrid, Users, Calendar, ClipboardCheck, LogOut, ChevronDown, Menu, X } from 'lucide-react'
+import { BookOpenText, LayoutGrid, Users, Calendar, CalendarClock, ClipboardCheck, LogOut, ChevronDown, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { TEACHER } from '@/lib/mockData'
 
@@ -15,12 +15,14 @@ export function TeacherLayout({ children }: TeacherLayoutProps) {
 
   const navItems = [
     { path: '/teacher', icon: LayoutGrid, label: 'Dashboard' },
+    { path: '/teacher/schedule', icon: CalendarClock, label: 'Schedule' },
     { path: '/teacher/classes', icon: Users, label: 'Classes' },
     { path: '/teacher/attendance', icon: ClipboardCheck, label: 'Attendance' },
     { path: '/teacher/lessons', icon: Calendar, label: 'Lessons' },
   ]
 
-  const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/')
+  const isActive = (path: string) =>
+    location.pathname === path || (path.includes('/', 1) && location.pathname.startsWith(path + '/'))
 
   return (
     <div className="flex min-h-screen bg-paper">

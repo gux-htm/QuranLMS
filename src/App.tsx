@@ -7,6 +7,7 @@ import { Signup } from '@/pages/Signup'
 import { Enroll } from '@/pages/Enroll'
 import { NotFound } from '@/pages/NotFound'
 import { TeacherDashboard } from '@/pages/teacher/Dashboard'
+import { TeacherSchedule } from '@/pages/teacher/Schedule'
 import { StudentDashboard } from '@/pages/student/Dashboard'
 
 // Layouts
@@ -38,6 +39,7 @@ export default function App() {
         {/* Teacher routes */}
         <Route element={<TeacherLayout />}>
           <Route path="/teacher" element={<TeacherDashboard />} />
+          <Route path="/teacher/schedule" element={<TeacherSchedule />} />
           <Route path="/teacher/classes" element={<Placeholder title="Manage Classes" />} />
           <Route path="/teacher/classes/:classId" element={<Placeholder title="Class Details" />} />
           <Route path="/teacher/attendance" element={<Placeholder title="Mark Attendance" />} />
