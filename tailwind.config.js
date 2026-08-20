@@ -1,0 +1,68 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        paper: '#FBFAF6',
+        'paper-dim': '#F3F1E9',
+        ink: '#1C2620',
+        line: '#E4E0D3',
+        green: {
+          50: '#EEF5F0',
+          100: '#D8EBE0',
+          200: '#B9D6C2',
+          300: '#8AB99F',
+          400: '#5B9A73',
+          500: '#3D7E5A',
+          600: '#2F6B4F',
+          700: '#25573F',
+          800: '#1A3E2D',
+          900: '#163324',
+        },
+        clay: {
+          100: '#F3E1D3',
+          200: '#E8C4A6',
+          300: '#D8A07A',
+          400: '#D8895A',
+          500: '#CA7040',
+          600: '#C4632F',
+          700: '#9C4B22',
+          800: '#7A3519',
+          900: '#5C2411',
+        },
+        gold: {
+          100: '#F5ECD9',
+          200: '#E9D6B3',
+          300: '#D9BD8A',
+          400: '#CBA466',
+          500: '#BC8E55',
+          600: '#B8874A',
+          700: '#8F6534',
+          800: '#6B4A22',
+          900: '#4F3418',
+        },
+        sky: {
+          100: '#DEEAF2',
+          200: '#BDD5E6',
+          300: '#96BBD7',
+          400: '#4E93B8',
+          500: '#3A7EA0',
+          600: '#2E6E8E',
+          700: '#215670',
+          800: '#173D52',
+          900: '#0F2A39',
+        },
+      },
+      fontFamily: {
+        display: ['"Source Serif 4"', 'Georgia', 'serif'],
+        arabic: ['"Noto Naskh Arabic"', '"Traditional Arabic"', 'serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        card: '0 1px 2px rgba(28, 38, 32, .06), 0 1px 12px rgba(28, 38, 32, .05)',
+      },
+    },
+  },
+  plugins: [],
+}

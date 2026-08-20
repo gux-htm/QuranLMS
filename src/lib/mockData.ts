@@ -1,0 +1,373 @@
+import { addDays, subDays, format } from 'date-fns'
+
+export const TEACHER = {
+  id: 'teacher-1',
+  name: 'Ustaz Ahmed Rahman',
+  email: 'ahmed.rahman@example.com',
+  institution: 'Al-Noor Quranic Academy',
+  specialization: 'Tajweed Expert',
+  timezone: 'Asia/Karachi',
+  bio: 'Tajweed specialist with 12 years of teaching experience. Certified by Al-Azhar University.',
+  avatarInitials: 'AR',
+}
+
+export const CLASSES = [
+  {
+    id: 'class-1',
+    name: 'Beginner Juz Reading',
+    description: 'Foundational Juz-based recitation',
+    level: 'beginner' as const,
+    learningTrack: 'juz_based' as const,
+    studentCount: 9,
+    avgScore: 87,
+    status: 'active' as const,
+    leaderboardEnabled: true,
+  },
+  {
+    id: 'class-2',
+    name: 'Advanced Qaida',
+    description: 'Noorani Qaida for older beginners',
+    level: 'advanced' as const,
+    learningTrack: 'qaida' as const,
+    studentCount: 6,
+    avgScore: 91,
+    status: 'active' as const,
+    leaderboardEnabled: false,
+  },
+  {
+    id: 'class-3',
+    name: 'Weekend Batch',
+    description: 'Surah-based track for weekend learners',
+    level: 'intermediate' as const,
+    learningTrack: 'surah_based' as const,
+    studentCount: 8,
+    avgScore: 83,
+    status: 'active' as const,
+    leaderboardEnabled: true,
+  },
+]
+
+export const STUDENTS = [
+  {
+    id: 'student-1',
+    name: 'Ahmed Malik',
+    email: 'ahmed.malik@example.com',
+    classId: 'class-1',
+    pace: { quantity: 1, unit: 'pages' as const },
+    unitsCompleted: 15,
+    totalUnits: 604,
+    startDate: '2025-01-01',
+    estimatedCompletion: '2025-12-15',
+    status: 'active' as const,
+    streak: 5,
+    points: 640,
+    avgScore: 92,
+    rank: 2,
+  },
+  {
+    id: 'student-2',
+    name: 'Fatima Hassan',
+    email: 'fatima.hassan@example.com',
+    classId: 'class-1',
+    pace: { quantity: 1.5, unit: 'pages' as const },
+    unitsCompleted: 22,
+    totalUnits: 604,
+    startDate: '2025-01-01',
+    estimatedCompletion: '2025-11-01',
+    status: 'active' as const,
+    streak: 15,
+    points: 780,
+    avgScore: 95,
+    rank: 1,
+  },
+  {
+    id: 'student-3',
+    name: 'Mariam Khan',
+    email: 'mariam.khan@example.com',
+    classId: 'class-1',
+    pace: { quantity: 1, unit: 'pages' as const },
+    unitsCompleted: 10,
+    totalUnits: 604,
+    startDate: '2025-01-01',
+    estimatedCompletion: '2025-12-20',
+    status: 'active' as const,
+    streak: 4,
+    points: 520,
+    avgScore: 87,
+    rank: 3,
+  },
+  {
+    id: 'student-4',
+    name: 'Hassan Ali',
+    email: 'hassan.ali@example.com',
+    classId: 'class-1',
+    pace: { quantity: 0.5, unit: 'pages' as const },
+    unitsCompleted: 6,
+    totalUnits: 604,
+    startDate: '2025-01-01',
+    estimatedCompletion: '2026-04-10',
+    status: 'active' as const,
+    streak: 1,
+    points: 380,
+    avgScore: 74,
+    rank: 4,
+  },
+  {
+    id: 'student-5',
+    name: 'Zainab Qureshi',
+    email: 'zainab.q@example.com',
+    classId: 'class-1',
+    pace: { quantity: 1, unit: 'pages' as const },
+    unitsCompleted: 8,
+    totalUnits: 604,
+    startDate: '2025-01-10',
+    estimatedCompletion: '2026-01-05',
+    status: 'active' as const,
+    streak: 3,
+    points: 290,
+    avgScore: 81,
+    rank: 5,
+  },
+]
+
+export const CURRENT_STUDENT = {
+  id: 'student-1',
+  name: 'Ahmed Malik',
+  email: 'ahmed.malik@example.com',
+  classId: 'class-1',
+  className: 'Beginner Juz Reading',
+  teacherName: 'Ustaz Ahmed Rahman',
+  pace: { quantity: 1, unit: 'pages' as const },
+  unitsCompleted: 15,
+  totalUnits: 604,
+  startDate: '2025-01-01',
+  estimatedCompletion: '2025-12-15',
+  status: 'active' as const,
+  streak: 5,
+  points: 640,
+  avgScore: 92,
+  rank: 2,
+  totalStudents: 9,
+}
+
+export const today = new Date()
+
+export function generateCalendarData() {
+  const data: Record<string, {
+    date: Date
+    status: 'completed' | 'incomplete' | 'absent' | 'pending'
+    target: string
+    actual: string
+    score: number | null
+    attendance: 'present' | 'absent' | 'late' | 'excused' | null
+    durationMinutes: number | null
+    streak: number
+    estimatedCompletion: string
+    mistakes: number
+  }> = {}
+
+  for (let i = 30; i >= 0; i--) {
+    const date = subDays(today, i)
+    const key = format(date, 'yyyy-MM-dd')
+    const isToday = i === 0
+
+    if (i === 0) {
+      data[key] = {
+        date,
+        status: 'pending',
+        target: 'Juz 1, Pages 16–17',
+        actual: '',
+        score: null,
+        attendance: null,
+        durationMinutes: null,
+        streak: 5,
+        estimatedCompletion: '2025-12-15',
+        mistakes: 0,
+      }
+    } else if (i % 7 === 0) {
+      data[key] = {
+        date,
+        status: 'absent',
+        target: `Juz 1, Pages ${16 - i}–${17 - i}`,
+        actual: '',
+        score: null,
+        attendance: 'absent',
+        durationMinutes: null,
+        streak: 0,
+        estimatedCompletion: '2025-12-15',
+        mistakes: 0,
+      }
+    } else if (i <= 5) {
+      const scores = [92, 88, 95, 79, 91]
+      const score = scores[5 - i] ?? 85
+      data[key] = {
+        date,
+        status: 'completed',
+        target: `Juz 1, Pages ${16 - i}–${17 - i}`,
+        actual: `Juz 1, Pages ${16 - i}–${isToday ? 17 : 17 - i + 1}`,
+        score,
+        attendance: 'present',
+        durationMinutes: 45,
+        streak: i,
+        estimatedCompletion: '2025-12-15',
+        mistakes: score < 85 ? 3 : score < 92 ? 2 : 1,
+      }
+    } else {
+      const score = Math.floor(Math.random() * 20) + 78
+      data[key] = {
+        date,
+        status: 'completed',
+        target: `Juz 1, Pages ${i}-${i + 1}`,
+        actual: `Juz 1, Pages ${i}-${i + 1}`,
+        score,
+        attendance: 'present',
+        durationMinutes: 45,
+        streak: Math.max(0, 5 - i),
+        estimatedCompletion: '2025-12-15',
+        mistakes: score < 85 ? 3 : 1,
+      }
+    }
+  }
+
+  // Add future dates
+  for (let i = 1; i <= 30; i++) {
+    const date = addDays(today, i)
+    const key = format(date, 'yyyy-MM-dd')
+    data[key] = {
+      date,
+      status: 'pending',
+      target: `Juz 1, Pages ${16 + i}–${17 + i}`,
+      actual: '',
+      score: null,
+      attendance: null,
+      durationMinutes: null,
+      streak: 0,
+      estimatedCompletion: '2025-12-15',
+      mistakes: 0,
+    }
+  }
+
+  return data
+}
+
+export const SESSIONS = [
+  {
+    id: 'session-1',
+    classId: 'class-1',
+    teacherId: 'teacher-1',
+    date: format(today, 'yyyy-MM-dd'),
+    time: '15:00',
+    duration: 45,
+    meetUrl: 'https://meet.google.com/abc-defg-hij',
+    lessonTitle: 'Juz 1, Pages 16–17',
+    status: 'scheduled' as const,
+  },
+  {
+    id: 'session-2',
+    classId: 'class-1',
+    teacherId: 'teacher-1',
+    date: format(subDays(today, 1), 'yyyy-MM-dd'),
+    time: '15:00',
+    duration: 45,
+    meetUrl: 'https://meet.google.com/abc-defg-hij',
+    lessonTitle: 'Juz 1, Pages 14–15',
+    status: 'completed' as const,
+  },
+]
+
+export const LESSONS = [
+  {
+    id: 'lesson-1',
+    classId: 'class-1',
+    title: 'Juz 1, Pages 1–3',
+    lessonType: 'juz_range' as const,
+    contentAr: 'بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ ﴿١﴾ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ﴿٢﴾ الرَّحْمَـٰنِ الرَّحِيمِ ﴿٣﴾',
+    contentEn: 'In the name of Allah, the Most Gracious, the Most Merciful. All praise is due to Allah, Lord of all the worlds. The Most Gracious, the Most Merciful.',
+    contentTranslit: 'Bismillāhir raḥmānir raḥīm. Al-ḥamdu lillāhi rabbil-ʿālamīn. Ar-raḥmānir raḥīm.',
+    audioQari: 'Sudais',
+    targetQuantity: 3,
+    targetUnitType: 'pages' as const,
+    tajweedRules: ['Bismillah', 'Madd Tabii'],
+    isPublished: true,
+    createdAt: '2025-01-01',
+  },
+  {
+    id: 'lesson-2',
+    classId: 'class-1',
+    title: 'Juz 1, Pages 4–6',
+    lessonType: 'juz_range' as const,
+    contentAr: 'مَالِكِ يَوْمِ الدِّينِ ﴿٤﴾ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ﴿٥﴾ اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ﴿٦﴾',
+    contentEn: 'Master of the Day of Judgment. It is You we worship and You we ask for help. Guide us to the straight path.',
+    contentTranslit: 'Māliki yawmid-dīn. Iyyāka naʿbudu wa-iyyāka nastaʿīn. Ihdinā ṣ-ṣirāṭal-mustaqīm.',
+    audioQari: 'Al-Minshawi',
+    targetQuantity: 3,
+    targetUnitType: 'pages' as const,
+    tajweedRules: ['Idgham', 'Noon Ghunnah'],
+    isPublished: true,
+    createdAt: '2025-01-03',
+  },
+  {
+    id: 'lesson-3',
+    classId: 'class-1',
+    title: 'Juz 1, Pages 7–9',
+    lessonType: 'juz_range' as const,
+    contentAr: 'ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ ﴿٢﴾',
+    contentEn: 'This is the Book about which there is no doubt, a guidance for those conscious of Allah.',
+    contentTranslit: 'Dhālikal-kitābu lā rayba fīh, hudan lil-muttaqīn.',
+    audioQari: 'Sudais',
+    targetQuantity: 3,
+    targetUnitType: 'pages' as const,
+    tajweedRules: ['Madd Lazim', 'Qalqala'],
+    isPublished: true,
+    createdAt: '2025-01-06',
+  },
+]
+
+export const ACHIEVEMENTS = [
+  {
+    id: 'ach-1',
+    type: 'weekly_streak' as const,
+    badgeName: 'Bronze Streak',
+    badgeColor: '#CD7F32',
+    points: 25,
+    description: '7-day consecutive streak',
+    unlockedDate: format(subDays(today, 10), 'yyyy-MM-dd'),
+  },
+  {
+    id: 'ach-2',
+    type: 'daily_completion' as const,
+    badgeName: 'First Juz',
+    badgeColor: '#FFD700',
+    points: 100,
+    description: 'Completed your first Juz',
+    unlockedDate: format(subDays(today, 5), 'yyyy-MM-dd'),
+  },
+  {
+    id: 'ach-3',
+    type: 'monthly_perfect' as const,
+    badgeName: 'Perfect Week',
+    badgeColor: '#C0C0C0',
+    points: 50,
+    description: 'Perfect attendance for a full week',
+    unlockedDate: format(subDays(today, 2), 'yyyy-MM-dd'),
+  },
+]
+
+export const MILESTONES = [
+  { name: 'Juz 5 (17%)', projectedDate: '2025-02-28', percentage: 16.7 },
+  { name: 'Juz 10 (33%)', projectedDate: '2025-04-15', percentage: 33.3 },
+  { name: 'Juz 15 (50%)', projectedDate: '2025-06-01', percentage: 50 },
+  { name: 'Juz 20 (67%)', projectedDate: '2025-07-20', percentage: 66.7 },
+  { name: 'Juz 25 (83%)', projectedDate: '2025-09-10', percentage: 83.3 },
+  { name: 'Quran Complete', projectedDate: '2025-12-15', percentage: 100 },
+]
+
+export const WEEK_SCORES = [
+  { day: 'Mon', score: 88 },
+  { day: 'Tue', score: 92 },
+  { day: 'Wed', score: 79 },
+  { day: 'Thu', score: 95 },
+  { day: 'Fri', score: 91 },
+  { day: 'Sat', score: 85 },
+  { day: 'Sun', score: 88 },
+]
