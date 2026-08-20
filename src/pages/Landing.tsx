@@ -19,7 +19,7 @@ export function Landing() {
       </nav>
 
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-        <div className="mb-3 font-arabic text-2xl text-green-700">وَزِيل الْقُرْآن تَدْرِيجًا</div>
+        <div className="mb-3 font-arabic text-2xl text-green-700">اِقۡرَاۡ وَرَبُّكَ الۡاَكۡرَمُۙ</div>
         <h1 className="mb-5 font-display text-4xl font-semibold leading-tight text-ink">
           Know exactly where your recitation stands, and when you'll finish.
         </h1>
