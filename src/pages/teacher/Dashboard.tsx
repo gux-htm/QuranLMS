@@ -1,18 +1,21 @@
-import { BookOpenText, Users, Calendar, ClipboardCheck, AlertTriangle, ArrowRight } from 'lucide-react'
+import { Users, Calendar, ClipboardCheck, AlertTriangle, ArrowRight, UserPlus } from 'lucide-react'
 import { Card, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { TEACHER, CLASSES, STUDENTS, LESSONS, TEACHER_SCHEDULE, today } from '@/lib/mockData'
+import { TEACHER, TEACHER_SCHEDULE, today } from '@/lib/mockData'
+import { useAppStore } from '@/lib/store'
 import { format } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
 
 export function TeacherDashboard() {
   const navigate = useNavigate()
+  const { students, classes, enrollRequests } = useAppStore()
 
-  const totalStudents = CLASSES.reduce((sum, c) => sum + c.studentCount, 0)
-  const avgClassScore = Math.round(
-    CLASSES.reduce((sum, c) => sum + c.avgScore * c.studentCount, 0) / totalStudents
-  )
-  const needsAttention = [...STUDENTS].sort((a, b) => a.avgScore - b.avgScore).slice(0, 3)
+  const totalStudents = students.length
+  const avgClassScore = totalStudents
+    ? Math.round(students.reduce((sum, s) => sum + s.avgScore, 0) / totalStudents)
+    : 0
+  const needsAttention = [...students].filter((s) => s.avgScore > 0).sort((a, b) => a.avgScore - b.avgScore).slice(0, 3)
+  const pendingRequests = enrollRequests.filter((r) => r.status === 'pending').length
   const now = new Date()
   const upcomingSessions = TEACHER_SCHEDULE
     .filter((s) => s.date === format(today, 'yyyy-MM-dd') && new Date(`${s.date}T${s.time}`) > now)
@@ -20,9 +23,9 @@ export function TeacherDashboard() {
 
   const stats = [
     { icon: Users, iconClass: 'text-green-700', value: totalStudents, label: 'Total students' },
-    { icon: Calendar, iconClass: 'text-sky-600', value: CLASSES.length, label: 'Active classes' },
+    { icon: Calendar, iconClass: 'text-sky-600', value: classes.length, label: 'Active classes' },
     { icon: ClipboardCheck, iconClass: 'text-gold-700', value: `${avgClassScore}%`, label: 'Avg. class score' },
-    { icon: BookOpenText, iconClass: 'text-clay-700', value: LESSONS.length, label: 'Lessons assigned' },
+    { icon: UserPlus, iconClass: 'text-clay-700', value: pendingRequests, label: 'Pending enroll requests' },
   ]
 
   return (
@@ -77,7 +80,14 @@ export function TeacherDashboard() {
                       {session.className} • {session.lessonTitle}
                     </div>
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => window.open(session.meetUrl, '_blank')}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      window.open(session.meetUrl, '_blank')
+                      navigate(`/teacher/schedule/${session.id}`)
+                    }}
+                  >
                     Join
                   </Button>
                 </div>
@@ -105,7 +115,7 @@ export function TeacherDashboard() {
                     {student.avgScore}% avg score • {student.streak}-day streak
                   </div>
                 </div>
-                <Button size="sm" variant="outline" onClick={() => navigate('/teacher/classes/' + student.classId)}>
+                <Button size="sm" variant="outline" onClick={() => navigate('/teacher/students/' + student.id)}>
                   Review
                 </Button>
               </div>
@@ -118,8 +128,8 @@ export function TeacherDashboard() {
         <CardTitle className="mb-4">Quick actions</CardTitle>
         <div className="flex flex-wrap gap-3">
           <Button onClick={() => navigate('/teacher/classes')}>Manage classes</Button>
-          <Button variant="secondary" onClick={() => navigate('/teacher/attendance')}>Mark attendance</Button>
-          <Button variant="secondary" onClick={() => navigate('/teacher/lessons')}>Create lesson</Button>
+          <Button variant="secondary" onClick={() => navigate('/teacher/students')}>View students</Button>
+          <Button variant="secondary" onClick={() => navigate('/teacher/enrollments')}>Review enroll requests</Button>
         </div>
       </Card>
     </div>

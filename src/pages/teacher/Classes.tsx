@@ -1,0 +1,140 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ChevronRight, Plus, Users } from 'lucide-react'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { LEVEL_LABELS, TRACK_LABELS } from '@/lib/mockData'
+import type { ClassLevel, LearningTrack } from '@/lib/mockData'
+import { useAppStore } from '@/lib/store'
+
+const levelBadge: Record<ClassLevel, string> = {
+  beginner: 'bg-green-50 text-green-700',
+  intermediate: 'bg-sky-100 text-sky-700',
+  advanced: 'bg-gold-100 text-gold-800',
+}
+
+export function TeacherClasses() {
+  const navigate = useNavigate()
+  const { classes, getEnrolledStudents, createClass } = useAppStore()
+
+  const [showModal, setShowModal] = useState(false)
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [level, setLevel] = useState<ClassLevel>('beginner')
+  const [learningTrack, setLearningTrack] = useState<LearningTrack>('juz_based')
+
+  const handleCreate = () => {
+    createClass({ name: name.trim(), description: description.trim(), level, learningTrack })
+    setShowModal(false)
+    setName('')
+    setDescription('')
+    setLevel('beginner')
+    setLearningTrack('juz_based')
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-semibold text-ink">Classes</h1>
+          <p className="mt-1 text-sm text-ink/55">{classes.length} classes • Open a class to manage its students</p>
+        </div>
+        <Button onClick={() => setShowModal(true)}>
+          <Plus className="mr-1 h-4 w-4" />
+          Create class
+        </Button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {classes.map((klass) => {
+          const enrolled = getEnrolledStudents(klass.id)
+          const avgScore = enrolled.length
+            ? Math.round(enrolled.reduce((sum, s) => sum + s.avgScore, 0) / enrolled.length)
+            : 0
+          return (
+            <div key={klass.id} onClick={() => navigate(`/teacher/classes/${klass.id}`)} className="cursor-pointer">
+              <Card className="h-full transition-colors hover:border-green-300">
+                <div className="flex items-start justify-between gap-2">
+                  <h2 className="font-display text-lg font-semibold text-ink">{klass.name}</h2>
+                  <ChevronRight className="h-5 w-5 shrink-0 text-ink/30" />
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${levelBadge[klass.level]}`}>
+                    {LEVEL_LABELS[klass.level]}
+                  </span>
+                  <span className="rounded-full bg-paper-dim px-2 py-0.5 text-xs font-medium text-ink/60">
+                    {TRACK_LABELS[klass.learningTrack]}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm text-ink/60">{klass.description}</p>
+                <div className="mt-4 flex items-center gap-4 border-t border-line pt-3 text-sm text-ink/60">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Users className="h-4 w-4 text-green-700" />
+                    {enrolled.length} students
+                  </span>
+                  {enrolled.length > 0 && <span>Avg score {avgScore}%</span>}
+                </div>
+              </Card>
+            </div>
+          )
+        })}
+      </div>
+
+      {showModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4"
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="w-full max-w-md space-y-4 rounded-lg bg-white p-6 shadow-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="font-display text-lg font-semibold text-ink">Create class</h2>
+            <Input label="Class name" placeholder="e.g. Evening Tajweed Batch" value={name} onChange={(e) => setName(e.target.value)} />
+            <Input
+              label="Description"
+              placeholder="Short description of this class"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-ink">Level</label>
+                <select
+                  value={level}
+                  onChange={(e) => setLevel(e.target.value as ClassLevel)}
+                  className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-700"
+                >
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-ink">Learning track</label>
+                <select
+                  value={learningTrack}
+                  onChange={(e) => setLearningTrack(e.target.value as LearningTrack)}
+                  className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-700"
+                >
+                  <option value="juz_based">Juz-based</option>
+                  <option value="qaida">Noorani Qaida</option>
+                  <option value="surah_based">Surah-based</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setShowModal(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCreate} disabled={!name.trim()}>
+                Create class
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

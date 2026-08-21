@@ -4,15 +4,29 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card, CardTitle } from '@/components/ui/Card'
 import { BookOpenText } from 'lucide-react'
+import { useAppStore } from '@/lib/store'
+
+const TIME_SLOTS = [
+  'Weekdays after Fajr (6:00\u20137:00 AM)',
+  'Weekdays after Asr (4:00\u20135:00 PM)',
+  'Weekdays after Maghrib (6:30\u20137:30 PM)',
+  'Weekend mornings (10:00\u201311:00 AM)',
+  'Weekend evenings (5:00\u20136:00 PM)',
+]
 
 export function Enroll() {
   const navigate = useNavigate()
+  const { submitEnrollRequest } = useAppStore()
   const [step, setStep] = useState<'details' | 'invited' | 'complete'>('details')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [inviteCode, setInviteCode] = useState('')
   const [teacherName, setTeacherName] = useState('Ustaz Ahmed Rahman')
+  const [preferredTime, setPreferredTime] = useState(TIME_SLOTS[1])
+  const [startTrack, setStartTrack] = useState<'qaida' | 'juz'>('qaida')
+  const [startJuz, setStartJuz] = useState(1)
+  const [experience, setExperience] = useState('')
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault()
@@ -24,6 +38,14 @@ export function Enroll() {
 
   const handleInviteSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    submitEnrollRequest({
+      name,
+      email,
+      preferredTime,
+      startTrack,
+      startJuz: startTrack === 'juz' ? startJuz : null,
+      experience: experience.trim(),
+    })
     setStep('complete')
   }
 
@@ -84,6 +106,9 @@ export function Enroll() {
             </div>
 
             <CardTitle className="text-center">Confirm your enrollment</CardTitle>
+            <p className="mt-1 text-center text-sm text-ink/55">
+              Tell your teacher when you're available and where you want to start.
+            </p>
 
             <form onSubmit={handleInviteSubmit} className="mt-6 space-y-4">
               <div className="rounded-lg border border-line bg-white shadow-card">
@@ -95,7 +120,87 @@ export function Enroll() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full">Confirm enrollment</Button>
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-ink">Preferred class time</label>
+                <select
+                  value={preferredTime}
+                  onChange={(e) => setPreferredTime(e.target.value)}
+                  className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-700"
+                >
+                  {TIME_SLOTS.map((slot) => (
+                    <option key={slot} value={slot}>
+                      {slot}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-ink">Where do you want to start?</label>
+                <div className="space-y-2">
+                  <label
+                    className={`flex cursor-pointer items-start gap-3 rounded-md border p-3 text-sm ${
+                      startTrack === 'qaida' ? 'border-green-600 bg-green-50' : 'border-line bg-white'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="startTrack"
+                      checked={startTrack === 'qaida'}
+                      onChange={() => setStartTrack('qaida')}
+                      className="mt-0.5"
+                    />
+                    <span>
+                      <span className="font-medium text-ink">Noorani Qaida</span>
+                      <span className="block text-xs text-ink/55">I'm a beginner and want to start from the basics</span>
+                    </span>
+                  </label>
+                  <label
+                    className={`flex cursor-pointer items-start gap-3 rounded-md border p-3 text-sm ${
+                      startTrack === 'juz' ? 'border-green-600 bg-green-50' : 'border-line bg-white'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="startTrack"
+                      checked={startTrack === 'juz'}
+                      onChange={() => setStartTrack('juz')}
+                      className="mt-0.5"
+                    />
+                    <span className="flex-1">
+                      <span className="font-medium text-ink">A specific Juz</span>
+                      <span className="block text-xs text-ink/55">I can already read and want to start from a Juz</span>
+                      {startTrack === 'juz' && (
+                        <select
+                          value={startJuz}
+                          onChange={(e) => setStartJuz(Number(e.target.value))}
+                          onClick={(e) => e.stopPropagation()}
+                          className="mt-2 h-9 w-full rounded-md border border-line bg-white px-2 text-sm text-ink focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-700"
+                        >
+                          {Array.from({ length: 30 }, (_, i) => i + 1).map((juz) => (
+                            <option key={juz} value={juz}>
+                              Juz {juz}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-ink">Anything your teacher should know? (optional)</label>
+                <textarea
+                  value={experience}
+                  onChange={(e) => setExperience(e.target.value)}
+                  placeholder="e.g. I finished Qaida last year and revised Juz 1\u20132 at home"
+                  rows={2}
+                  className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink/40 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-700"
+                />
+              </div>
+
+              <Button type="submit" className="w-full">Send enrollment request</Button>
             </form>
           </>
         )}
@@ -108,8 +213,11 @@ export function Enroll() {
               </div>
             </div>
 
-            <CardTitle className="text-center">Welcome to TILP!</CardTitle>
-            <p className="mt-3 text-center text-sm text-ink/55">You're now enrolled in {teacherName}'s class. Start your Quranic journey today.</p>
+            <CardTitle className="text-center">Request sent!</CardTitle>
+            <p className="mt-3 text-center text-sm text-ink/55">
+              Your enrollment request was sent to {teacherName}. They'll review your preferred time and starting
+              point, then approve your enrollment.
+            </p>
 
             <Button onClick={() => navigate('/student')} className="mt-6 w-full">
               Go to my dashboard

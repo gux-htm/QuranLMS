@@ -1,0 +1,281 @@
+import { useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { ArrowLeft, CalendarDays, ChevronLeft, ChevronRight, Flame } from 'lucide-react'
+import { addMonths, eachDayOfInterval, endOfMonth, format, getDay, startOfMonth } from 'date-fns'
+import { Card, CardTitle, CardContent } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { generateStudentCalendar, today, UNIT_LABELS } from '@/lib/mockData'
+import type { PaceUnit } from '@/lib/mockData'
+import { useAppStore } from '@/lib/store'
+import { initialsOf } from '@/pages/teacher/Students'
+
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+export function TeacherStudentDetail() {
+  const { studentId } = useParams()
+  const navigate = useNavigate()
+  const { getStudent, getClass, updateStudentPace } = useAppStore()
+  const student = studentId ? getStudent(studentId) : undefined
+
+  const [quantity, setQuantity] = useState<number>(() => student?.pace.quantity ?? 1)
+  const [unit, setUnit] = useState<PaceUnit>(() => student?.pace.unit ?? 'pages')
+  const [savedMessage, setSavedMessage] = useState(false)
+  const [monthDate, setMonthDate] = useState(() => startOfMonth(today))
+  const [selectedKey, setSelectedKey] = useState(() => format(today, 'yyyy-MM-dd'))
+
+  const calendar = useMemo(() => (student ? generateStudentCalendar(student) : {}), [student])
+
+  if (!student) {
+    return (
+      <div className="space-y-4">
+        <h1 className="font-display text-2xl font-semibold text-ink">Student not found</h1>
+        <Button variant="outline" onClick={() => navigate('/teacher/students')}>
+          Back to students
+        </Button>
+      </div>
+    )
+  }
+
+  const studentClass = student.classId ? getClass(student.classId) : undefined
+  const progress = student.totalUnits > 0 ? Math.round((student.unitsCompleted / student.totalUnits) * 100) : 0
+
+  const handleSavePace = () => {
+    const safeQuantity = Math.max(quantity || 0.5, 0.1)
+    updateStudentPace(student.id, safeQuantity, unit)
+    setQuantity(safeQuantity)
+    setSavedMessage(true)
+  }
+
+  const monthStart = startOfMonth(monthDate)
+  const cells: (Date | null)[] = [
+    ...Array.from({ length: getDay(monthStart) }, () => null),
+    ...eachDayOfInterval({ start: monthStart, end: endOfMonth(monthDate) }),
+  ]
+  const selectedEntry = calendar[selectedKey]
+
+  return (
+    <div className="space-y-6">
+      <button
+        onClick={() => navigate('/teacher/students')}
+        className="inline-flex items-center gap-1 text-sm font-medium text-green-700 hover:text-green-800"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        All students
+      </button>
+
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100 font-display text-lg font-semibold text-green-800">
+          {initialsOf(student.name)}
+        </div>
+        <div>
+          <h1 className="font-display text-2xl font-semibold text-ink">{student.name}</h1>
+          <p className="text-sm text-ink/55">
+            {student.email} • {studentClass ? studentClass.name : 'Not enrolled in a class'}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+        <Card>
+          <CardContent className="space-y-1">
+            <div className="font-display text-2xl font-semibold text-ink">{student.avgScore}%</div>
+            <div className="text-sm text-ink/50">Average score</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="space-y-1">
+            <div className="flex items-center gap-1 font-display text-2xl font-semibold text-green-700">
+              <Flame className="h-5 w-5 text-clay-600" />
+              {student.streak}
+            </div>
+            <div className="text-sm text-ink/50">Day streak</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="space-y-1">
+            <div className="font-display text-2xl font-semibold text-ink">{progress}%</div>
+            <div className="text-sm text-ink/50">
+              Quran complete • {student.unitsCompleted}/{student.totalUnits} {student.pace.unit}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="space-y-1">
+            <div className="font-display text-2xl font-semibold text-ink">
+              {format(new Date(student.estimatedCompletion), 'MMM d, yyyy')}
+            </div>
+            <div className="text-sm text-ink/50">Estimated completion</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardTitle className="mb-3">Current pace</CardTitle>
+        <CardContent>
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="w-28">
+              <label className="mb-1.5 block text-sm font-medium text-ink">Quantity</label>
+              <input
+                type="number"
+                min={0.5}
+                step={0.5}
+                value={quantity}
+                onChange={(e) => {
+                  setQuantity(Number(e.target.value))
+                  setSavedMessage(false)
+                }}
+                className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-700"
+              />
+            </div>
+            <div className="w-36">
+              <label className="mb-1.5 block text-sm font-medium text-ink">Unit per day</label>
+              <select
+                value={unit}
+                onChange={(e) => {
+                  setUnit(e.target.value as PaceUnit)
+                  setSavedMessage(false)
+                }}
+                className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-700"
+              >
+                <option value="pages">Pages</option>
+                <option value="verses">Verses</option>
+                <option value="juz">Juz</option>
+              </select>
+            </div>
+            <Button onClick={handleSavePace}>Save pace</Button>
+          </div>
+          {savedMessage && (
+            <p className="mt-3 rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
+              Pace updated to {quantity} {UNIT_LABELS[unit].toLowerCase()}/day — estimated schedule and completion date
+              recalculated.
+            </p>
+          )}
+          <p className="mt-3 text-xs text-ink/50">
+            Currently progressing at {student.pace.quantity} {student.pace.unit}/day. Updating the pace re-projects the
+            calendar below and the estimated completion date ({format(new Date(student.estimatedCompletion), 'MMM d, yyyy')}).
+          </p>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <div className="mb-4 flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <CalendarDays className="h-5 w-5 text-green-700" />
+              {format(monthDate, 'MMMM yyyy')}
+            </CardTitle>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setMonthDate((m) => addMonths(m, -1))}
+                className="rounded-md p-2 hover:bg-paper-dim"
+                aria-label="Previous month"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setMonthDate((m) => addMonths(m, 1))}
+                className="rounded-md p-2 hover:bg-paper-dim"
+                aria-label="Next month"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-7 gap-1 text-center">
+            {WEEKDAYS.map((day) => (
+              <div key={day} className="pb-1 text-xs font-medium text-ink/40">
+                {day}
+              </div>
+            ))}
+            {cells.map((date, index) => {
+              if (!date) return <div key={`blank-${index}`} />
+              const key = format(date, 'yyyy-MM-dd')
+              const entry = calendar[key]
+              const isSelected = selectedKey === key
+
+              let cellClass = 'text-ink/40 bg-transparent'
+              if (entry?.status === 'completed') cellClass = 'bg-green-600 text-white hover:bg-green-700'
+              else if (entry?.status === 'absent') cellClass = 'bg-clay-200 text-clay-800 hover:bg-clay-300'
+              else if (entry?.isToday) cellClass = 'bg-green-50 text-green-800 ring-2 ring-inset ring-green-600'
+              else if (entry?.status === 'pending') cellClass = 'bg-paper-dim text-ink/70 hover:bg-line'
+
+              return (
+                <button
+                  key={key}
+                  onClick={() => setSelectedKey(key)}
+                  className={`flex aspect-square flex-col items-center justify-center rounded-md text-sm transition-colors ${cellClass} ${
+                    isSelected ? 'ring-2 ring-inset ring-gold-500' : ''
+                  }`}
+                >
+                  {format(date, 'd')}
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-4 text-xs text-ink/60">
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-3 rounded-sm bg-green-600" /> Completed
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-3 rounded-sm bg-clay-200" /> Absent
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-3 rounded-sm bg-paper-dim ring-1 ring-inset ring-line" /> Estimated
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-3 rounded-sm bg-green-50 ring-2 ring-inset ring-green-600" /> Today
+            </span>
+          </div>
+        </Card>
+
+        <Card>
+          <CardTitle className="mb-3">Day details</CardTitle>
+          <CardContent className="space-y-2">
+            {selectedEntry ? (
+              <>
+                <div className="text-sm font-medium text-ink">{format(selectedEntry.date, 'EEEE, MMMM d, yyyy')}</div>
+                <div className="rounded-md border border-line p-3">
+                  <div className="text-xs text-ink/50">
+                    {selectedEntry.status === 'pending' ? 'Estimated target' : 'Assigned target'}
+                  </div>
+                  <div className="text-sm font-medium text-ink">{selectedEntry.target}</div>
+                </div>
+                {selectedEntry.status === 'completed' && (
+                  <>
+                    <div className="rounded-md border border-line p-3">
+                      <div className="text-xs text-ink/50">Score</div>
+                      <div className="text-sm font-medium text-green-700">
+                        {selectedEntry.score}% • {selectedEntry.mistakes}{' '}
+                        {selectedEntry.mistakes === 1 ? 'mistake' : 'mistakes'} • {selectedEntry.durationMinutes} min
+                      </div>
+                    </div>
+                    <div className="rounded-md border border-line p-3">
+                      <div className="text-xs text-ink/50">Attendance</div>
+                      <div className="text-sm font-medium text-ink">
+                        {selectedEntry.attendance === 'present' ? 'Present' : 'Absent'}
+                      </div>
+                    </div>
+                  </>
+                )}
+                {selectedEntry.status === 'absent' && (
+                  <div className="rounded-md border border-clay-300 bg-clay-100/40 p-3 text-sm text-clay-700">
+                    Student was absent on this day.
+                  </div>
+                )}
+                {selectedEntry.status === 'pending' && (
+                  <p className="text-xs text-ink/50">
+                    Projected from the current pace of {student.pace.quantity} {student.pace.unit}/day.
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-ink/55">Select a day to view its record.</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}

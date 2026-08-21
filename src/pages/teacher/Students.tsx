@@ -1,0 +1,123 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ChevronRight, Flame, Search } from 'lucide-react'
+import { Card } from '@/components/ui/Card'
+import { Input } from '@/components/ui/Input'
+import { useAppStore } from '@/lib/store'
+
+export function initialsOf(name: string) {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+}
+
+export function TeacherStudents() {
+  const navigate = useNavigate()
+  const { students, classes, getClass } = useAppStore()
+  const [search, setSearch] = useState('')
+  const [classFilter, setClassFilter] = useState('all')
+
+  const filtered = students.filter((student) => {
+    const q = search.trim().toLowerCase()
+    const matchesSearch = !q || student.name.toLowerCase().includes(q) || student.email.toLowerCase().includes(q)
+    const matchesClass =
+      classFilter === 'all' ? true : classFilter === 'none' ? student.classId === null : student.classId === classFilter
+    return matchesSearch && matchesClass
+  })
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-display text-2xl font-semibold text-ink">Students</h1>
+        <p className="mt-1 text-sm text-ink/55">
+          {students.length} enrolled students • Select a student to review pace and calendar
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex-1">
+          <Input
+            placeholder="Search by name or email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            icon={<Search className="h-4 w-4" />}
+          />
+        </div>
+        <select
+          value={classFilter}
+          onChange={(e) => setClassFilter(e.target.value)}
+          className="h-10 rounded-md border border-line bg-white px-3 text-sm text-ink focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-700"
+        >
+          <option value="all">All classes</option>
+          <option value="none">Not enrolled</option>
+          {classes.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {filtered.length === 0 ? (
+        <Card>
+          <p className="text-sm text-ink/55">No students match your filters.</p>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((student) => {
+            const studentClass = student.classId ? getClass(student.classId) : undefined
+            const progress = student.totalUnits > 0 ? Math.round((student.unitsCompleted / student.totalUnits) * 100) : 0
+            return (
+              <div key={student.id} onClick={() => navigate(`/teacher/students/${student.id}`)} className="cursor-pointer">
+                <Card className="transition-colors hover:border-green-300">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-green-100 font-display text-sm font-semibold text-green-800">
+                      {initialsOf(student.name)}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-medium text-ink">{student.name}</span>
+                        {studentClass ? (
+                          <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
+                            {studentClass.name}
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-gold-100 px-2 py-0.5 text-xs font-medium text-gold-800">
+                            Not enrolled
+                          </span>
+                        )}
+                      </div>
+                      <div className="truncate text-xs text-ink/55">{student.email}</div>
+                      <div className="mt-2 flex items-center gap-2">
+                        <div className="h-1.5 w-full max-w-xs rounded-full bg-line">
+                          <div className="h-full rounded-full bg-green-600" style={{ width: `${progress}%` }} />
+                        </div>
+                        <span className="text-xs text-ink/50">{progress}% of Quran</span>
+                      </div>
+                    </div>
+
+                    <div className="hidden shrink-0 text-right sm:block">
+                      <div className="text-sm font-medium text-ink">
+                        {student.pace.quantity} {student.pace.unit}/day
+                      </div>
+                      <div className="text-xs text-ink/50">Avg score {student.avgScore}%</div>
+                      <div className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-clay-600">
+                        <Flame className="h-3.5 w-3.5" />
+                        {student.streak}-day streak
+                      </div>
+                    </div>
+
+                    <ChevronRight className="h-5 w-5 shrink-0 text-ink/30" />
+                  </div>
+                </Card>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}

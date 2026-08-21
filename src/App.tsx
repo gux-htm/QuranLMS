@@ -8,11 +8,20 @@ import { Enroll } from '@/pages/Enroll'
 import { NotFound } from '@/pages/NotFound'
 import { TeacherDashboard } from '@/pages/teacher/Dashboard'
 import { TeacherSchedule } from '@/pages/teacher/Schedule'
+import { TeacherSessionLesson } from '@/pages/teacher/SessionLesson'
+import { TeacherStudents } from '@/pages/teacher/Students'
+import { TeacherStudentDetail } from '@/pages/teacher/StudentDetail'
+import { TeacherClasses } from '@/pages/teacher/Classes'
+import { TeacherClassDetail } from '@/pages/teacher/ClassDetail'
+import { TeacherEnrollRequests } from '@/pages/teacher/EnrollRequests'
 import { StudentDashboard } from '@/pages/student/Dashboard'
 
 // Layouts
 import { TeacherLayout } from '@/components/layout/TeacherLayout'
 import { StudentLayout } from '@/components/layout/StudentLayout'
+
+// Shared data store
+import { AppStoreProvider } from '@/lib/store'
 
 // Placeholder components for other routes
 function Placeholder({ title }: { title: string }) {
@@ -29,34 +38,38 @@ function Placeholder({ title }: { title: string }) {
 export default function App() {
   return (
     <Router>
-      <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/enroll" element={<Enroll />} />
+      <AppStoreProvider>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/enroll" element={<Enroll />} />
 
-        {/* Teacher routes */}
-        <Route element={<TeacherLayout />}>
-          <Route path="/teacher" element={<TeacherDashboard />} />
-          <Route path="/teacher/schedule" element={<TeacherSchedule />} />
-          <Route path="/teacher/classes" element={<Placeholder title="Manage Classes" />} />
-          <Route path="/teacher/classes/:classId" element={<Placeholder title="Class Details" />} />
-          <Route path="/teacher/attendance" element={<Placeholder title="Mark Attendance" />} />
-          <Route path="/teacher/lessons" element={<Placeholder title="Create Lessons" />} />
-        </Route>
+          {/* Teacher routes */}
+          <Route element={<TeacherLayout />}>
+            <Route path="/teacher" element={<TeacherDashboard />} />
+            <Route path="/teacher/schedule" element={<TeacherSchedule />} />
+            <Route path="/teacher/schedule/:sessionId" element={<TeacherSessionLesson />} />
+            <Route path="/teacher/students" element={<TeacherStudents />} />
+            <Route path="/teacher/students/:studentId" element={<TeacherStudentDetail />} />
+            <Route path="/teacher/classes" element={<TeacherClasses />} />
+            <Route path="/teacher/classes/:classId" element={<TeacherClassDetail />} />
+            <Route path="/teacher/enrollments" element={<TeacherEnrollRequests />} />
+          </Route>
 
-        {/* Student routes */}
-        <Route element={<StudentLayout />}>
-          <Route path="/student" element={<StudentDashboard />} />
-          <Route path="/student/calendar" element={<Placeholder title="Calendar" />} />
-          <Route path="/student/reports" element={<Placeholder title="Reports" />} />
-          <Route path="/student/achievements" element={<Placeholder title="Achievements" />} />
-        </Route>
+          {/* Student routes */}
+          <Route element={<StudentLayout />}>
+            <Route path="/student" element={<StudentDashboard />} />
+            <Route path="/student/calendar" element={<Placeholder title="Calendar" />} />
+            <Route path="/student/reports" element={<Placeholder title="Reports" />} />
+            <Route path="/student/achievements" element={<Placeholder title="Achievements" />} />
+          </Route>
 
-        {/* 404 */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AppStoreProvider>
     </Router>
   )
 }

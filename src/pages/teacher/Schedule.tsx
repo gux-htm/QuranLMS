@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { TEACHER_SCHEDULE, today } from '@/lib/mockData'
 import { format } from 'date-fns'
+import { useNavigate } from 'react-router-dom'
 
 type SessionStatus = 'completed' | 'in-progress' | 'upcoming'
 
@@ -13,7 +14,14 @@ const statusStyles: Record<SessionStatus, { label: string; className: string }> 
 }
 
 export function TeacherSchedule() {
+  const navigate = useNavigate()
   const now = new Date()
+
+  const joinSession = (session: { id: string; meetUrl: string }) => {
+    // Open Google Meet in a new tab, and today's lesson (resume point) in this tab
+    window.open(session.meetUrl, '_blank')
+    navigate(`/teacher/schedule/${session.id}`)
+  }
 
   const todaysSchedule = TEACHER_SCHEDULE
     .filter((s) => s.date === format(today, 'yyyy-MM-dd'))
@@ -83,7 +91,7 @@ export function TeacherSchedule() {
                   </span>
 
                   {session.status !== 'completed' && (
-                    <Button size="sm" onClick={() => window.open(session.meetUrl, '_blank')}>
+                    <Button size="sm" onClick={() => joinSession(session)}>
                       Join
                     </Button>
                   )}
