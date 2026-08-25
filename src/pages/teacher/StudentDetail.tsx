@@ -63,7 +63,8 @@ export function TeacherStudentDetail() {
         All students
       </button>
 
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-4">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100 font-display text-lg font-semibold text-green-800">
           {initialsOf(student.name)}
         </div>
@@ -73,6 +74,10 @@ export function TeacherStudentDetail() {
             {student.email} • {studentClass ? studentClass.name : 'Not enrolled in a class'}
           </p>
         </div>
+        </div>
+        <Button variant="outline" onClick={() => navigate(`/teacher/students/${student.id}/reports`)}>
+          View daily reports
+        </Button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">

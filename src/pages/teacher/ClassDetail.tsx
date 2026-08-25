@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Plus, UserMinus, Users } from 'lucide-react'
+import { ArrowLeft, BarChart3, Plus, UserMinus, Users } from 'lucide-react'
 import { Card, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { LEVEL_LABELS, TRACK_LABELS } from '@/lib/mockData'
@@ -59,7 +59,12 @@ export function TeacherClassDetail() {
               </span>
             </div>
           </div>
-          <div className="flex gap-6 text-center">
+          <div className="flex flex-col items-end gap-3">
+            <Button variant="outline" onClick={() => navigate(`/teacher/classes/${klass.id}/analytics`)}>
+              <BarChart3 className="mr-1.5 h-4 w-4" />
+              View analytics
+            </Button>
+            <div className="flex gap-6 text-center">
             <div>
               <div className="font-display text-2xl font-semibold text-ink">{enrolled.length}</div>
               <div className="text-xs text-ink/50">Students</div>
@@ -67,6 +72,7 @@ export function TeacherClassDetail() {
             <div>
               <div className="font-display text-2xl font-semibold text-ink">{enrolled.length ? `${avgScore}%` : '—'}</div>
               <div className="text-xs text-ink/50">Avg score</div>
+            </div>
             </div>
           </div>
         </div>

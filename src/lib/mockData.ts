@@ -626,6 +626,9 @@ export interface SessionMistake {
   type: MistakeType
   note: string
   markedAt: number
+  // Optional enrichment from the integrated lesson view (3d mistake popup)
+  subtype?: string
+  deduction?: number
 }
 
 // PRD 6.2: session scoring rubric — weights are teacher-configurable; these are the PRD example defaults

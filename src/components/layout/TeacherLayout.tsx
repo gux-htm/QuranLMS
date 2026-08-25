@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { BookOpenText, LayoutGrid, Users, CalendarClock, GraduationCap, UserPlus, LogOut, ChevronDown, Menu, X } from 'lucide-react'
+import { BookOpenText, BookMarked, LayoutGrid, Users, CalendarClock, GraduationCap, UserPlus, LogOut, Menu, Settings, X } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { TEACHER } from '@/lib/mockData'
 
@@ -19,6 +19,8 @@ export function TeacherLayout({ children }: TeacherLayoutProps) {
     { path: '/teacher/students', icon: GraduationCap, label: 'Students' },
     { path: '/teacher/classes', icon: Users, label: 'Classes' },
     { path: '/teacher/enrollments', icon: UserPlus, label: 'Enroll Requests' },
+    { path: '/teacher/curriculum', icon: BookMarked, label: 'Curriculum' },
+    { path: '/teacher/settings', icon: Settings, label: 'Settings' },
   ]
 
   const isActive = (path: string) =>

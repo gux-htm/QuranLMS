@@ -95,6 +95,9 @@ export function TeacherSchedule() {
                       Join
                     </Button>
                   )}
+                  <Button size="sm" variant="outline" onClick={() => navigate(`/teacher/sessions/${session.id}/lesson`)}>
+                    Lesson view
+                  </Button>
                 </div>
               </Card>
             )

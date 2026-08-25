@@ -14,6 +14,11 @@ import { TeacherStudentDetail } from '@/pages/teacher/StudentDetail'
 import { TeacherClasses } from '@/pages/teacher/Classes'
 import { TeacherClassDetail } from '@/pages/teacher/ClassDetail'
 import { TeacherEnrollRequests } from '@/pages/teacher/EnrollRequests'
+import { TeacherCurriculum } from '@/pages/teacher/CurriculumPage'
+import { TeacherSettings } from '@/pages/teacher/SettingsPage'
+import { TeacherLessonView } from '@/pages/teacher/LessonViewPage'
+import { TeacherStudentReports } from '@/pages/teacher/StudentReportsPage'
+import { TeacherClassAnalytics } from '@/pages/teacher/ClassAnalyticsPage'
 import { StudentDashboard } from '@/pages/student/Dashboard'
 
 // Layouts
@@ -22,6 +27,7 @@ import { StudentLayout } from '@/components/layout/StudentLayout'
 
 // Shared data store
 import { AppStoreProvider } from '@/lib/store'
+import { ToastProvider } from '@/components/ui/Toaster'
 
 // Placeholder components for other routes
 function Placeholder({ title }: { title: string }) {
@@ -39,6 +45,7 @@ export default function App() {
   return (
     <Router>
       <AppStoreProvider>
+        <ToastProvider>
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
@@ -56,6 +63,11 @@ export default function App() {
             <Route path="/teacher/classes" element={<TeacherClasses />} />
             <Route path="/teacher/classes/:classId" element={<TeacherClassDetail />} />
             <Route path="/teacher/enrollments" element={<TeacherEnrollRequests />} />
+            <Route path="/teacher/curriculum" element={<TeacherCurriculum />} />
+            <Route path="/teacher/settings" element={<TeacherSettings />} />
+            <Route path="/teacher/sessions/:sessionId/lesson" element={<TeacherLessonView />} />
+            <Route path="/teacher/students/:studentId/reports" element={<TeacherStudentReports />} />
+            <Route path="/teacher/classes/:classId/analytics" element={<TeacherClassAnalytics />} />
           </Route>
 
           {/* Student routes */}
@@ -69,6 +81,7 @@ export default function App() {
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </ToastProvider>
       </AppStoreProvider>
     </Router>
   )
