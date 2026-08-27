@@ -1,7 +1,6 @@
 import { ReactNode, useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { BookOpenText, BookMarked, LayoutGrid, Users, CalendarClock, GraduationCap, UserPlus, LogOut, Menu, Settings, X } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
+import { BookOpenText, BookMarked, LayoutGrid, Users, CalendarClock, GraduationCap, UserPlus, FileBarChart2, LogOut, Menu, Settings, X } from 'lucide-react'
 import { TEACHER } from '@/lib/mockData'
 
 interface TeacherLayoutProps {
@@ -20,17 +19,17 @@ export function TeacherLayout({ children }: TeacherLayoutProps) {
     { path: '/teacher/classes', icon: Users, label: 'Classes' },
     { path: '/teacher/enrollments', icon: UserPlus, label: 'Enroll Requests' },
     { path: '/teacher/curriculum', icon: BookMarked, label: 'Curriculum' },
+    { path: '/teacher/reports', icon: FileBarChart2, label: 'Reports & Insights' },
     { path: '/teacher/settings', icon: Settings, label: 'Settings' },
   ]
 
   const isActive = (path: string) =>
-    location.pathname === path || (path.includes('/', 1) && location.pathname.startsWith(path + '/'))
+    location.pathname === path || (path !== '/teacher' && location.pathname.startsWith(path + '/'))
 
   return (
     <div className="flex min-h-screen bg-paper">
-      {/* Sidebar */}
       <aside className={`fixed inset-y-14 left-0 z-20 w-56 border-r border-line bg-white transition-transform md:sticky md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <nav className="space-y-1 p-4">
+        <nav className="space-y-1 p-4" aria-label="Teacher navigation">
           {navItems.map((item) => {
             const Icon = item.icon
             return (
@@ -41,9 +40,7 @@ export function TeacherLayout({ children }: TeacherLayoutProps) {
                   setSidebarOpen(false)
                 }}
                 className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
-                  isActive(item.path)
-                    ? 'bg-green-50 text-green-700'
-                    : 'text-ink/60 hover:bg-paper-dim'
+                  isActive(item.path) ? 'bg-green-50 text-green-700' : 'text-ink/60 hover:bg-paper-dim'
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -54,19 +51,17 @@ export function TeacherLayout({ children }: TeacherLayoutProps) {
         </nav>
       </aside>
 
-      {/* Main content */}
       <div className="flex flex-1 flex-col">
-        {/* Header */}
         <header className="sticky top-0 z-30 border-b border-line bg-white">
           <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6">
             <div className="flex items-center gap-3">
-              <button onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden">
+              <button onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden" aria-label={sidebarOpen ? 'Close navigation' : 'Open navigation'}>
                 {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
-              <div className="flex items-center gap-2 font-display text-lg font-semibold text-green-900">
+              <button onClick={() => navigate('/teacher')} className="flex items-center gap-2 font-display text-lg font-semibold text-green-900">
                 <BookOpenText className="h-6 w-6 text-green-700" />
                 TILP
-              </div>
+              </button>
             </div>
 
             <div className="flex items-center gap-3">
@@ -74,18 +69,13 @@ export function TeacherLayout({ children }: TeacherLayoutProps) {
                 <div className="text-sm font-medium text-ink">{TEACHER.name}</div>
                 <div className="text-xs text-ink/50">{TEACHER.institution}</div>
               </div>
-              <button
-                onClick={() => navigate('/')}
-                className="rounded-full bg-paper-dim p-2 hover:bg-line"
-                title="Logout"
-              >
+              <button onClick={() => navigate('/')} className="rounded-full bg-paper-dim p-2 hover:bg-line" title="Logout" aria-label="Logout">
                 <LogOut className="h-5 w-5" />
               </button>
             </div>
           </div>
         </header>
 
-        {/* Page content */}
         <main className="flex-1 overflow-auto">
           <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
             {children || <Outlet />}
