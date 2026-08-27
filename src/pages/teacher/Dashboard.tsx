@@ -1,4 +1,4 @@
-import { Users, Calendar, ClipboardCheck, AlertTriangle, ArrowRight, UserPlus } from 'lucide-react'
+import { Users, Calendar, ClipboardCheck, AlertTriangle, ArrowRight, UserPlus, FileBarChart2 } from 'lucide-react'
 import { Card, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { TEACHER, TEACHER_SCHEDULE, today } from '@/lib/mockData'
@@ -55,48 +55,26 @@ export function TeacherDashboard() {
           <CardTitle className="mb-4">Today's schedule</CardTitle>
           <CardContent className="space-y-3">
             {upcomingSessions.length === 0 ? (
-              <p className="rounded-md border border-line p-4 text-sm text-ink/55">
-                No more classes today. Well done!
-              </p>
+              <p className="rounded-md border border-line p-4 text-sm text-ink/55">No more classes today. Well done!</p>
             ) : (
               upcomingSessions.slice(0, 4).map((session, index) => (
                 <div key={session.id} className="flex items-center gap-3 rounded-md border border-line p-4">
                   <div className="w-16 shrink-0 text-center">
-                    <div className="font-display text-sm font-semibold text-ink">
-                      {format(new Date(`${session.date}T${session.time}`), 'h:mm a')}
-                    </div>
+                    <div className="font-display text-sm font-semibold text-ink">{format(new Date(`${session.date}T${session.time}`), 'h:mm a')}</div>
                     <div className="text-xs text-ink/50">{session.duration} min</div>
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-ink">{session.studentName}</span>
-                      {index === 0 && (
-                        <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
-                          Next up
-                        </span>
-                      )}
+                      {index === 0 && <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">Next up</span>}
                     </div>
-                    <div className="truncate text-xs text-ink/55">
-                      {session.className} • {session.lessonTitle}
-                    </div>
+                    <div className="truncate text-xs text-ink/55">{session.className} • {session.lessonTitle}</div>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      window.open(session.meetUrl, '_blank')
-                      navigate(`/teacher/schedule/${session.id}`)
-                    }}
-                  >
-                    Join
-                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => { window.open(session.meetUrl, '_blank'); navigate(`/teacher/schedule/${session.id}`) }}>Join</Button>
                 </div>
               ))
             )}
-            <button
-              onClick={() => navigate('/teacher/schedule')}
-              className="inline-flex items-center gap-1 text-sm font-medium text-green-700 hover:text-green-800"
-            >
+            <button onClick={() => navigate('/teacher/schedule')} className="inline-flex items-center gap-1 text-sm font-medium text-green-700 hover:text-green-800">
               View full schedule
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -106,18 +84,16 @@ export function TeacherDashboard() {
         <Card>
           <CardTitle className="mb-4">Students needing attention</CardTitle>
           <CardContent className="space-y-3">
-            {needsAttention.map((student) => (
+            {needsAttention.length === 0 ? (
+              <p className="rounded-md border border-line p-4 text-sm text-ink/55">No students currently flagged.</p>
+            ) : needsAttention.map((student) => (
               <div key={student.id} className="flex items-center gap-3 rounded-md border border-line p-4">
                 <AlertTriangle className="h-5 w-5 shrink-0 text-clay-600" />
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-medium text-ink">{student.name}</div>
-                  <div className="text-xs text-ink/55">
-                    {student.avgScore}% avg score • {student.streak}-day streak
-                  </div>
+                  <div className="text-xs text-ink/55">{student.avgScore}% avg score • {student.streak}-day streak</div>
                 </div>
-                <Button size="sm" variant="outline" onClick={() => navigate('/teacher/students/' + student.id)}>
-                  Review
-                </Button>
+                <Button size="sm" variant="outline" onClick={() => navigate('/teacher/students/' + student.id)}>Review</Button>
               </div>
             ))}
           </CardContent>
@@ -130,6 +106,10 @@ export function TeacherDashboard() {
           <Button onClick={() => navigate('/teacher/classes')}>Manage classes</Button>
           <Button variant="secondary" onClick={() => navigate('/teacher/students')}>View students</Button>
           <Button variant="secondary" onClick={() => navigate('/teacher/enrollments')}>Review enroll requests</Button>
+          <Button variant="outline" onClick={() => navigate('/teacher/reports')}>
+            <FileBarChart2 className="mr-1.5 h-4 w-4" />
+            Reports & insights
+          </Button>
         </div>
       </Card>
     </div>

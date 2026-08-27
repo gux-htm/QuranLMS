@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 // Pages
 import { Landing } from '@/pages/Landing'
@@ -19,6 +19,7 @@ import { TeacherSettings } from '@/pages/teacher/SettingsPage'
 import { TeacherLessonView } from '@/pages/teacher/LessonViewPage'
 import { TeacherStudentReports } from '@/pages/teacher/StudentReportsPage'
 import { TeacherClassAnalytics } from '@/pages/teacher/ClassAnalyticsPage'
+import { TeacherReportsIndex } from '@/pages/teacher/ReportsIndex'
 import { StudentDashboard } from '@/pages/student/Dashboard'
 
 // Layouts
@@ -46,41 +47,42 @@ export default function App() {
     <Router>
       <AppStoreProvider>
         <ToastProvider>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/enroll" element={<Enroll />} />
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/enroll" element={<Enroll />} />
 
-          {/* Teacher routes */}
-          <Route element={<TeacherLayout />}>
-            <Route path="/teacher" element={<TeacherDashboard />} />
-            <Route path="/teacher/schedule" element={<TeacherSchedule />} />
-            <Route path="/teacher/schedule/:sessionId" element={<TeacherSessionLesson />} />
-            <Route path="/teacher/students" element={<TeacherStudents />} />
-            <Route path="/teacher/students/:studentId" element={<TeacherStudentDetail />} />
-            <Route path="/teacher/classes" element={<TeacherClasses />} />
-            <Route path="/teacher/classes/:classId" element={<TeacherClassDetail />} />
-            <Route path="/teacher/enrollments" element={<TeacherEnrollRequests />} />
-            <Route path="/teacher/curriculum" element={<TeacherCurriculum />} />
-            <Route path="/teacher/settings" element={<TeacherSettings />} />
-            <Route path="/teacher/sessions/:sessionId/lesson" element={<TeacherLessonView />} />
-            <Route path="/teacher/students/:studentId/reports" element={<TeacherStudentReports />} />
-            <Route path="/teacher/classes/:classId/analytics" element={<TeacherClassAnalytics />} />
-          </Route>
+            {/* Teacher routes */}
+            <Route element={<TeacherLayout />}>
+              <Route path="/teacher" element={<TeacherDashboard />} />
+              <Route path="/teacher/schedule" element={<TeacherSchedule />} />
+              <Route path="/teacher/schedule/:sessionId" element={<TeacherSessionLesson />} />
+              <Route path="/teacher/students" element={<TeacherStudents />} />
+              <Route path="/teacher/students/:studentId" element={<TeacherStudentDetail />} />
+              <Route path="/teacher/classes" element={<TeacherClasses />} />
+              <Route path="/teacher/classes/:classId" element={<TeacherClassDetail />} />
+              <Route path="/teacher/enrollments" element={<TeacherEnrollRequests />} />
+              <Route path="/teacher/curriculum" element={<TeacherCurriculum />} />
+              <Route path="/teacher/reports" element={<TeacherReportsIndex />} />
+              <Route path="/teacher/settings" element={<TeacherSettings />} />
+              <Route path="/teacher/sessions/:sessionId/lesson" element={<TeacherLessonView />} />
+              <Route path="/teacher/students/:studentId/reports" element={<TeacherStudentReports />} />
+              <Route path="/teacher/classes/:classId/analytics" element={<TeacherClassAnalytics />} />
+            </Route>
 
-          {/* Student routes */}
-          <Route element={<StudentLayout />}>
-            <Route path="/student" element={<StudentDashboard />} />
-            <Route path="/student/calendar" element={<Placeholder title="Calendar" />} />
-            <Route path="/student/reports" element={<Placeholder title="Reports" />} />
-            <Route path="/student/achievements" element={<Placeholder title="Achievements" />} />
-          </Route>
+            {/* Student routes */}
+            <Route element={<StudentLayout />}>
+              <Route path="/student" element={<StudentDashboard />} />
+              <Route path="/student/calendar" element={<Placeholder title="Calendar" />} />
+              <Route path="/student/reports" element={<Placeholder title="Reports" />} />
+              <Route path="/student/achievements" element={<Placeholder title="Achievements" />} />
+            </Route>
 
-          {/* 404 */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </ToastProvider>
       </AppStoreProvider>
     </Router>
