@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Download, Eye, FileText } from 'lucide-react'
+import { AlertCircle, ClipboardList, Download, Eye, FileText, Sparkles } from 'lucide-react'
 import { format } from 'date-fns'
 import { Card, CardTitle, CardContent } from '@/components/ui/Card'
 import { ReportPreviewModal } from '@/components/teacher/ReportPreviewModal'
@@ -10,12 +10,11 @@ import { useAppStore } from '@/lib/store'
 import type { DailyReport } from '@/types'
 
 const STATUS_STYLES = {
-  sent: 'bg-green-50 text-green-700',
-  failed: 'bg-clay-100 text-clay-700',
-  pending: 'bg-gold-100 text-gold-800',
+  sent: 'bg-green-50 text-green-700 ring-1 ring-green-200',
+  failed: 'bg-clay-100 text-clay-700 ring-1 ring-clay-200',
+  pending: 'bg-gold-100 text-gold-800 ring-1 ring-gold-200',
 } as const
 
-// The signed-in learner — CURRENT_STUDENT mirrors student-1 in the store
 const FALLBACK_STUDENT: Student = {
   id: CURRENT_STUDENT.id,
   name: CURRENT_STUDENT.name,
@@ -31,6 +30,20 @@ const FALLBACK_STUDENT: Student = {
   points: CURRENT_STUDENT.points,
   avgScore: CURRENT_STUDENT.avgScore,
   rank: CURRENT_STUDENT.rank,
+}
+
+function SkeletonRows() {
+  return (
+    <div className="space-y-2 p-4">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-4">
+          <div className="h-4 w-28 animate-pulse rounded bg-paper-dim" />
+          <div className="h-4 flex-1 animate-pulse rounded bg-paper-dim" />
+          <div className="h-5 w-16 animate-pulse rounded-full bg-paper-dim" />
+        </div>
+      ))}
+    </div>
+  )
 }
 
 export function StudentReports() {
@@ -51,17 +64,21 @@ export function StudentReports() {
 
   const sentReports = reports.filter((r) => r.status === 'sent')
   const scored = sentReports.filter((r) => r.score !== null)
-  const avgScore = scored.length
-    ? Math.round(scored.reduce((sum, r) => sum + (r.score ?? 0), 0) / scored.length)
-    : 0
+  const avgScore = scored.length ? Math.round(scored.reduce((sum, r) => sum + (r.score ?? 0), 0) / scored.length) : 0
   const totalMistakes = reports.reduce((sum, r) => sum + r.mistakesCount, 0)
   const nextLesson = reports[0]?.nextLesson
 
   const downloadPdf = (report: DailyReport) => {
-    // Opens the preview, then the browser print dialog offers "Save as PDF"
     setPreview(report)
     window.setTimeout(() => window.print(), 400)
   }
+
+  const stats = [
+    { icon: FileText, iconWrap: 'bg-green-100', iconColor: 'text-green-700', bubble: 'bg-green-100/70', value: String(sentReports.length), label: 'Reports received' },
+    { icon: ClipboardList, iconWrap: 'bg-gold-100', iconColor: 'text-gold-700', bubble: 'bg-gold-100/70', value: `${avgScore}%`, label: 'Average score' },
+    { icon: AlertCircle, iconWrap: 'bg-clay-100', iconColor: 'text-clay-600', bubble: 'bg-clay-100/70', value: String(totalMistakes), label: 'Mistakes to review' },
+    { icon: Sparkles, iconWrap: 'bg-sky-100', iconColor: 'text-sky-600', bubble: 'bg-sky-100/70', value: nextLesson ?? 'Soon', label: 'Next lesson' },
+  ]
 
   return (
     <div className="space-y-6">
@@ -72,73 +89,74 @@ export function StudentReports() {
         </p>
       </div>
 
-      {/* ---------- Summary ---------- */}
+      {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-        <Card>
-          <CardContent className="space-y-1">
-            <div className="font-display text-2xl font-semibold text-ink">{sentReports.length}</div>
-            <div className="text-sm text-ink/50">Reports received</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="space-y-1">
-            <div className="font-display text-2xl font-semibold text-green-700">{avgScore}%</div>
-            <div className="text-sm text-ink/50">Average score</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="space-y-1">
-            <div className="font-display text-2xl font-semibold text-clay-600">{totalMistakes}</div>
-            <div className="text-sm text-ink/50">Mistakes to review</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="space-y-1">
-            <div className="truncate text-base font-semibold text-ink">{nextLesson ?? '—'}</div>
-            <div className="text-sm text-ink/50">Next lesson</div>
-          </CardContent>
-        </Card>
+        {stats.map((stat) => {
+          const Icon = stat.icon
+          return (
+            <Card key={stat.label} className="relative overflow-hidden">
+              <div className={`absolute -right-4 -top-4 h-20 w-20 rounded-full ${stat.bubble}`} />
+              <CardContent className="relative space-y-2">
+                <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg ${stat.iconWrap}`}>
+                  <Icon className={`h-5 w-5 ${stat.iconColor}`} />
+                </span>
+                <div className="truncate font-display text-2xl font-semibold tabular-nums text-ink">{stat.value}</div>
+                <div className="text-xs font-medium text-ink/50">{stat.label}</div>
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
 
-      {/* ---------- Report list ---------- */}
+      {/* Report list */}
       <Card>
         <CardTitle className="mb-4 flex items-center gap-2">
           <FileText className="h-5 w-5 text-green-700" />
           Daily report history
         </CardTitle>
         {loading ? (
-          <p className="p-6 text-center text-sm text-ink/55">Loading your reports…</p>
+          <SkeletonRows />
         ) : reports.length === 0 ? (
-          <p className="p-6 text-center text-sm text-ink/55">No reports yet — your first one arrives after today's class.</p>
+          <div className="p-8 text-center">
+            <FileText className="mx-auto h-8 w-8 text-ink/20" />
+            <p className="mt-2 text-sm text-ink/55">No reports yet. Your first one arrives after today's class.</p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-line bg-paper-dim text-xs uppercase tracking-wide text-ink/50">
+              <thead className="border-b border-line bg-paper-dim/60 text-[11px] font-semibold uppercase tracking-wide text-ink/45">
                 <tr>
-                  <th className="px-4 py-2.5 font-medium">Date</th>
-                  <th className="px-4 py-2.5 font-medium">Score</th>
-                  <th className="px-4 py-2.5 font-medium">Mistakes</th>
-                  <th className="px-4 py-2.5 font-medium">Status</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Actions</th>
+                  <th className="px-4 py-3">Date</th>
+                  <th className="px-4 py-3">Score</th>
+                  <th className="px-4 py-3">Mistakes</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {reports.map((report) => (
-                  <tr key={report.id} className="border-b border-line last:border-0 hover:bg-paper/60">
+                  <tr key={report.id} className="border-b border-line/60 transition-colors last:border-0 hover:bg-paper/70">
                     <td className="px-4 py-3">
                       <button
                         onClick={() => setPreview(report)}
-                        className="font-medium text-green-700 hover:text-green-800 hover:underline"
+                        className="font-medium text-green-700 transition-colors hover:text-green-800 hover:underline"
                       >
                         {format(new Date(report.dateFor + 'T00:00:00'), 'EEE, MMM d, yyyy')}
                       </button>
                     </td>
                     <td className="px-4 py-3 tabular-nums text-ink">
-                      {report.score !== null ? `${report.score}/100 (${report.grade})` : 'Pending'}
+                      {report.score !== null ? (
+                        <span className="font-medium">{report.score}/100</span>
+                      ) : (
+                        <span className="text-ink/40">Pending</span>
+                      )}
+                      {report.grade && <span className="ml-1.5 text-xs text-ink/50">({report.grade})</span>}
                     </td>
                     <td className="px-4 py-3 tabular-nums text-ink/70">{report.mistakesCount}</td>
                     <td className="px-4 py-3">
-                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[report.status]}`}>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${STATUS_STYLES[report.status]}`}
+                      >
                         {report.status === 'sent' ? 'Sent' : report.status === 'failed' ? 'Not delivered' : 'Pending'}
                       </span>
                     </td>
@@ -146,7 +164,7 @@ export function StudentReports() {
                       <div className="flex justify-end gap-1">
                         <button
                           onClick={() => setPreview(report)}
-                          className="rounded-md p-1.5 text-ink/50 hover:bg-paper-dim hover:text-ink"
+                          className="rounded-md p-1.5 text-ink/45 transition-colors hover:bg-paper-dim hover:text-ink"
                           title="Preview report"
                           aria-label="Preview report"
                         >
@@ -154,7 +172,7 @@ export function StudentReports() {
                         </button>
                         <button
                           onClick={() => downloadPdf(report)}
-                          className="rounded-md p-1.5 text-ink/50 hover:bg-paper-dim hover:text-ink"
+                          className="rounded-md p-1.5 text-ink/45 transition-colors hover:bg-paper-dim hover:text-ink"
                           title="Download PDF"
                           aria-label="Download PDF"
                         >
@@ -170,9 +188,9 @@ export function StudentReports() {
         )}
       </Card>
 
-      <p className="rounded-md bg-paper-dim px-3 py-2 text-xs text-ink/55">
-        Reports are generated automatically by TILP after each class. If one shows "Not delivered", your teacher can
-        resend it from their portal.
+      <p className="rounded-lg bg-paper-dim px-4 py-3 text-xs text-ink/55">
+        Reports are generated automatically after each class. If one shows "Not delivered", your teacher can resend it
+        from their portal.
       </p>
 
       <ReportPreviewModal report={preview} studentName={CURRENT_STUDENT.name} onClose={() => setPreview(null)} />
