@@ -21,6 +21,9 @@ import { TeacherStudentReports } from '@/pages/teacher/StudentReportsPage'
 import { TeacherClassAnalytics } from '@/pages/teacher/ClassAnalyticsPage'
 import { TeacherReportsIndex } from '@/pages/teacher/ReportsIndex'
 import { StudentDashboard } from '@/pages/student/Dashboard'
+import { StudentCalendar } from '@/pages/student/Calendar'
+import { StudentReports } from '@/pages/student/Reports'
+import { StudentAchievements } from '@/pages/student/Achievements'
 
 // Layouts
 import { TeacherLayout } from '@/components/layout/TeacherLayout'
@@ -29,18 +32,6 @@ import { StudentLayout } from '@/components/layout/StudentLayout'
 // Shared data store
 import { AppStoreProvider } from '@/lib/store'
 import { ToastProvider } from '@/components/ui/Toaster'
-
-// Placeholder components for other routes
-function Placeholder({ title }: { title: string }) {
-  return (
-    <div className="space-y-4">
-      <h1 className="font-display text-2xl font-semibold text-ink">{title}</h1>
-      <div className="rounded-lg border border-line bg-white p-8 text-center">
-        <p className="text-ink/60">{title} content coming soon...</p>
-      </div>
-    </div>
-  )
-}
 
 export default function App() {
   return (
@@ -75,9 +66,9 @@ export default function App() {
             {/* Student routes */}
             <Route element={<StudentLayout />}>
               <Route path="/student" element={<StudentDashboard />} />
-              <Route path="/student/calendar" element={<Placeholder title="Calendar" />} />
-              <Route path="/student/reports" element={<Placeholder title="Reports" />} />
-              <Route path="/student/achievements" element={<Placeholder title="Achievements" />} />
+              <Route path="/student/calendar" element={<StudentCalendar />} />
+              <Route path="/student/reports" element={<StudentReports />} />
+              <Route path="/student/achievements" element={<StudentAchievements />} />
             </Route>
 
             {/* 404 */}
