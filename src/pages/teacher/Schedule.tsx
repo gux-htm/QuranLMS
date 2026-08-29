@@ -1,109 +1,11 @@
-import { CheckCircle2, CircleDot, Clock } from 'lucide-react'
-import { Card } from '@/components/ui/Card'
+import { useState } from 'react'
+import { CheckCircle2, CircleDot, Clock, CalendarPlus } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { TEACHER_SCHEDULE, today } from '@/lib/mockData'
-import { format } from 'date-fns'
+import { addDays, format, startOfWeek } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
-
-type SessionStatus = 'completed' | 'in-progress' | 'upcoming'
-
-const statusStyles: Record<SessionStatus, { label: string; className: string }> = {
-  completed: { label: 'Completed', className: 'bg-paper-dim text-ink/50' },
-  'in-progress': { label: 'In progress', className: 'bg-green-50 text-green-700' },
-  upcoming: { label: 'Upcoming', className: 'bg-sky-100 text-sky-700' },
-}
-
-export function TeacherSchedule() {
-  const navigate = useNavigate()
-  const now = new Date()
-
-  const joinSession = (session: { id: string; meetUrl: string }) => {
-    // Open Google Meet in a new tab, and today's lesson (resume point) in this tab
-    window.open(session.meetUrl, '_blank')
-    navigate(`/teacher/schedule/${session.id}`)
-  }
-
-  const todaysSchedule = TEACHER_SCHEDULE
-    .filter((s) => s.date === format(today, 'yyyy-MM-dd'))
-    .sort((a, b) => a.time.localeCompare(b.time))
-    .map((session) => {
-      const start = new Date(`${session.date}T${session.time}`)
-      const end = new Date(start.getTime() + session.duration * 60000)
-      const status: SessionStatus = now >= end ? 'completed' : now >= start ? 'in-progress' : 'upcoming'
-      return { ...session, start, status }
-    })
-
-  const nextSessionId = todaysSchedule.find((s) => s.status === 'upcoming')?.id
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-semibold text-ink">Today's schedule</h1>
-        <p className="mt-1 text-sm text-ink/55">
-          {format(today, 'EEEE, MMMM d, yyyy')} • {todaysSchedule.length} sessions
-        </p>
-      </div>
-
-      {todaysSchedule.length === 0 ? (
-        <Card>
-          <p className="text-sm text-ink/55">No classes scheduled today.</p>
-        </Card>
-      ) : (
-        <div className="space-y-3">
-          {todaysSchedule.map((session) => {
-            const status = statusStyles[session.status]
-            const isNext = session.id === nextSessionId
-            return (
-              <Card key={session.id} className={isNext ? 'border-green-300' : undefined}>
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="w-20 shrink-0">
-                    <div className="font-display text-lg font-semibold text-ink">
-                      {format(session.start, 'h:mm a')}
-                    </div>
-                    <div className="text-xs text-ink/50">{session.duration} min</div>
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-ink">{session.studentName}</span>
-                      {isNext && (
-                        <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
-                          Next up
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm text-ink/55">
-                      {session.className} • {session.lessonTitle}
-                    </div>
-                  </div>
-
-                  <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${status.className}`}
-                  >
-                    {session.status === 'completed' ? (
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                    ) : session.status === 'in-progress' ? (
-                      <CircleDot className="h-3.5 w-3.5" />
-                    ) : (
-                      <Clock className="h-3.5 w-3.5" />
-                    )}
-                    {status.label}
-                  </span>
-
-                  {session.status !== 'completed' && (
-                    <Button size="sm" onClick={() => joinSession(session)}>
-                      Join
-                    </Button>
-                  )}
-                  <Button size="sm" variant="outline" onClick={() => navigate(`/teacher/sessions/${session.id}/lesson`)}>
-                    Lesson view
-                  </Button>
-                </div>
-              </Card>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
+import { ScheduleSessionModal, type ScheduledSession } from '@/components/teacher/ScheduleSessionModal'
+type SessionStatus='completed'|'in-progress'|'upcoming'; type Session=typeof TEACHER_SCHEDULE[number]|ScheduledSession
+const statusStyles:Record<SessionStatus,{label:string;className:string}>={completed:{label:'Completed',className:'bg-paper-dim text-ink/50'},'in-progress':{label:'In progress',className:'bg-green-50 text-green-700'},upcoming:{label:'Upcoming',className:'bg-sky-100 text-sky-700'}}
+export function TeacherSchedule(){const navigate=useNavigate();const[now]=useState(new Date());const[view,setView]=useState<'today'|'week'>('today');const[modal,setModal]=useState(false);const[added,setAdded]=useState<ScheduledSession[]>([]);const sessions:Session[]=[...TEACHER_SCHEDULE,...added];const decorated=(list:Session[])=>list.map(session=>{const start=new Date(`${session.date}T${session.time}`);const end=new Date(start.getTime()+session.duration*60000);const status:SessionStatus=now>=end?'completed':now>=start?'in-progress':'upcoming';return{...session,start,status}}).sort((a,b)=>a.start.getTime()-b.start.getTime());const todays=decorated(sessions.filter(s=>s.date===format(today,'yyyy-MM-dd')));const weekStart=startOfWeek(today,{weekStartsOn:1});const join=(s:Session)=>{window.open(s.meetUrl,'_blank');navigate(`/teacher/schedule/${s.id}`)};const SessionCard=({session}:{session:ReturnType<typeof decorated>[number]})=>{const status=statusStyles[session.status];return <Card><CardContent className="flex flex-wrap items-center gap-4"><div className="w-20"><div className="font-display text-lg font-semibold">{format(session.start,'h:mm a')}</div><div className="text-xs text-ink/50">{session.duration} min</div></div><div className="min-w-0 flex-1"><div className="font-medium">{session.studentName}</div><div className="text-sm text-ink/55">{session.className} • {session.lessonTitle}</div></div><span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${status.className}`}>{session.status==='completed'?<CheckCircle2 className="h-3.5 w-3.5"/>:session.status==='in-progress'?<CircleDot className="h-3.5 w-3.5"/>:<Clock className="h-3.5 w-3.5"/>}{status.label}</span>{session.status!=='completed'&&<Button size="sm" onClick={()=>join(session)}>Join</Button>}<Button size="sm" variant="outline" onClick={()=>navigate(`/teacher/sessions/${session.id}/lesson`)}>Lesson view</Button></CardContent></Card>};return <div className="space-y-6"><div className="flex flex-wrap items-start justify-between gap-4"><div><h1 className="font-display text-2xl font-semibold text-ink">{view==='today'?"Today's schedule":'This week'}</h1><p className="mt-1 text-sm text-ink/55">{view==='today'?format(today,'EEEE, MMMM d, yyyy'):'Your sessions across the current week'}</p></div><Button onClick={()=>setModal(true)}><CalendarPlus className="mr-2 h-4 w-4"/>Schedule session</Button></div><div className="inline-flex rounded-lg border border-line bg-paper-dim/40 p-1"><button onClick={()=>setView('today')} className={`rounded-md px-3 py-1.5 text-sm ${view==='today'?'bg-paper shadow-sm text-ink':'text-ink/55'}`}>Today</button><button onClick={()=>setView('week')} className={`rounded-md px-3 py-1.5 text-sm ${view==='week'?'bg-paper shadow-sm text-ink':'text-ink/55'}`}>This week</button></div>{view==='today'?(todays.length?<div className="space-y-3">{todays.map(s=><SessionCard key={s.id} session={s}/>)}</div>:<Card><CardContent className="text-sm text-ink/55">No classes scheduled today.</CardContent></Card>):<div className="space-y-6">{Array.from({length:7},(_,i)=>addDays(weekStart,i)).map(day=>{const daySessions=decorated(sessions.filter(s=>s.date===format(day,'yyyy-MM-dd')));return <section key={day.toISOString()}><h2 className="mb-3 font-display text-lg font-semibold text-green-900">{format(day,'EEEE, MMM d')}</h2>{daySessions.length?<div className="space-y-3">{daySessions.map(s=><SessionCard key={s.id} session={s}/>)}</div>:<div className="rounded-lg border border-dashed border-line px-4 py-3 text-sm text-ink/45">No sessions</div>}</section>})}</div>}<ScheduleSessionModal open={modal} onClose={()=>setModal(false)} onScheduled={s=>setAdded(current=>[...current,s])}/></div>}
