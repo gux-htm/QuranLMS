@@ -1,0 +1,45 @@
+import { useEffect, useState } from 'react'
+import { addDays, format } from 'date-fns'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Modal } from '@/components/ui/Modal'
+import { useAppStore } from '@/lib/store'
+import { today } from '@/lib/mockData'
+import { useToast } from '@/components/ui/Toaster'
+
+interface Props { open: boolean; onClose: () => void }
+
+export function ScheduleSessionModal({ open, onClose }: Props) {
+  const { classes, addSession } = useAppStore()
+  const { push } = useToast()
+  const [classId, setClassId] = useState('')
+  const [date, setDate] = useState(format(addDays(today, 1), 'yyyy-MM-dd'))
+  const [time, setTime] = useState('15:00')
+  const [duration, setDuration] = useState(45)
+  const [lessonTitle, setLessonTitle] = useState('')
+  const [meetUrl, setMeetUrl] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => { if (open && !classId && classes[0]) setClassId(classes[0].id) }, [open, classId, classes])
+
+  const submit = async () => {
+    if (!classId || !date || !time) return
+    setSaving(true)
+    await new Promise((r) => setTimeout(r, 500))
+    const klass = classes.find((item) => item.id === classId)
+    addSession({ classId, date, time, duration, lessonTitle: lessonTitle.trim() || 'Lesson to be confirmed', meetUrl: meetUrl.trim() || 'https://meet.google.com/' , className: klass?.name || 'Class' })
+    push(`Session scheduled for ${format(new Date(`${date}T${time}`), 'EEEE, MMMM d')} at ${format(new Date(`${date}T${time}`), 'h:mm a')}`)
+    setSaving(false)
+    onClose()
+  }
+
+  return <Modal open={open} onClose={onClose} title="Schedule session" footer={<><Button variant="outline" onClick={onClose}>Cancel</Button><Button onClick={submit} disabled={!classId || !date || !time || saving}>{saving ? 'Scheduling…' : 'Schedule session'}</Button></>}>
+    <div className="space-y-4">
+      <div><label className="mb-1.5 block text-sm font-medium text-ink">Class</label><select value={classId} onChange={(e) => setClassId(e.target.value)} className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink"><option value="">Select a class</option>{classes.map((klass) => <option key={klass.id} value={klass.id}>{klass.name}</option>)}</select></div>
+      <div className="grid gap-4 sm:grid-cols-2"><Input label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} /><Input label="Time" type="time" value={time} onChange={(e) => setTime(e.target.value)} /></div>
+      <div><label className="mb-1.5 block text-sm font-medium text-ink">Duration</label><select value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink">{[30,45,60,90].map((mins) => <option key={mins} value={mins}>{mins} min</option>)}</select></div>
+      <Input label="Lesson / topic" placeholder="e.g. Juz 1, Pages 4–6" value={lessonTitle} onChange={(e) => setLessonTitle(e.target.value)} />
+      <div><Input label="Google Meet link" placeholder="Paste your Meet link" value={meetUrl} onChange={(e) => setMeetUrl(e.target.value)} /><p className="mt-1 text-xs text-ink/45">Or leave blank — you can add it later.</p></div>
+    </div>
+  </Modal>
+}
