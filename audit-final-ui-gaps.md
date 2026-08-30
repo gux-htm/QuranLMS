@@ -1,28 +1,17 @@
 # TILP Frontend Audit — 2026-08-30
 
-## Audit inventory
+## Existing, confirmed wired
+MFA setup; individual student profile; assign-lesson modal; pace adjustment; teacher settings; student achievements; dashboard milestones; 404; student lesson; scheduling; attendance; invite flow; notifications.
 
-### Routes confirmed on main
-- `/`, `/login`, `/signup`, `/enroll`, `/verify-email`, `/forgot-password`, `/reset-password`
-- Teacher: `/teacher`, `/teacher/dashboard`, `/teacher/schedule`, `/teacher/schedule/:sessionId`, `/teacher/students`, `/teacher/students/:studentId`, `/teacher/classes`, `/teacher/classes/:classId`, `/teacher/enrollments`, `/teacher/curriculum`, `/teacher/reports`, `/teacher/settings`, `/teacher/sessions/:sessionId/lesson`, `/teacher/students/:studentId/reports`, `/teacher/classes/:classId/analytics`
-- Student: `/student`, `/student/dashboard`, `/student/lesson`, `/student/lesson/:id`, `/student/assignments`, `/student/calendar`, `/student/reports`, `/student/achievements`, `/student/leaderboard`, `/student/settings`
-- Wildcard `*` → `NotFound`
+## Confirmed gaps fixed in `audit-final-ui-gaps`
+- `/teacher/lessons/new` lesson creation page and dashboard entry point
+- Reusable React ErrorBoundary applied to routed page content
+- Calendar day-detail popover wired to existing student calendar cells
 
-### Reusable components confirmed
-Card, Button, Input, Modal, Toaster, AudioPlayer, NotificationsPanel, charts, AssignmentModal, CurriculumCard, MistakeLogger, ReportPreviewModal, ScheduleSessionModal, ScoringRubric.
+## Verification
+- `vercel.json` contains the SPA rewrite for direct URL entry.
+- Vercel ran the repository build script `npm run build` (`tsc -b && vite build`) successfully on the final branch commit.
+- The only build warning is the pre-existing Vite chunk-size warning also present on the prior main deployment; no new warning was introduced by this gap pass.
+- Direct requests to `/teacher/lessons/new` and `/student/calendar` on the branch preview returned HTTP 200 through the SPA rewrite.
 
-## Gap verdicts
-- MFA setup — EXISTS & WIRED
-- Individual student profile — EXISTS & WIRED
-- Assign lesson modal — EXISTS & WIRED
-- Pace adjustment modal — EXISTS & WIRED
-- Teacher settings — EXISTS & WIRED
-- Student achievements — EXISTS & WIRED
-- Dashboard milestone/progress surface — EXISTS & WIRED
-- 404 page — EXISTS & WIRED
-- Calendar day-detail popover — EXISTS BUT BROKEN: day selection existed, but no cell popover was rendered
-- Lesson creation — DOES NOT EXIST: added `/teacher/lessons/new`
-- React ErrorBoundary — DOES NOT EXIST: added and used around routed page content
-
-## Final-gap changes
-Only confirmed missing/broken items were added or wired. Existing completed features were preserved rather than duplicated.
+No real API calls were introduced and existing completed features were not intentionally duplicated.
