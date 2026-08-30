@@ -1,4 +1,4 @@
-import { Users, Calendar, ClipboardCheck, AlertTriangle, ArrowRight, UserPlus, FileBarChart2, Clock3, TrendingUp, Sparkles } from 'lucide-react'
+import { Users, Calendar, ClipboardCheck, AlertTriangle, ArrowRight, UserPlus, FileBarChart2, Clock3, TrendingUp, Sparkles, BookPlus } from 'lucide-react'
 import { Card, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { TEACHER, TEACHER_SCHEDULE, today } from '@/lib/mockData'
@@ -22,74 +22,10 @@ export function TeacherDashboard() {
     { icon: UserPlus, tone: 'bg-clay-100 text-clay-700', value: pendingRequests, label: 'Awaiting review', detail: 'Enrollment requests' },
   ]
 
-  return (
-    <div className="space-y-7">
-      <section className="relative overflow-hidden rounded-3xl border border-green-100 bg-gradient-to-br from-green-900 via-green-800 to-green-700 px-6 py-7 text-paper shadow-card sm:px-8 sm:py-9">
-        <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full border border-white/10" />
-        <div className="pointer-events-none absolute right-16 top-8 h-40 w-40 rounded-full border border-white/10" />
-        <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-paper/80"><Sparkles className="h-3.5 w-3.5" /> Teacher workspace</div>
-            <h1 className="mt-4 font-display text-3xl font-semibold sm:text-4xl">Assalamu alaikum, {TEACHER.name}</h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-paper/70">A calm overview of your classes, learners, and the work that needs your attention today.</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Button variant="secondary" onClick={() => navigate('/teacher/schedule')}><Calendar className="mr-2 h-4 w-4" /> Open schedule</Button>
-            <Button onClick={() => navigate('/teacher/classes')}>Manage classes <ArrowRight className="ml-2 h-4 w-4" /></Button>
-          </div>
-        </div>
-      </section>
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon
-          return (
-            <Card key={stat.label} className="group relative overflow-hidden p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-              <CardContent className="space-y-0">
-                <div className="flex items-start justify-between"><span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${stat.tone}`}><Icon className="h-5 w-5" /></span><TrendingUp className="h-4 w-4 text-ink/15 transition-colors group-hover:text-green-500" /></div>
-                <div className="mt-5 font-display text-3xl font-semibold tracking-tight text-ink">{stat.value}</div>
-                <div className="mt-1 text-sm font-semibold text-ink">{stat.label}</div>
-                <div className="mt-1 text-xs text-ink/45">{stat.detail}</div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-
-      <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-        <Card className="p-6 sm:p-7">
-          <div className="mb-5 flex items-start justify-between gap-4"><div><CardTitle>Today's teaching rhythm</CardTitle><p className="mt-1 text-sm text-ink/50">Your upcoming sessions and what is next.</p></div><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-paper-dim text-green-700"><Clock3 className="h-4 w-4" /></span></div>
-          <CardContent className="space-y-3">
-            {upcomingSessions.length === 0 ? <div className="rounded-2xl border border-dashed border-line bg-paper/60 p-7 text-center"><p className="font-medium text-ink">Your day is clear.</p><p className="mt-1 text-sm text-ink/50">No more sessions are scheduled for today.</p></div> : upcomingSessions.slice(0, 4).map((session, index) => (
-              <div key={session.id} className="group flex items-center gap-3 rounded-2xl border border-line bg-white p-3.5 transition-colors hover:border-green-200 hover:bg-green-50/30">
-                <div className="w-20 shrink-0 rounded-xl bg-paper p-2 text-center"><div className="font-display text-sm font-semibold text-ink">{format(new Date(`${session.date}T${session.time}`), 'h:mm a')}</div><div className="text-[11px] text-ink/45">{session.duration} min</div></div>
-                <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><span className="text-sm font-semibold text-ink">{session.studentName}</span>{index === 0 && <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-green-800">Next up</span>}</div><div className="mt-1 truncate text-xs text-ink/50">{session.className} · {session.lessonTitle}</div></div>
-                <Button size="sm" variant="outline" onClick={() => { window.open(session.meetUrl, '_blank'); navigate(`/teacher/schedule/${session.id}`) }}>Join</Button>
-              </div>
-            ))}
-            <button onClick={() => navigate('/teacher/schedule')} className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-green-700 transition-colors hover:text-green-900">View full schedule <ArrowRight className="h-4 w-4" /></button>
-          </CardContent>
-        </Card>
-
-        <Card className="p-6 sm:p-7">
-          <div className="mb-5 flex items-start justify-between gap-4"><div><CardTitle>Needs your attention</CardTitle><p className="mt-1 text-sm text-ink/50">Learners who may benefit from a closer look.</p></div><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-clay-100 text-clay-700"><AlertTriangle className="h-4 w-4" /></span></div>
-          <CardContent className="space-y-3">
-            {needsAttention.length === 0 ? <div className="rounded-2xl border border-dashed border-line bg-paper/60 p-7 text-center"><p className="font-medium text-ink">Everything looks steady.</p><p className="mt-1 text-sm text-ink/50">No students are currently flagged.</p></div> : needsAttention.map((student) => (
-              <div key={student.id} className="flex items-center gap-3 rounded-2xl border border-line p-3.5">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-clay-100 font-display text-sm font-semibold text-clay-700">{student.name.split(' ').map((part) => part[0]).slice(0, 2).join('')}</div>
-                <div className="min-w-0 flex-1"><div className="text-sm font-semibold text-ink">{student.name}</div><div className="mt-0.5 text-xs text-ink/50">{student.avgScore}% average · {student.streak}-day streak</div></div>
-                <button onClick={() => navigate('/teacher/students/' + student.id)} className="text-xs font-semibold text-green-700 hover:text-green-900">Review</button>
-              </div>
-            ))}
-            <button onClick={() => navigate('/teacher/students')} className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-green-700 transition-colors hover:text-green-900">Open all students <ArrowRight className="h-4 w-4" /></button>
-          </CardContent>
-        </Card>
-      </div>
-
-      <section className="rounded-3xl border border-line bg-white p-6 sm:p-7">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink/40">Keep moving</p><h2 className="mt-1 font-display text-2xl font-semibold">Your teaching tools, close at hand</h2></div><Button variant="outline" size="sm" onClick={() => navigate('/teacher/reports')}><FileBarChart2 className="mr-2 h-4 w-4" /> Reports & insights</Button></div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-3"><button onClick={() => navigate('/teacher/classes')} className="rounded-2xl bg-paper p-4 text-left transition-colors hover:bg-green-50"><Users className="h-5 w-5 text-green-700" /><div className="mt-4 text-sm font-semibold">Manage classes</div><div className="mt-1 text-xs text-ink/50">Organize groups and learning tracks</div></button><button onClick={() => navigate('/teacher/students')} className="rounded-2xl bg-paper p-4 text-left transition-colors hover:bg-green-50"><ClipboardCheck className="h-5 w-5 text-green-700" /><div className="mt-4 text-sm font-semibold">Review students</div><div className="mt-1 text-xs text-ink/50">See progress and individual needs</div></button><button onClick={() => navigate('/teacher/enrollments')} className="rounded-2xl bg-paper p-4 text-left transition-colors hover:bg-green-50"><UserPlus className="h-5 w-5 text-green-700" /><div className="mt-4 text-sm font-semibold">Enrollment requests</div><div className="mt-1 text-xs text-ink/50">Welcome new learners to your classes</div></button></div>
-      </section>
-    </div>
-  )
+  return <div className="space-y-7">
+    <section className="relative overflow-hidden rounded-3xl border border-green-100 bg-gradient-to-br from-green-900 via-green-800 to-green-700 px-6 py-7 text-paper shadow-card sm:px-8 sm:py-9"><div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full border border-white/10" /><div className="pointer-events-none absolute right-16 top-8 h-40 w-40 rounded-full border border-white/10" /><div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end"><div><div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-paper/80"><Sparkles className="h-3.5 w-3.5" /> Teacher workspace</div><h1 className="mt-4 font-display text-3xl font-semibold sm:text-4xl">Assalamu alaikum, {TEACHER.name}</h1><p className="mt-2 max-w-xl text-sm leading-6 text-paper/70">A calm overview of your classes, learners, and the work that needs your attention today.</p></div><div className="flex flex-wrap gap-3"><Button variant="secondary" onClick={() => navigate('/teacher/schedule')}><Calendar className="mr-2 h-4 w-4" /> Open schedule</Button><Button onClick={() => navigate('/teacher/lessons/new')}><BookPlus className="mr-2 h-4 w-4" /> Create lesson</Button><Button onClick={() => navigate('/teacher/classes')}>Manage classes <ArrowRight className="ml-2 h-4 w-4" /></Button></div></div></section>
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{stats.map((stat) => { const Icon = stat.icon; return <Card key={stat.label} className="group relative overflow-hidden p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"><CardContent className="space-y-0"><div className="flex items-start justify-between"><span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${stat.tone}`}><Icon className="h-5 w-5" /></span><TrendingUp className="h-4 w-4 text-ink/15 transition-colors group-hover:text-green-500" /></div><div className="mt-5 font-display text-3xl font-semibold tracking-tight text-ink">{stat.value}</div><div className="mt-1 text-sm font-semibold text-ink">{stat.label}</div><div className="mt-1 text-xs text-ink/45">{stat.detail}</div></CardContent></Card> })}</div>
+    <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]"><Card className="p-6 sm:p-7"><div className="mb-5 flex items-start justify-between gap-4"><div><CardTitle>Today's teaching rhythm</CardTitle><p className="mt-1 text-sm text-ink/50">Your upcoming sessions and what is next.</p></div><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-paper-dim text-green-700"><Clock3 className="h-4 w-4" /></span></div><CardContent className="space-y-3">{upcomingSessions.length === 0 ? <div className="rounded-2xl border border-dashed border-line bg-paper/60 p-7 text-center"><p className="font-medium text-ink">Your day is clear.</p><p className="mt-1 text-sm text-ink/50">No more sessions are scheduled for today.</p></div> : upcomingSessions.slice(0, 4).map((session, index) => <div key={session.id} className="group flex items-center gap-3 rounded-2xl border border-line bg-white p-3.5 transition-colors hover:border-green-200 hover:bg-green-50/30"><div className="w-20 shrink-0 rounded-xl bg-paper p-2 text-center"><div className="font-display text-sm font-semibold text-ink">{format(new Date(`${session.date}T${session.time}`), 'h:mm a')}</div><div className="text-[11px] text-ink/45">{session.duration} min</div></div><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><span className="text-sm font-semibold text-ink">{session.studentName}</span>{index === 0 && <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-green-800">Next up</span>}</div><div className="mt-1 truncate text-xs text-ink/50">{session.className} · {session.lessonTitle}</div></div><Button size="sm" variant="outline" onClick={() => { window.open(session.meetUrl, '_blank'); navigate(`/teacher/schedule/${session.id}`) }}>Join</Button></div>)}<button onClick={() => navigate('/teacher/schedule')} className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-green-700 transition-colors hover:text-green-900">View full schedule <ArrowRight className="h-4 w-4" /></button></CardContent></Card><Card className="p-6 sm:p-7"><div className="mb-5 flex items-start justify-between gap-4"><div><CardTitle>Needs your attention</CardTitle><p className="mt-1 text-sm text-ink/50">Learners who may benefit from a closer look.</p></div><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-clay-100 text-clay-700"><AlertTriangle className="h-4 w-4" /></span></div><CardContent className="space-y-3">{needsAttention.length === 0 ? <div className="rounded-2xl border border-dashed border-line bg-paper/60 p-7 text-center"><p className="font-medium text-ink">Everything looks steady.</p><p className="mt-1 text-sm text-ink/50">No students are currently flagged.</p></div> : needsAttention.map((student) => <div key={student.id} className="flex items-center gap-3 rounded-2xl border border-line p-3.5"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-clay-100 font-display text-sm font-semibold text-clay-700">{student.name.split(' ').map((part) => part[0]).slice(0, 2).join('')}</div><div className="min-w-0 flex-1"><div className="text-sm font-semibold text-ink">{student.name}</div><div className="mt-0.5 text-xs text-ink/50">{student.avgScore}% average · {student.streak}-day streak</div></div><button onClick={() => navigate('/teacher/students/' + student.id)} className="text-xs font-semibold text-green-700 hover:text-green-900">Review</button></div>)}<button onClick={() => navigate('/teacher/students')} className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-green-700 transition-colors hover:text-green-900">Open all students <ArrowRight className="h-4 w-4" /></button></CardContent></Card></div>
+    <section className="rounded-3xl border border-line bg-white p-6 sm:p-7"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink/40">Keep moving</p><h2 className="mt-1 font-display text-2xl font-semibold">Your teaching tools, close at hand</h2></div><Button variant="outline" size="sm" onClick={() => navigate('/teacher/reports')}><FileBarChart2 className="mr-2 h-4 w-4" /> Reports & insights</Button></div><div className="mt-5 grid gap-3 sm:grid-cols-3"><button onClick={() => navigate('/teacher/classes')} className="rounded-2xl bg-paper p-4 text-left transition-colors hover:bg-green-50"><Users className="h-5 w-5 text-green-700" /><div className="mt-4 text-sm font-semibold">Manage classes</div><div className="mt-1 text-xs text-ink/50">Organize groups and learning tracks</div></button><button onClick={() => navigate('/teacher/students')} className="rounded-2xl bg-paper p-4 text-left transition-colors hover:bg-green-50"><ClipboardCheck className="h-5 w-5 text-green-700" /><div className="mt-4 text-sm font-semibold">Review students</div><div className="mt-1 text-xs text-ink/50">See progress and individual needs</div></button><button onClick={() => navigate('/teacher/enrollments')} className="rounded-2xl bg-paper p-4 text-left transition-colors hover:bg-green-50"><UserPlus className="h-5 w-5 text-green-700" /><div className="mt-4 text-sm font-semibold">Enrollment requests</div><div className="mt-1 text-xs text-ink/50">Welcome new learners to your classes</div></button></div></section>
+  </div>
 }
