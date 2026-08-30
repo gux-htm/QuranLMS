@@ -1,0 +1,16 @@
+import { useMemo, useState } from 'react'
+import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button'
+import { useToast } from '@/components/ui/Toaster'
+import { useAppStore } from '@/lib/store'
+import type { PaceUnit, Student } from '@/lib/mockData'
+import { addDays, differenceInCalendarDays, format } from 'date-fns'
+
+interface Props { open: boolean; onClose: () => void; student: Student }
+export function PaceAdjustmentModal({ open, onClose, student }: Props) {
+  const { updateStudentPace } = useAppStore(); const { push } = useToast()
+  const [quantity, setQuantity] = useState(student.pace.quantity); const [unit, setUnit] = useState<PaceUnit>(student.pace.unit); const [reason, setReason] = useState(''); const [saving, setSaving] = useState(false)
+  const preview = useMemo(() => { const remaining = Math.max(0, student.totalUnits - student.unitsCompleted); const oldDays = Math.max(1, Math.ceil(remaining / Math.max(student.pace.quantity, .1))); const newDays = Math.max(1, Math.ceil(remaining / Math.max(quantity, .1))); const now = new Date(); const oldDate = addDays(now, oldDays); const newDate = addDays(now, newDays); return { oldDate, newDate, delta: differenceInCalendarDays(oldDate, newDate) } }, [quantity, student])
+  const submit = async () => { setSaving(true); await new Promise(r => setTimeout(r, 500)); updateStudentPace(student.id, Math.max(.1, quantity), unit); push(reason ? `Pace updated — ${reason}` : 'Pace updated'); setSaving(false); onClose() }
+  return <Modal open={open} onClose={onClose} title="Adjust pace"><div className="space-y-4"><div className="grid gap-3 sm:grid-cols-2"><label className="text-sm font-medium text-ink">Pace quantity<input className="mt-1.5 h-10 w-full rounded-md border border-line bg-white px-3" type="number" min="0.1" step="0.1" value={quantity} onChange={e => setQuantity(Number(e.target.value))} /></label><label className="text-sm font-medium text-ink">Pace unit<select className="mt-1.5 h-10 w-full rounded-md border border-line bg-white px-3" value={unit} onChange={e => setUnit(e.target.value as PaceUnit)}><option value="pages">Pages</option><option value="verses">Verses</option><option value="juz">Juz</option></select></label></div><label className="block text-sm font-medium text-ink">Reason <span className="text-ink/45">(optional)</span><input className="mt-1.5 h-10 w-full rounded-md border border-line bg-white px-3" placeholder="e.g. Student is progressing faster than expected" value={reason} onChange={e => setReason(e.target.value)} /></label><div className="rounded-xl bg-green-50 p-4 text-sm"><div className="font-semibold text-green-900">Updated completion estimate</div><div className="mt-1 text-ink/70">{format(preview.oldDate, 'MMM d, yyyy')} → {format(preview.newDate, 'MMM d, yyyy')}</div><div className="mt-1 text-green-700">{preview.delta >= 0 ? `${preview.delta} days sooner` : `${Math.abs(preview.delta)} days later`}</div></div><div className="flex justify-end gap-2"><Button variant="outline" onClick={onClose} disabled={saving}>Cancel</Button><Button onClick={submit} disabled={saving}>{saving ? 'Updating…' : 'Update pace'}</Button></div></div></Modal>
+}
