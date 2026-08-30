@@ -3,12 +3,14 @@ import { CheckCircle2, CircleDot, Clock, Plus, CalendarDays } from 'lucide-react
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { TEACHER_SCHEDULE, today } from '@/lib/mockData'
+import type { ScheduledSession } from '@/lib/store'
 import { addDays, format, startOfWeek } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '@/lib/store'
 import { ScheduleSessionModal } from '@/components/teacher/ScheduleSessionModal'
 
 type SessionStatus = 'completed' | 'in-progress' | 'upcoming'
+type ScheduleEntry = (typeof TEACHER_SCHEDULE)[number] | ScheduledSession
 const statusStyles: Record<SessionStatus, { label: string; className: string }> = {
   completed: { label: 'Completed', className: 'bg-paper-dim text-ink/50' },
   'in-progress': { label: 'In progress', className: 'bg-green-50 text-green-700' },
@@ -21,8 +23,8 @@ export function TeacherSchedule() {
   const [view, setView] = useState<'today' | 'week'>('today')
   const [modalOpen, setModalOpen] = useState(false)
   const now = new Date()
-  const allSessions = useMemo(() => [...TEACHER_SCHEDULE, ...scheduledSessions], [scheduledSessions])
-  const withStatus = (session: { date: string; time: string; duration: number }) => {
+  const allSessions = useMemo<ScheduleEntry[]>(() => [...TEACHER_SCHEDULE, ...scheduledSessions], [scheduledSessions])
+  const withStatus = (session: ScheduleEntry) => {
     const start = new Date(`${session.date}T${session.time}`)
     const end = new Date(start.getTime() + session.duration * 60000)
     const status: SessionStatus = now >= end ? 'completed' : now >= start ? 'in-progress' : 'upcoming'
@@ -30,7 +32,7 @@ export function TeacherSchedule() {
   }
   const todaysSchedule = allSessions.filter((s) => s.date === format(today, 'yyyy-MM-dd')).sort((a, b) => a.time.localeCompare(b.time)).map(withStatus)
   const nextSessionId = todaysSchedule.find((s) => s.status === 'upcoming')?.id
-  const joinSession = (session: (typeof allSessions)[number]) => {
+  const joinSession = (session: ScheduleEntry) => {
     if (session.meetUrl) window.open(session.meetUrl, '_blank')
     navigate(`/teacher/schedule/${session.id}`)
   }
