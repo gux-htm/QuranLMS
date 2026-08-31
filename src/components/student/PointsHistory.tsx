@@ -1,0 +1,4 @@
+import { MinusCircle, PlusCircle } from 'lucide-react'
+import { Card, CardContent, CardTitle } from '@/components/ui/Card'
+import { POINT_EVENTS } from '@/mock/finalCompletion'
+export function PointsHistory() { return <Card><CardTitle className="mb-4">Points history</CardTitle><CardContent className="space-y-2">{POINT_EVENTS.map((event) => <div key={event.id} className="flex items-center gap-3 rounded-md border border-line px-3 py-2.5"><span className="shrink-0">{event.points >= 0 ? <PlusCircle className="h-4 w-4 text-green-700" /> : <MinusCircle className="h-4 w-4 text-clay-700" />}</span><span className="w-24 shrink-0 text-xs text-ink/45">{event.date}</span><span className="min-w-0 flex-1 text-sm text-ink">{event.label}</span><span className={`text-sm font-semibold tabular-nums ${event.points >= 0 ? 'text-green-700' : 'text-clay-700'}`}>{event.points > 0 ? '+' : '−'}{Math.abs(event.points)} pts</span></div>)}</CardContent></Card> }
