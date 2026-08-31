@@ -1,0 +1,10 @@
+import { useState } from 'react'
+import { Play } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/Card'
+interface WordByWordModeProps { arabic: string; transliteration?: string }
+export function WordByWordMode({ arabic, transliteration = '' }: WordByWordModeProps) {
+ const words=arabic.trim().split(/\s+/).filter(Boolean); const translitWords=transliteration.trim().split(/\s+/).filter(Boolean); const [selected,setSelected]=useState<number|null>(null); const [playing,setPlaying]=useState(false)
+ const playWord=(index:number)=>{setSelected(index);setPlaying(true);window.setTimeout(()=>setPlaying(false),1500)}
+ if(!arabic.trim()) return <Card><CardContent className="py-8 text-center text-sm text-ink/55">Word-by-word mode requires lesson text.</CardContent></Card>
+ return <Card><CardContent><div dir="rtl" className="text-right font-[Noto_Naskh_Arabic] text-3xl leading-[2.25] text-ink">{words.map((word,index)=><span key={`${word}-${index}`} className={`relative mx-0.5 inline-block cursor-pointer rounded-md px-1 transition-colors duration-150 hover:bg-gold-100 ${selected===index?'border border-green-600/30 bg-green-600/15 text-green-800':''}`} onClick={()=>setSelected(index)}>{word}{selected===index&&<span dir="ltr" className="absolute right-0 top-full z-10 mt-2 w-48 rounded-lg border border-line bg-white p-3 text-left font-sans shadow-card"><span className="block font-[Noto_Naskh_Arabic] text-2xl text-ink">{word}</span><span className="mt-1 block text-xs text-ink/55">{translitWords[index] ?? 'Tap to study this word'}</span><button type="button" onClick={(event)=>{event.stopPropagation();playWord(index)}} className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-green-700 px-2.5 py-1.5 text-xs font-semibold text-paper"><Play className="h-3 w-3" />{playing&&selected===index?'Playing…':'Play word'}</button></span>}</span>)}</div><p className="mt-4 text-xs text-ink/45">Tap a word to focus on it. Word audio is simulated in this frontend prototype.</p></CardContent></Card>
+}
