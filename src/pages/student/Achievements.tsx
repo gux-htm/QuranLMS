@@ -18,7 +18,9 @@ interface LockedBadge {
 export function StudentAchievements() {
   const { getEnrolledStudents, getClass, teacherSettings } = useAppStore()
 
-  const quranComplete = Math.round((CURRENT_STUDENT.unitsCompleted / CURRENT_STUDENT.totalUnits) * 100)
+  const quranComplete = Math.round(
+    (CURRENT_STUDENT.unitsCompleted / CURRENT_STUDENT.totalUnits) * 100
+  )
   const juzCompleted = CURRENT_STUDENT.unitsCompleted / (CURRENT_STUDENT.totalUnits / 30)
 
   const lockedBadges: LockedBadge[] = [
@@ -58,7 +60,10 @@ export function StudentAchievements() {
 
   const klass = CURRENT_STUDENT.classId ? getClass(CURRENT_STUDENT.classId) : undefined
   const leaderboardVisible =
-    !!klass && klass.leaderboardEnabled && teacherSettings.leaderboardEnabled && teacherSettings.leaderboardVisibleToStudents
+    !!klass &&
+    klass.leaderboardEnabled &&
+    teacherSettings.leaderboardEnabled &&
+    teacherSettings.leaderboardVisibleToStudents
   const classmates = CURRENT_STUDENT.classId
     ? [...getEnrolledStudents(CURRENT_STUDENT.classId)].sort((a, b) => b.points - a.points)
     : []
@@ -69,8 +74,16 @@ export function StudentAchievements() {
     'bg-clay-100 text-clay-800 ring-1 ring-clay-200',
   ]
 
+  const stats = [
+    { icon: Trophy, tone: 'bg-gold-100 text-gold-700', value: CURRENT_STUDENT.points, label: 'Total points', detail: 'Earned across all sessions' },
+    { icon: Medal, tone: 'bg-green-50 text-green-700', value: `#${CURRENT_STUDENT.rank}`, label: 'Class rank', detail: `Of ${CURRENT_STUDENT.totalStudents} students` },
+    { icon: Flame, tone: 'bg-clay-100 text-clay-600', value: CURRENT_STUDENT.streak, label: 'Day streak', detail: 'Current consecutive days' },
+    { icon: Trophy, tone: 'bg-sky-100 text-sky-600', value: ACHIEVEMENTS.length, label: 'Badges earned', detail: 'Keep going to unlock more' },
+  ]
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
+      {/* Page header */}
       <div>
         <h1 className="font-display text-2xl font-semibold text-ink">Achievements</h1>
         <p className="mt-1 text-sm text-ink/55">
@@ -78,64 +91,50 @@ export function StudentAchievements() {
         </p>
       </div>
 
-      {/* Stats row */}
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-        <Card className="relative overflow-hidden">
-          <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-gold-100/70" />
-          <CardContent className="relative space-y-2">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gold-100">
-              <Trophy className="h-5 w-5 text-gold-700" />
-            </span>
-            <div className="font-display text-2xl font-semibold tabular-nums text-ink">{CURRENT_STUDENT.points}</div>
-            <div className="text-xs font-medium text-ink/50">Total points</div>
-          </CardContent>
-        </Card>
-        <Card className="relative overflow-hidden">
-          <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-green-100/70" />
-          <CardContent className="relative space-y-2">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-green-100">
-              <Medal className="h-5 w-5 text-green-700" />
-            </span>
-            <div className="font-display text-2xl font-semibold tabular-nums text-ink">#{CURRENT_STUDENT.rank}</div>
-            <div className="text-xs font-medium text-ink/50">Class rank of {CURRENT_STUDENT.totalStudents}</div>
-          </CardContent>
-        </Card>
-        <Card className="relative overflow-hidden">
-          <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-clay-100/70" />
-          <CardContent className="relative space-y-2">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-clay-100">
-              <Flame className="h-5 w-5 text-clay-600" />
-            </span>
-            <div className="font-display text-2xl font-semibold tabular-nums text-ink">{CURRENT_STUDENT.streak}</div>
-            <div className="text-xs font-medium text-ink/50">Day streak</div>
-          </CardContent>
-        </Card>
-        <Card className="relative overflow-hidden">
-          <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-sky-100/70" />
-          <CardContent className="relative space-y-2">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-sky-100">
-              <TrendingUp className="h-5 w-5 text-sky-600" />
-            </span>
-            <div className="font-display text-2xl font-semibold tabular-nums text-ink">{ACHIEVEMENTS.length}</div>
-            <div className="text-xs font-medium text-ink/50">Badges earned</div>
-          </CardContent>
-        </Card>
+      {/* Stat cards */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {stats.map((stat) => {
+          const Icon = stat.icon
+          return (
+            <Card key={stat.label} className="group relative overflow-hidden p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+              <CardContent className="space-y-0">
+                <div className="flex items-start justify-between">
+                  <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${stat.tone}`}>
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <TrendingUp className="h-4 w-4 text-ink/15 transition-colors group-hover:text-green-500" />
+                </div>
+                <div className="mt-5 font-display text-3xl font-semibold tracking-tight text-ink">{stat.value}</div>
+                <div className="mt-1 text-sm font-semibold text-ink">{stat.label}</div>
+                <div className="mt-1 text-xs text-ink/45">{stat.detail}</div>
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
 
+      {/* Badge collection + leaderboard */}
       <div className="grid gap-5 lg:grid-cols-3">
-        {/* Badge collection */}
-        <Card className="lg:col-span-2">
-          <CardTitle className="mb-4">Badge collection</CardTitle>
+        <Card className="p-6 lg:col-span-2">
+          <div className="mb-5 flex items-start justify-between gap-4">
+            <div>
+              <CardTitle>Badge collection</CardTitle>
+              <p className="mt-1 text-sm text-ink/50">Unlocked and upcoming badges.</p>
+            </div>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gold-100 text-gold-700">
+              <Trophy className="h-4 w-4" />
+            </span>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {ACHIEVEMENTS.map((badge) => (
               <div
                 key={badge.id}
-                className="group relative overflow-hidden rounded-lg border border-line bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-card"
+                className="group relative overflow-hidden rounded-2xl border border-line bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md"
               >
                 <div className="absolute inset-0 opacity-[0.035]" style={{ backgroundColor: badge.badgeColor }} />
                 <div className="relative flex items-center gap-3">
                   <span
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full transition-transform duration-200 group-hover:scale-110"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-transform duration-200 group-hover:scale-110"
                     style={{ backgroundColor: `${badge.badgeColor}20`, boxShadow: `0 0 0 4px ${badge.badgeColor}14` }}
                   >
                     <Trophy className="h-5 w-5" style={{ color: badge.badgeColor }} />
@@ -157,10 +156,10 @@ export function StudentAchievements() {
             {lockedBadges.map((badge) => (
               <div
                 key={badge.id}
-                className="rounded-lg border border-dashed border-line bg-paper/60 p-4 transition-colors duration-200 hover:border-gold-300 hover:bg-paper"
+                className="rounded-2xl border border-dashed border-line bg-paper/60 p-4 transition-colors hover:border-gold-300 hover:bg-paper"
               >
                 <div className="flex items-center gap-3">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-paper-dim">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-paper-dim">
                     <Lock className="h-4 w-4 text-ink/30" />
                   </span>
                   <div className="min-w-0 flex-1">
@@ -185,9 +184,17 @@ export function StudentAchievements() {
           </div>
         </Card>
 
-        {/* Leaderboard */}
-        <Card>
-          <CardTitle className="mb-4">Class leaderboard</CardTitle>
+        {/* Class leaderboard */}
+        <Card className="p-6">
+          <div className="mb-5 flex items-start justify-between gap-4">
+            <div>
+              <CardTitle>Class leaderboard</CardTitle>
+              <p className="mt-1 text-sm text-ink/50">How you rank among classmates.</p>
+            </div>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gold-100 text-gold-700">
+              <Medal className="h-4 w-4" />
+            </span>
+          </div>
           {leaderboardVisible ? (
             <div className="space-y-2">
               {classmates.map((mate, index) => {
@@ -195,7 +202,7 @@ export function StudentAchievements() {
                 return (
                   <div
                     key={mate.id}
-                    className={`flex items-center gap-3 rounded-lg border p-3 transition-colors duration-150 ${
+                    className={`flex items-center gap-3 rounded-2xl border p-3 transition-colors ${
                       isMe ? 'border-green-300 bg-green-50/70' : 'border-line bg-white hover:bg-paper/60'
                     }`}
                   >
@@ -206,7 +213,7 @@ export function StudentAchievements() {
                     >
                       {index + 1}
                     </span>
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-100 font-display text-[11px] font-semibold text-green-800">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-green-100 font-display text-[11px] font-semibold text-green-800">
                       {initialsOf(mate.name)}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -229,18 +236,27 @@ export function StudentAchievements() {
               </p>
             </div>
           ) : (
-            <div className="rounded-lg border border-line bg-paper/50 p-6 text-center">
+            <div className="rounded-2xl border border-dashed border-line bg-paper/60 p-7 text-center">
               <Lock className="mx-auto h-6 w-6 text-ink/25" />
-              <p className="mt-2 text-sm text-ink/50">Your teacher has hidden the leaderboard for this class.</p>
+              <p className="mt-2 font-medium text-ink">Leaderboard hidden.</p>
+              <p className="mt-1 text-sm text-ink/50">Your teacher has hidden the leaderboard for this class.</p>
             </div>
           )}
         </Card>
       </div>
 
+      {/* Milestones + weekly scores */}
       <div className="grid gap-5 lg:grid-cols-2">
-        {/* Milestones */}
-        <Card>
-          <CardTitle className="mb-4">Quran completion milestones</CardTitle>
+        <Card className="p-6">
+          <div className="mb-5 flex items-start justify-between gap-4">
+            <div>
+              <CardTitle>Quran completion milestones</CardTitle>
+              <p className="mt-1 text-sm text-ink/50">Track your progress toward each major milestone.</p>
+            </div>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-50 text-green-700">
+              <Trophy className="h-4 w-4" />
+            </span>
+          </div>
           <CardContent className="space-y-4">
             {MILESTONES.map((m) => {
               const reached = quranComplete >= m.percentage
@@ -248,7 +264,9 @@ export function StudentAchievements() {
               return (
                 <div key={m.name}>
                   <div className="flex items-baseline justify-between">
-                    <span className={`text-sm font-medium ${reached ? 'text-green-700' : 'text-ink'}`}>{m.name}</span>
+                    <span className={`text-sm font-medium ${reached ? 'text-green-700' : 'text-ink'}`}>
+                      {m.name}
+                    </span>
                     <span className="text-[11px] tabular-nums text-ink/45">
                       {reached ? 'Completed' : `Est. ${format(new Date(m.projectedDate), 'MMM d, yyyy')}`}
                     </span>
@@ -265,16 +283,23 @@ export function StudentAchievements() {
           </CardContent>
         </Card>
 
-        {/* Weekly scores */}
-        <Card>
-          <CardTitle className="mb-3">This week's scores</CardTitle>
+        <Card className="p-6">
+          <div className="mb-5 flex items-start justify-between gap-4">
+            <div>
+              <CardTitle>This week's scores</CardTitle>
+              <p className="mt-1 text-sm text-ink/50">Session performance over the last 7 days.</p>
+            </div>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-paper-dim text-green-700">
+              <TrendingUp className="h-4 w-4" />
+            </span>
+          </div>
           <TrendChart type="bar" data={WEEK_SCORES} xKey="day" yKey="score" domain={[0, 100]} unit="%" height={200} />
-          <p className="mt-3 rounded-md bg-paper-dim px-3 py-2 text-xs text-ink/55">
+          <p className="mt-3 rounded-2xl bg-paper-dim px-3 py-2 text-xs text-ink/55">
             Weekly average:{' '}
             <span className="font-semibold text-ink">
               {Math.round(WEEK_SCORES.reduce((sum, d) => sum + d.score, 0) / WEEK_SCORES.length)}%
             </span>{' '}
-            Scores of 70+ mark a lesson as complete.
+            · Scores of 70+ mark a lesson as complete.
           </p>
         </Card>
       </div>
