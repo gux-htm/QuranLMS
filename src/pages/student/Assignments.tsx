@@ -109,8 +109,8 @@ export function StudentAssignments() {
               <p className="mt-2 font-medium text-ink">Nothing here yet.</p>
               <p className="mt-1 text-sm text-ink/50">
                 {tab === 'Completed'
-                  ? 'You haven't completed any assignments yet.'
-                  : 'Your teacher hasn't assigned any lessons yet.'}
+                  ? "You haven't completed any assignments yet."
+                  : "Your teacher hasn't assigned any lessons yet."}
               </p>
             </div>
           ) : (
