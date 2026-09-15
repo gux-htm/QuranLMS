@@ -10,7 +10,7 @@ import {
   TrendingUp,
   BarChart3,
   Star,
-  Clock3,
+  Award,
 } from 'lucide-react'
 import { Card, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
