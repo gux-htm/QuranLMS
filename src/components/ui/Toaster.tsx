@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useCallback, useContext, useRef, useState } from 'react'
+﻿import { ReactNode, createContext, useCallback, useContext, useRef, useState } from 'react'
 import { AlertCircle, CheckCircle2, X } from 'lucide-react'
 
 type ToastType = 'success' | 'error'
@@ -37,7 +37,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={t.id}
             role="status"
-            className={`pointer-events-auto flex items-start gap-2.5 rounded-lg border p-3 shadow-card ${
+            className={`pointer-events-auto flex items-start gap-2.5 rounded-2xl border p-3.5 shadow-card ${
               t.type === 'success' ? 'border-green-200 bg-white' : 'border-clay-300 bg-white'
             }`}
           >
@@ -62,3 +62,4 @@ export function useToast() {
   if (!ctx) throw new Error('useToast must be used within ToastProvider')
   return ctx
 }
+

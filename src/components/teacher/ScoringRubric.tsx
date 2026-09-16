@@ -1,4 +1,4 @@
-import { RUBRIC_LABELS, RUBRIC_MAX } from '@/types'
+﻿import { RUBRIC_LABELS, RUBRIC_MAX } from '@/types'
 import type { LessonRubric } from '@/types'
 
 interface ScoringRubricProps {
@@ -41,7 +41,7 @@ export function ScoringRubric({ value, onChange }: ScoringRubricProps) {
               onChange={(e) =>
                 onChange({ ...value, [k]: Math.min(max, Math.max(0, Number(e.target.value) || 0)) })
               }
-              className="h-8 w-14 rounded-md border border-line bg-white px-1.5 text-center text-sm tabular-nums text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+              className="h-8 w-14 rounded-xl border border-line bg-white px-1.5 text-center text-sm tabular-nums text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
               aria-label={`${RUBRIC_LABELS[k]} score input`}
             />
             <span className="w-9 shrink-0 text-right text-xs tabular-nums text-ink/45">/{max}</span>
@@ -51,3 +51,4 @@ export function ScoringRubric({ value, onChange }: ScoringRubricProps) {
     </div>
   )
 }
+

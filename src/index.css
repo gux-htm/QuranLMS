@@ -6,3 +6,44 @@ body {
   font-family: Inter, system-ui, sans-serif;
   background-color: #FBFAF6;
 }
+
+/* ── Floating card animations ───────────────────────────────── */
+@keyframes float-a {
+  0%, 100% { transform: translateY(0px) rotate(3deg); }
+  50%       { transform: translateY(-10px) rotate(3deg); }
+}
+@keyframes float-b {
+  0%, 100% { transform: translateY(0px) rotate(-2deg); }
+  50%       { transform: translateY(-8px) rotate(-2deg); }
+}
+@keyframes float-c {
+  0%, 100% { transform: translateY(0px) rotate(1.5deg); }
+  50%       { transform: translateY(-12px) rotate(1.5deg); }
+}
+@keyframes float-d {
+  0%, 100% { transform: translateY(0px) rotate(-2.5deg); }
+  50%       { transform: translateY(-6px) rotate(-2.5deg); }
+}
+@keyframes float-center {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+.float-a { animation: float-a 5s ease-in-out infinite; }
+.float-b { animation: float-b 6s ease-in-out infinite; }
+.float-c { animation: float-c 4.5s ease-in-out infinite; }
+.float-d { animation: float-d 5.5s ease-in-out infinite; }
+.float-center { animation: float-center 7s ease-in-out infinite; }
+
+/* ── Scroll reveal ───────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+/* ── Progress bar fill ───────────────────────────────────────── */
+@keyframes fillBar {
+  from { width: 0%; }
+}
+.fill-bar { animation: fillBar 1.5s cubic-bezier(0.16,1,0.3,1) forwards; }

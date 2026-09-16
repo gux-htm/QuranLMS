@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react'
+﻿import { ReactNode, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -25,18 +25,18 @@ export function Modal({ open, onClose, title, children, footer, wide }: ModalPro
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-sm"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div
-        className={cn('flex max-h-[90vh] w-full flex-col rounded-lg bg-white shadow-card', wide ? 'max-w-3xl' : 'max-w-md')}
+        className={cn('flex max-h-[90vh] w-full flex-col rounded-2xl bg-white shadow-[0_24px_70px_rgba(28,38,32,0.18)]', wide ? 'max-w-3xl' : 'max-w-md')}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
           <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>
-          <button onClick={onClose} className="rounded-md p-1 text-ink/40 hover:bg-paper-dim" aria-label="Close dialog">
+          <button onClick={onClose} className="rounded-xl p-1 text-ink/40 hover:bg-paper-dim" aria-label="Close dialog">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -46,3 +46,4 @@ export function Modal({ open, onClose, title, children, footer, wide }: ModalPro
     </div>
   )
 }
+

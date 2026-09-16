@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import type { AudioSegment } from '@/lib/curriculumData'
 
@@ -36,8 +36,8 @@ export function AudioPlayer({ segments, emptyHint }: AudioPlayerProps) {
 
   if (segments.length === 0) {
     return (
-      <p className="rounded-md border border-line bg-paper-dim/50 p-3 text-xs text-ink/55">
-        {emptyHint ?? 'No pre-recorded audio for this unit — the teacher recites live.'}
+      <p className="rounded-xl border border-line bg-paper-dim/50 p-3 text-xs text-ink/55">
+        {emptyHint ?? 'No pre-recorded audio for this unit â€” the teacher recites live.'}
       </p>
     )
   }
@@ -85,12 +85,12 @@ export function AudioPlayer({ segments, emptyHint }: AudioPlayerProps) {
         }}
       />
 
-      <div className="flex flex-wrap items-center gap-3 rounded-md border border-line bg-paper-dim/40 px-3 py-2.5">
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-line bg-paper-dim/40 px-3 py-2.5">
         <div className="flex items-center gap-1">
           <button
             onClick={() => jump(-1)}
             disabled={index === 0}
-            className="rounded-md p-1.5 text-ink/60 hover:bg-paper-dim disabled:opacity-30"
+            className="rounded-xl p-1.5 text-ink/60 hover:bg-paper-dim disabled:opacity-30"
             aria-label="Previous ayah"
           >
             <SkipBack className="h-4 w-4" />
@@ -105,7 +105,7 @@ export function AudioPlayer({ segments, emptyHint }: AudioPlayerProps) {
           <button
             onClick={() => jump(1)}
             disabled={index >= segments.length - 1}
-            className="rounded-md p-1.5 text-ink/60 hover:bg-paper-dim disabled:opacity-30"
+            className="rounded-xl p-1.5 text-ink/60 hover:bg-paper-dim disabled:opacity-30"
             aria-label="Next ayah"
           >
             <SkipForward className="h-4 w-4" />
@@ -115,7 +115,7 @@ export function AudioPlayer({ segments, emptyHint }: AudioPlayerProps) {
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex items-center justify-between text-[11px] text-ink/50">
             <span>
-              Ayah {current?.label} • {index + 1}/{segments.length}
+              Ayah {current?.label} â€¢ {index + 1}/{segments.length}
             </span>
           </div>
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
@@ -128,7 +128,7 @@ export function AudioPlayer({ segments, emptyHint }: AudioPlayerProps) {
             <button
               key={s}
               onClick={() => setSpeed(s)}
-              className={`rounded-md px-1.5 py-0.5 text-[11px] font-medium tabular-nums ${
+              className={`rounded-xl px-1.5 py-0.5 text-[11px] font-medium tabular-nums ${
                 speed === s ? 'bg-green-600 text-paper' : 'text-ink/55 hover:bg-paper-dim'
               }`}
             >
@@ -139,10 +139,11 @@ export function AudioPlayer({ segments, emptyHint }: AudioPlayerProps) {
       </div>
 
       {failed && (
-        <p className="rounded-md bg-clay-100/60 px-3 py-2 text-xs text-clay-700">
+        <p className="rounded-xl bg-clay-100/60 px-3 py-2 text-xs text-clay-700">
           Audio could not be loaded (offline or reciter unavailable). Try another Qari.
         </p>
       )}
     </div>
   )
 }
+

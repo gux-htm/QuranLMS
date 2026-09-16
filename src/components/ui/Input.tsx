@@ -16,7 +16,7 @@ export function Input({ label, error, helper, icon, className, ...props }: Input
         {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/50">{icon}</div>}
         <input
           className={cn(
-            'h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink placeholder:text-ink/40 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-700',
+            'h-10 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink placeholder:text-ink/40 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-700',
             icon && 'pl-10',
             error && 'border-clay-600 focus:ring-clay-600',
             className

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { format, addDays } from 'date-fns'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
@@ -65,14 +65,14 @@ export function AssignmentModal({ item, mode, onClose, onAssigned }: AssignmentM
     <Modal
       open={!!item}
       onClose={onClose}
-      title={`Assign “${item.title}”`}
+      title={`Assign â€œ${item.title}â€`}
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
           <Button onClick={handleAssign} disabled={!canAssign || loading}>
-            {loading ? 'Assigning…' : `Assign${targetIds.length ? ` to ${targetIds.length} student${targetIds.length === 1 ? '' : 's'}` : ''}`}
+            {loading ? 'Assigningâ€¦' : `Assign${targetIds.length ? ` to ${targetIds.length} student${targetIds.length === 1 ? '' : 's'}` : ''}`}
           </Button>
         </>
       }
@@ -87,7 +87,7 @@ export function AssignmentModal({ item, mode, onClose, onAssigned }: AssignmentM
                 setClassId(e.target.value)
                 setSelected([])
               }}
-              className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+              className="h-10 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
             >
               {classes.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -127,7 +127,7 @@ export function AssignmentModal({ item, mode, onClose, onAssigned }: AssignmentM
           )}
 
           {(mode === 'student' || specificOnly) && (
-            <div className="max-h-44 space-y-1.5 overflow-y-auto rounded-md border border-line p-2">
+            <div className="max-h-44 space-y-1.5 overflow-y-auto rounded-xl border border-line p-2">
               {pool.length === 0 ? (
                 <p className="p-2 text-sm text-ink/50">No students available.</p>
               ) : (
@@ -156,7 +156,7 @@ export function AssignmentModal({ item, mode, onClose, onAssigned }: AssignmentM
             type="date"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
-            className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+            className="h-10 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
           />
         </label>
 
@@ -167,10 +167,11 @@ export function AssignmentModal({ item, mode, onClose, onAssigned }: AssignmentM
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
             placeholder='e.g. "Practice Makhraj on page 2 before Thursday"'
-            className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
+            className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
           />
         </label>
       </div>
     </Modal>
   )
 }
+

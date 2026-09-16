@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { format, subDays } from 'date-fns'
 import { BadgeCheck, Camera, Clock, KeyRound, ShieldCheck, User as UserIcon } from 'lucide-react'
 import { Card, CardTitle } from '@/components/ui/Card'
@@ -30,7 +30,7 @@ const LOGIN_HISTORY: LoginHistoryEntry[] = Array.from({ length: 10 }, (_, i) => 
     date: format(date, 'MMM d, yyyy'),
     time: format(new Date(date.getTime() - i * 3600_000 * 2), 'h:mm a'),
     ip: `182.176.${40 + i}.${12 + i * 3}`,
-    device: i % 3 === 0 ? 'Chrome — Windows' : i % 3 === 1 ? 'Safari — iPhone' : 'Chrome — Android',
+    device: i % 3 === 0 ? 'Chrome â€” Windows' : i % 3 === 1 ? 'Safari â€” iPhone' : 'Chrome â€” Android',
     location: i % 4 === 0 ? 'Multan, PK' : 'Lahore, PK',
   }
 })
@@ -47,7 +47,7 @@ function QrPattern() {
     return out
   }, [])
   return (
-    <svg viewBox="0 0 21 21" className="h-40 w-40 rounded-md border border-line bg-white p-1.5" role="img" aria-label="MFA QR code">
+    <svg viewBox="0 0 21 21" className="h-40 w-40 rounded-xl border border-line bg-white p-1.5" role="img" aria-label="MFA QR code">
       {cells.map((on, i) =>
         on ? <rect key={i} x={i % 21} y={Math.floor(i / 21)} width={0.92} height={0.92} fill="#1C2620" /> : null
       )}
@@ -174,7 +174,7 @@ export function TeacherSettings() {
       return (
         <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">
           <BadgeCheck className="h-4 w-4" />
-          Verified{settings.verifiedDate ? ` — since ${format(new Date(settings.verifiedDate), 'MMM d, yyyy')}` : ''}
+          Verified{settings.verifiedDate ? ` â€” since ${format(new Date(settings.verifiedDate), 'MMM d, yyyy')}` : ''}
         </span>
       )
     if (settings.verificationStatus === 'pending')
@@ -197,7 +197,7 @@ export function TeacherSettings() {
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`rounded-t-md px-3.5 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-t-xl px-3.5 py-2 text-sm font-medium transition-colors ${
               tab === t.id ? 'border-b-2 border-green-600 bg-green-50 text-green-700' : 'text-ink/55 hover:bg-paper-dim'
             }`}
           >
@@ -256,7 +256,7 @@ export function TeacherSettings() {
                 <input
                   value={profile.institutionName}
                   onChange={(e) => setProfile({ ...profile, institutionName: e.target.value })}
-                  className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                  className="h-10 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
                 />
               </label>
               <label className="block">
@@ -264,7 +264,7 @@ export function TeacherSettings() {
                 <input
                   value={profile.phone}
                   onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                  className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                  className="h-10 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
                 />
               </label>
             </div>
@@ -275,7 +275,7 @@ export function TeacherSettings() {
                 value={profile.bio}
                 onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                 rows={3}
-                className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
               />
             </label>
 
@@ -284,7 +284,7 @@ export function TeacherSettings() {
               <select
                 value={profile.timezone}
                 onChange={(e) => setProfile({ ...profile, timezone: e.target.value })}
-                className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                className="h-10 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
               >
                 {TIMEZONES.map((tz) => (
                   <option key={tz} value={tz}>
@@ -295,7 +295,7 @@ export function TeacherSettings() {
             </label>
 
             <Button onClick={saveProfile} disabled={saving}>
-              {saving ? 'Saving…' : 'Save profile'}
+              {saving ? 'Savingâ€¦' : 'Save profile'}
             </Button>
           </div>
         </Card>
@@ -316,7 +316,7 @@ export function TeacherSettings() {
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="h-10 rounded-md border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                  className="h-10 rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
                 />
               </label>
               <label className="block">
@@ -325,7 +325,7 @@ export function TeacherSettings() {
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="h-10 rounded-md border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                  className="h-10 rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
                 />
               </label>
               <label className="block">
@@ -333,11 +333,11 @@ export function TeacherSettings() {
                 <input
                   value="30 minutes (fixed)"
                   readOnly
-                  className="h-10 w-40 rounded-md border border-line bg-paper-dim px-3 text-sm text-ink/60"
+                  className="h-10 w-40 rounded-xl border border-line bg-paper-dim px-3 text-sm text-ink/60"
                 />
               </label>
               <Button onClick={handleGenerate} disabled={slotsApi.generating}>
-                {slotsApi.generating ? 'Generating…' : 'Generate slots'}
+                {slotsApi.generating ? 'Generatingâ€¦' : 'Generate slots'}
               </Button>
             </div>
 
@@ -347,7 +347,7 @@ export function TeacherSettings() {
                 {WEEKDAY_NAMES.map((name, i) => (
                   <label
                     key={name}
-                    className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 text-sm ${
+                    className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-1.5 text-sm ${
                       days.includes(i) ? 'border-green-300 bg-green-50 text-green-700' : 'border-line text-ink/60 hover:bg-paper-dim'
                     }`}
                   >
@@ -379,11 +379,11 @@ export function TeacherSettings() {
               )}
             </div>
             {slotsApi.slots.length === 0 ? (
-              <p className="rounded-md border border-line p-4 text-sm text-ink/55">
+              <p className="rounded-2xl border border-line p-4 text-sm text-ink/55">
                 No slots yet. Set your working hours and press "Generate slots".
               </p>
             ) : (
-              <div className="max-h-80 overflow-auto rounded-md border border-line">
+              <div className="max-h-80 overflow-auto rounded-xl border border-line">
                 <table className="w-full text-left text-sm">
                   <thead className="sticky top-0 bg-paper-dim text-xs uppercase tracking-wide text-ink/50">
                     <tr>
@@ -399,7 +399,7 @@ export function TeacherSettings() {
                       <tr key={slot.id} className="border-t border-line">
                         <td className="px-3 py-2 text-ink">{format(new Date(slot.date + 'T00:00:00'), 'EEE, MMM d')}</td>
                         <td className="px-3 py-2 tabular-nums text-ink">
-                          {slot.start} – {slot.end}
+                          {slot.start} â€“ {slot.end}
                         </td>
                         <td className="px-3 py-2 tabular-nums text-ink/60">
                           {slot.enrolledCount}/{slot.maxStudents}
@@ -439,18 +439,18 @@ export function TeacherSettings() {
           <Card>
             <CardTitle className="mb-3">Enrolled slots ({slotsApi.bookings.length})</CardTitle>
             {slotsApi.bookings.length === 0 ? (
-              <p className="rounded-md border border-line p-4 text-sm text-ink/55">No student bookings yet.</p>
+              <p className="rounded-2xl border border-line p-4 text-sm text-ink/55">No student bookings yet.</p>
             ) : (
               <div className="space-y-2">
                 {slotsApi.bookings.map((b) => {
                   const slot = slotsApi.slots.find((s) => s.id === b.slotId)
                   const student = slotsApi.getStudent(b.studentId)
                   return (
-                    <div key={b.id} className="flex flex-wrap items-center gap-3 rounded-md border border-line p-3">
+                    <div key={b.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-line p-3">
                       <div className="min-w-0 flex-1">
                         <div className="text-sm font-medium text-ink">{student?.name ?? 'Unknown student'}</div>
                         <div className="text-xs text-ink/55">
-                          {slot ? `${format(new Date(slot.date + 'T00:00:00'), 'EEE, MMM d')} • ${slot.start} – ${slot.end}` : 'Slot removed'}
+                          {slot ? `${format(new Date(slot.date + 'T00:00:00'), 'EEE, MMM d')} â€¢ ${slot.start} â€“ ${slot.end}` : 'Slot removed'}
                         </div>
                       </div>
                       <span
@@ -502,7 +502,7 @@ export function TeacherSettings() {
                   type="time"
                   value={notif.dailyReportTime}
                   onChange={(e) => setNotif({ ...notif, dailyReportTime: e.target.value })}
-                  className="h-10 rounded-md border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                  className="h-10 rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
                 />
               </label>
             </div>
@@ -552,7 +552,7 @@ export function TeacherSettings() {
             </fieldset>
 
             <Button onClick={saveNotifications} disabled={saving}>
-              {saving ? 'Saving…' : 'Save preferences'}
+              {saving ? 'Savingâ€¦' : 'Save preferences'}
             </Button>
           </div>
         </Card>
@@ -569,7 +569,7 @@ export function TeacherSettings() {
                 <select
                   value={platform.language}
                   onChange={(e) => setPlatform({ ...platform, language: e.target.value as 'en' | 'ar' | 'ur' })}
-                  className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                  className="h-10 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
                 >
                   <option value="en">English</option>
                   <option value="ar">Arabic</option>
@@ -581,7 +581,7 @@ export function TeacherSettings() {
                 <select
                   value={platform.theme}
                   onChange={(e) => setPlatform({ ...platform, theme: e.target.value as 'light' | 'dark' })}
-                  className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                  className="h-10 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
                 >
                   <option value="light">Light</option>
                   <option value="dark" disabled>
@@ -597,7 +597,7 @@ export function TeacherSettings() {
                 {TRACK_OPTIONS.map((t) => (
                   <label
                     key={t.id}
-                    className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 text-sm ${
+                    className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-1.5 text-sm ${
                       platform.enabledTracks.includes(t.id)
                         ? 'border-green-300 bg-green-50 text-green-700'
                         : 'border-line text-ink/60 hover:bg-paper-dim'
@@ -638,7 +638,7 @@ export function TeacherSettings() {
             </fieldset>
 
             {/* MFA setup */}
-            <div className="rounded-md border border-line p-4">
+            <div className="rounded-2xl border border-line p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-5 w-5 text-green-700" />
@@ -681,7 +681,7 @@ export function TeacherSettings() {
             </div>
 
             <Button onClick={savePlatform} disabled={saving}>
-              {saving ? 'Saving…' : 'Save platform settings'}
+              {saving ? 'Savingâ€¦' : 'Save platform settings'}
             </Button>
           </div>
         </Card>
@@ -709,7 +709,7 @@ export function TeacherSettings() {
                     type="password"
                     value={passwords[key]}
                     onChange={(e) => setPasswords({ ...passwords, [key]: e.target.value })}
-                    className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                    className="h-10 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
                   />
                 </label>
               ))}
@@ -721,7 +721,7 @@ export function TeacherSettings() {
 
           <Card>
             <CardTitle className="mb-3">Login history (last 10)</CardTitle>
-            <div className="overflow-x-auto rounded-md border border-line">
+            <div className="overflow-x-auto rounded-xl border border-line">
               <table className="w-full text-left text-sm">
                 <thead className="bg-paper-dim text-xs uppercase tracking-wide text-ink/50">
                   <tr>
@@ -762,7 +762,7 @@ export function TeacherSettings() {
       >
         <div className="space-y-4">
           <p className="text-sm text-ink/60">
-            Scan this QR code with your authenticator app (Google Authenticator, Authy…), then store the backup codes
+            Scan this QR code with your authenticator app (Google Authenticator, Authyâ€¦), then store the backup codes
             somewhere safe.
           </p>
           <div className="flex justify-center">
@@ -783,3 +783,6 @@ export function TeacherSettings() {
     </div>
   )
 }
+
+
+

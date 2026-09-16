@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import {
@@ -99,7 +99,7 @@ export function MistakeLogger({ word, existing, onClose, onAdd }: MistakeLoggerP
       }
     >
       <div className="space-y-4">
-        <div className="flex flex-wrap items-center gap-3 rounded-md border border-gold-200 bg-paper p-3">
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-gold-200 bg-paper p-3">
           <span className="font-arabic text-3xl text-ink" dir="rtl">
             {word.wordText}
           </span>
@@ -114,7 +114,7 @@ export function MistakeLogger({ word, existing, onClose, onAdd }: MistakeLoggerP
           <select
             value={type}
             onChange={(e) => changeType(e.target.value as LessonMistakeType)}
-            className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+            className="h-10 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
           >
             {(Object.keys(LESSON_MISTAKE_TYPE_LABELS) as LessonMistakeType[]).map((t) => (
               <option key={t} value={t}>
@@ -132,9 +132,9 @@ export function MistakeLogger({ word, existing, onClose, onAdd }: MistakeLoggerP
             <select
               value={subtype}
               onChange={(e) => setSubtype(e.target.value)}
-              className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+              className="h-10 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
             >
-              <option value="">Select…</option>
+              <option value="">Selectâ€¦</option>
               {subtypeOptions.map((o) => (
                 <option key={o} value={o}>
                   {o}
@@ -153,7 +153,7 @@ export function MistakeLogger({ word, existing, onClose, onAdd }: MistakeLoggerP
               max={25}
               value={deduction}
               onChange={(e) => setDeduction(Math.max(0, Math.min(25, Number(e.target.value) || 0)))}
-              className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm tabular-nums text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+              className="h-10 w-full rounded-xl border border-line bg-white px-3 text-sm tabular-nums text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
             />
           </label>
         </div>
@@ -165,10 +165,11 @@ export function MistakeLogger({ word, existing, onClose, onAdd }: MistakeLoggerP
             onChange={(e) => setNote(e.target.value)}
             rows={2}
             placeholder='e.g. "Repeat after 2:15 in the audio"'
-            className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
+            className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
           />
         </label>
       </div>
     </Modal>
   )
 }
+

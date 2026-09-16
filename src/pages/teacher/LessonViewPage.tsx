@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Award, CheckCircle2, Clock, Copy, Trash2, Video } from 'lucide-react'
 import { format } from 'date-fns'
@@ -175,7 +175,7 @@ export function TeacherLessonView() {
   if (loading) {
     return (
       <div className="rounded-lg border border-line bg-white p-10 text-center text-sm text-ink/55">
-        Loading session lesson…
+        Loading session lessonâ€¦
       </div>
     )
   }
@@ -289,7 +289,7 @@ export function TeacherLessonView() {
             Class: {session.className} | Student: {studentName}
           </h1>
           <p className="mt-1 text-sm text-ink/55">
-            {session.lessonTitle} • estimated {session.duration} min
+            {session.lessonTitle} â€¢ estimated {session.duration} min
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -316,7 +316,7 @@ export function TeacherLessonView() {
 
             {isQaida ? (
               <div className="space-y-3">
-                <div className="rounded-md border border-line bg-paper p-5 text-center">
+                <div className="rounded-xl border border-line bg-paper p-5 text-center">
                   <p className="font-arabic text-3xl leading-loose text-ink" dir="rtl">
                     {detail.contentAr}
                   </p>
@@ -327,12 +327,12 @@ export function TeacherLessonView() {
             ) : (
               <>
                 {pageLoading && (
-                  <div className="rounded-md border border-line bg-paper-dim/50 p-8 text-center text-sm text-ink/55">
-                    Loading Mushaf page {detail.resumeFrom.page}…
+                  <div className="rounded-xl border border-line bg-paper-dim/50 p-8 text-center text-sm text-ink/55">
+                    Loading Mushaf page {detail.resumeFrom.page}â€¦
                   </div>
                 )}
                 {pageError && (
-                  <div className="rounded-md border border-line bg-paper-dim/50 p-5 text-center text-sm text-ink/60">
+                  <div className="rounded-xl border border-line bg-paper-dim/50 p-5 text-center text-sm text-ink/60">
                     Couldn't load the Mushaf page (offline?). Lesson text:
                     <p className="mt-3 font-arabic text-2xl leading-loose text-ink" dir="rtl">
                       {detail.contentAr}
@@ -392,7 +392,7 @@ export function TeacherLessonView() {
                 <select
                   value={qari}
                   onChange={(e) => setQari(e.target.value)}
-                  className="h-8 rounded-md border border-line bg-white px-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                  className="h-8 rounded-xl border border-line bg-white px-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
                 >
                   {QARI_OPTIONS.map((q) => (
                     <option key={q.id} value={q.id}>
@@ -404,7 +404,7 @@ export function TeacherLessonView() {
             </div>
             <AudioPlayer
               segments={audioSegments}
-              emptyHint="No pre-recorded audio for this lesson — recite live with the student."
+              emptyHint="No pre-recorded audio for this lesson â€” recite live with the student."
             />
           </Card>
         </div>
@@ -443,24 +443,24 @@ export function TeacherLessonView() {
             )}
 
             <div className="mt-4 grid grid-cols-2 gap-2 border-t border-line pt-3 text-sm">
-              <div className="rounded-md border border-line p-2.5">
+              <div className="rounded-xl border border-line p-2.5">
                 <div className="text-xs text-ink/50">Session start</div>
                 <div className="font-medium text-ink">
                   {startedAt ? format(new Date(startedAt), 'h:mm a') : `${session.time} (scheduled)`}
                 </div>
               </div>
-              <div className="rounded-md border border-line p-2.5">
+              <div className="rounded-xl border border-line p-2.5">
                 <div className="text-xs text-ink/50">Estimated duration</div>
                 <div className="font-medium text-ink">{session.duration} min</div>
               </div>
-              <div className="rounded-md border border-line p-2.5">
+              <div className="rounded-xl border border-line p-2.5">
                 <div className="text-xs text-ink/50">Lines covered</div>
                 <div className="font-medium tabular-nums text-ink">{isQaida ? 8 : linesCovered} lines</div>
               </div>
-              <div className="rounded-md border border-line p-2.5">
+              <div className="rounded-xl border border-line p-2.5">
                 <div className="text-xs text-ink/50">Completion</div>
                 <div className="font-medium tabular-nums text-ink">
-                  {completionPct}%{student ? ` • est. ${format(new Date(student.estimatedCompletion), 'MMM d, yyyy')}` : ''}
+                  {completionPct}%{student ? ` â€¢ est. ${format(new Date(student.estimatedCompletion), 'MMM d, yyyy')}` : ''}
                 </div>
               </div>
             </div>
@@ -487,12 +487,12 @@ export function TeacherLessonView() {
                 onChange={(e) => setFeedback(e.target.value)}
                 rows={2}
                 placeholder='e.g. "Excellent work today! Focus on Ghar clarity next time."'
-                className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
               />
             </label>
 
             {saved && savedRubric && (
-              <p className="mt-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+              <p className="mt-3 rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
                 Saved: {savedRubric.total}/100 ({savedRubric.grade}) at {format(new Date(savedRubric.savedAt), 'h:mm a')}
               </p>
             )}
@@ -503,11 +503,11 @@ export function TeacherLessonView() {
             <Card>
               <CardTitle className="mb-3">Logged mistakes ({mistakes.length})</CardTitle>
               {mistakes.length === 0 ? (
-                <p className="rounded-md border border-line p-4 text-sm text-ink/55">
+                <p className="rounded-xl border border-line p-4 text-sm text-ink/55">
                   Click any word in the lesson text to log a mistake.
                 </p>
               ) : (
-                <div className="overflow-x-auto rounded-md border border-line">
+                <div className="overflow-x-auto rounded-xl border border-line">
                   <table className="w-full text-left text-sm">
                     <thead className="bg-paper-dim text-xs uppercase tracking-wide text-ink/50">
                       <tr>
@@ -528,10 +528,10 @@ export function TeacherLessonView() {
                           <td className="px-3 py-2 tabular-nums text-ink/60">{m.verseKey}</td>
                           <td className="px-3 py-2 text-ink/70">{m.subtype ?? m.type}</td>
                           <td className="px-3 py-2 tabular-nums text-clay-600">
-                            {m.deduction ? `-${m.deduction}` : '—'}
+                            {m.deduction ? `-${m.deduction}` : 'â€”'}
                           </td>
                           <td className="max-w-[160px] truncate px-3 py-2 text-ink/55" title={m.note}>
-                            {m.note || '—'}
+                            {m.note || 'â€”'}
                           </td>
                           <td className="px-3 py-2">
                             <button
@@ -553,7 +553,7 @@ export function TeacherLessonView() {
 
           <div className="flex gap-3">
             <Button onClick={handleSave} disabled={submitting} className="flex-1">
-              {submitting ? 'Saving…' : 'Save Score'}
+              {submitting ? 'Savingâ€¦' : 'Save Score'}
             </Button>
             <Button variant="outline" onClick={() => navigate('/teacher/schedule')}>
               Cancel
@@ -582,3 +582,4 @@ export function TeacherLessonView() {
     </div>
   )
 }
+

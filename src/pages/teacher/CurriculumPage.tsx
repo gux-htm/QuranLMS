@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react'
+﻿import { Fragment, useMemo, useState } from 'react'
 import { ArrowLeft, BookOpen, BookOpenText, Clock, GraduationCap, Languages, Moon, PauseCircle, ScrollText, Search, Volume2, X } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -26,11 +26,11 @@ interface Category {
 }
 
 const CATEGORIES: Category[] = [
-  { key: 'quran', title: 'The Holy Quran', subtitle: 'The entire Quran — 30 paras and 114 surahs, with audio recitation', icon: BookOpen },
-  { key: 'qaida', title: 'Noorani Qaida', subtitle: 'Complete Qaida — all 17 lessons from letters to full ayahs', icon: GraduationCap },
-  { key: 'tajweed', title: 'Tajweed Guide', subtitle: 'Complete tajweed rules — noon, meem, madd, qalqalah, lam and ra', icon: Volume2 },
+  { key: 'quran', title: 'The Holy Quran', subtitle: 'The entire Quran â€” 30 paras and 114 surahs, with audio recitation', icon: BookOpen },
+  { key: 'qaida', title: 'Noorani Qaida', subtitle: 'Complete Qaida â€” all 17 lessons from letters to full ayahs', icon: GraduationCap },
+  { key: 'tajweed', title: 'Tajweed Guide', subtitle: 'Complete tajweed rules â€” noon, meem, madd, qalqalah, lam and ra', icon: Volume2 },
   { key: 'makharij', title: 'Makharij Guide', subtitle: 'All 17 articulation points of the Arabic letters', icon: Languages },
-  { key: 'waqf', title: 'Stopping Rules', subtitle: 'Waqf and ibtida — stop signs, categories and resuming', icon: PauseCircle },
+  { key: 'waqf', title: 'Stopping Rules', subtitle: 'Waqf and ibtida â€” stop signs, categories and resuming', icon: PauseCircle },
   { key: 'duas', title: 'Duas', subtitle: 'Daily supplications with Arabic, transliteration and translation', icon: Moon },
   { key: 'hadith', title: 'Hadiths', subtitle: 'Selected authentic hadiths for students of the Quran', icon: ScrollText },
 ]
@@ -131,7 +131,7 @@ function HomeView({ onOpenQuran, onOpenCategory }: {
       <div>
         <h1 className="font-display text-2xl font-semibold text-ink">Curriculum</h1>
         <p className="mt-1 text-sm text-ink/55">
-          The complete library — Quran, Noorani Qaida, Tajweed, Makharij, stopping rules, duas and hadiths. Open a
+          The complete library â€” Quran, Noorani Qaida, Tajweed, Makharij, stopping rules, duas and hadiths. Open a
           section, then assign any unit to a class or student.
         </p>
       </div>
@@ -217,7 +217,7 @@ function QuranTilesView({ onBack, onOpenItem }: {
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
-            className="inline-flex items-center gap-1.5 rounded-md border border-line bg-white px-3 py-1.5 text-sm text-ink/65 hover:bg-paper-dim"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-1.5 text-sm text-ink/65 hover:bg-paper-dim"
           >
             <ArrowLeft className="h-4 w-4" />
             Curriculum
@@ -226,7 +226,7 @@ function QuranTilesView({ onBack, onOpenItem }: {
         </div>
 
         {/* Para / Surah switch */}
-        <div className="flex rounded-md border border-line bg-white p-0.5" role="tablist" aria-label="Quran browsing mode">
+        <div className="flex rounded-xl border border-line bg-white p-0.5" role="tablist" aria-label="Quran browsing mode">
           <button
             role="tab"
             aria-selected={mode === 'juz'}
@@ -256,8 +256,8 @@ function QuranTilesView({ onBack, onOpenItem }: {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={mode === 'juz' ? 'Search para by name or number…' : 'Search surah by name or number…'}
-          className="h-10 w-full rounded-md border border-line bg-white pl-9 pr-8 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
+          placeholder={mode === 'juz' ? 'Search para by name or numberâ€¦' : 'Search surah by name or numberâ€¦'}
+          className="h-10 w-full rounded-xl border border-line bg-white pl-9 pr-8 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
         />
         {query && (
           <button
@@ -292,12 +292,12 @@ function QuranTilesView({ onBack, onOpenItem }: {
                 </span>
                 <span className="min-w-0">
                   <span className="block font-display text-base font-semibold text-ink group-hover:text-green-800">
-                    Para {item.juzNum} — {juz.name}
+                    Para {item.juzNum} â€” {juz.name}
                   </span>
                   <span className="mt-1 block text-xs text-ink/55">
                     Starts: Surah {startSurah?.name} {juz.startSurah}:{juz.startAyah}
                   </span>
-                  <span className="block text-xs text-ink/45">Pages {juz.pageFrom}–{juz.pageTo} • full para</span>
+                  <span className="block text-xs text-ink/45">Pages {juz.pageFrom}â€“{juz.pageTo} â€¢ full para</span>
                 </span>
               </button>
             )
@@ -321,7 +321,7 @@ function QuranTilesView({ onBack, onOpenItem }: {
                     {item.surahName}
                   </span>
                   <span className="block text-xs text-ink/50">
-                    {surah.revelation} • {surah.ayahs} ayahs
+                    {surah.revelation} â€¢ {surah.ayahs} ayahs
                   </span>
                 </span>
                 <span className="font-arabic shrink-0 text-xl text-ink/70" dir="rtl">
@@ -373,7 +373,7 @@ function QuranReadingView({ item, onBack, onAssign }: {
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
-            className="inline-flex items-center gap-1.5 rounded-md border border-line bg-white px-3 py-1.5 text-sm text-ink/65 hover:bg-paper-dim"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-1.5 text-sm text-ink/65 hover:bg-paper-dim"
           >
             <ArrowLeft className="h-4 w-4" />
             The Holy Quran
@@ -424,7 +424,7 @@ function QuranReadingView({ item, onBack, onAssign }: {
                 <select
                   value={qari}
                   onChange={(e) => setQari(e.target.value)}
-                  className="h-8 rounded-md border border-line bg-white px-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                  className="h-8 rounded-xl border border-line bg-white px-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
                 >
                   {QARI_OPTIONS.map((q) => (
                     <option key={q.id} value={q.id}>
@@ -437,9 +437,9 @@ function QuranReadingView({ item, onBack, onAssign }: {
           </div>
           <AudioPlayer
             segments={loading || error ? [] : segments}
-            emptyHint={error ? 'Audio unavailable — the text above failed to load.' : 'Loading ayahs…'}
+            emptyHint={error ? 'Audio unavailable â€” the text above failed to load.' : 'Loading ayahsâ€¦'}
           />
-          {segments.length > 0 && <p className="text-[11px] text-ink/45">Recited by {qariName(qari)} • {segments.length} ayahs</p>}
+          {segments.length > 0 && <p className="text-[11px] text-ink/45">Recited by {qariName(qari)} â€¢ {segments.length} ayahs</p>}
         </div>
       </Card>
 
@@ -447,7 +447,7 @@ function QuranReadingView({ item, onBack, onAssign }: {
       {loading && (
         <Card>
           <div className="space-y-3 py-4">
-            <p className="text-center text-sm text-ink/55">Loading the complete text…</p>
+            <p className="text-center text-sm text-ink/55">Loading the complete textâ€¦</p>
             <div className="mx-auto h-2 w-2/3 animate-pulse rounded bg-paper-dim" />
             <div className="mx-auto h-2 w-1/2 animate-pulse rounded bg-paper-dim" />
             <div className="mx-auto h-2 w-3/5 animate-pulse rounded bg-paper-dim" />
@@ -480,7 +480,7 @@ function QuranReadingView({ item, onBack, onAssign }: {
                   <div className="space-y-2.5">
                     <div className="flex items-start justify-between gap-3">
                       <p className="flex-1 font-arabic text-2xl leading-loose text-ink" dir="rtl">
-                        {a.ar} <span className="text-gold-800">﴿{a.numInSurah}﴾</span>
+                        {a.ar} <span className="text-gold-800">ï´¿{a.numInSurah}ï´¾</span>
                       </p>
                     </div>
                     {showTranslit && a.translit && (
@@ -526,7 +526,7 @@ function CategoryView({ track, onBack, onOpenItem }: {
       <div className="flex items-center gap-3">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-1.5 rounded-md border border-line bg-white px-3 py-1.5 text-sm text-ink/65 hover:bg-paper-dim"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-1.5 text-sm text-ink/65 hover:bg-paper-dim"
         >
           <ArrowLeft className="h-4 w-4" />
           Curriculum
@@ -542,8 +542,8 @@ function CategoryView({ track, onBack, onOpenItem }: {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={`Search ${cat.title.toLowerCase()}…`}
-          className="h-10 w-full rounded-md border border-line bg-white pl-9 pr-8 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
+          placeholder={`Search ${cat.title.toLowerCase()}â€¦`}
+          className="h-10 w-full rounded-xl border border-line bg-white pl-9 pr-8 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
         />
         {query && (
           <button
@@ -591,7 +591,7 @@ function ContentItemView({ item, onBack, onAssign }: {
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
-            className="inline-flex items-center gap-1.5 rounded-md border border-line bg-white px-3 py-1.5 text-sm text-ink/65 hover:bg-paper-dim"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-1.5 text-sm text-ink/65 hover:bg-paper-dim"
           >
             <ArrowLeft className="h-4 w-4" />
             {TRACK_FILTER_LABELS[item.track]}
@@ -659,10 +659,11 @@ function ContentItemView({ item, onBack, onAssign }: {
 
         <p className="flex items-start gap-2 rounded-md bg-paper-dim p-3 text-xs text-ink/55">
           <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          Curriculum content is pre-loaded and read-only. Assign this unit to a class or student — practice is then
+          Curriculum content is pre-loaded and read-only. Assign this unit to a class or student â€” practice is then
           tracked in lessons and daily reports.
         </p>
       </div>
     </div>
   )
 }
+

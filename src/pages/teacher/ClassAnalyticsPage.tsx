@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Award, BarChart3, Download, FileText, Mail, Minus, Printer, TrendingDown, TrendingUp } from 'lucide-react'
 import { Card, CardTitle } from '@/components/ui/Card'
@@ -58,7 +58,7 @@ function PerformerList({ title, rows, accent }: { title: string; rows: Performer
             <button
               key={row.studentId}
               onClick={() => navigate(`/teacher/students/${row.studentId}`)}
-              className="flex w-full items-center gap-3 rounded-md border border-line px-3 py-2 text-left transition hover:bg-paper-dim/60"
+              className="flex w-full items-center gap-3 rounded-xl border border-line px-3 py-2 text-left transition hover:bg-paper-dim/60"
             >
               <span
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
@@ -70,7 +70,7 @@ function PerformerList({ title, rows, accent }: { title: string; rows: Performer
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium text-ink">{row.name}</span>
                 <span className="block text-xs text-ink/50">
-                  {row.completion}% complete • streak {row.streak}d • active {row.lastActive}
+                  {row.completion}% complete â€¢ streak {row.streak}d â€¢ active {row.lastActive}
                 </span>
               </span>
               <span className="font-display text-lg font-semibold tabular-nums text-ink">{row.avgScore}%</span>
@@ -112,7 +112,7 @@ export function TeacherClassAnalytics() {
   const exportCsv = () => {
     if (!data) return
     const lines: string[] = []
-    lines.push(`Class Analytics — ${klass.name} (${rangeLabel})`)
+    lines.push(`Class Analytics â€” ${klass.name} (${rangeLabel})`)
     lines.push('')
     lines.push('Weekly trend')
     lines.push('Week,Average score,Completion %,Attendance %,Previous score')
@@ -159,13 +159,13 @@ export function TeacherClassAnalytics() {
       {/* ---------- Header + filters ---------- */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-ink">Analytics — {klass.name}</h1>
+          <h1 className="font-display text-2xl font-semibold text-ink">Analytics â€” {klass.name}</h1>
           <p className="mt-1 text-sm text-ink/55">
             Performance, completion and attendance insights across {enrolled.length} enrolled students.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex overflow-hidden rounded-md border border-line" role="group" aria-label="Date range">
+          <div className="flex overflow-hidden rounded-xl border border-line" role="group" aria-label="Date range">
             {RANGES.map((r) => (
               <button
                 key={r.id}
@@ -193,7 +193,7 @@ export function TeacherClassAnalytics() {
 
       {loading || !data ? (
         <div className="rounded-lg border border-line bg-white p-12 text-center text-sm text-ink/55">
-          Crunching the numbers…
+          Crunching the numbersâ€¦
         </div>
       ) : (
         <>
@@ -281,7 +281,7 @@ export function TeacherClassAnalytics() {
                     <tr key={error.type} className="border-b border-line last:border-0 hover:bg-paper/60">
                       <td className="px-4 py-3 tabular-nums text-ink/50">{error.rank}</td>
                       <td className="px-4 py-3 font-medium text-ink">{error.type}</td>
-                      <td className="px-4 py-3 tabular-nums text-ink/70">{error.frequency}×</td>
+                      <td className="px-4 py-3 tabular-nums text-ink/70">{error.frequency}Ã—</td>
                       <td className="px-4 py-3 tabular-nums text-ink/70">
                         {error.affectedStudents} of {enrolled.length}
                       </td>
@@ -357,15 +357,15 @@ export function TeacherClassAnalytics() {
                 'This error pattern is recurring across recent sessions. Targeted practice is recommended.'}
             </p>
             <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="rounded-md border border-line bg-paper p-3">
-                <div className="font-display text-xl font-semibold text-ink">{drilldown.frequency}×</div>
+              <div className="rounded-xl border border-line bg-paper p-3">
+                <div className="font-display text-xl font-semibold text-ink">{drilldown.frequency}Ã—</div>
                 <div className="text-xs text-ink/50">Occurrences</div>
               </div>
-              <div className="rounded-md border border-line bg-paper p-3">
+              <div className="rounded-xl border border-line bg-paper p-3">
                 <div className="font-display text-xl font-semibold text-ink">{drilldown.affectedStudents}</div>
                 <div className="text-xs text-ink/50">Students affected</div>
               </div>
-              <div className="rounded-md border border-line bg-paper p-3">
+              <div className="rounded-xl border border-line bg-paper p-3">
                 <div className="font-display text-xl font-semibold capitalize text-ink">{drilldown.trend}</div>
                 <div className="text-xs text-ink/50">Trend</div>
               </div>
@@ -377,7 +377,7 @@ export function TeacherClassAnalytics() {
                   <button
                     key={s.id}
                     onClick={() => navigate(`/teacher/students/${s.id}`)}
-                    className="flex w-full items-center justify-between rounded-md border border-line px-3 py-2 text-sm hover:bg-paper-dim/60"
+                    className="flex w-full items-center justify-between rounded-xl border border-line px-3 py-2 text-sm hover:bg-paper-dim/60"
                   >
                     <span className="font-medium text-ink">{s.name}</span>
                     <span className="tabular-nums text-ink/50">Avg {s.avgScore}%</span>
@@ -391,3 +391,4 @@ export function TeacherClassAnalytics() {
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Award, BookOpenText, ChevronLeft, ChevronRight, FileText, Flag, PenLine, PhoneOff, Trash2, Video } from 'lucide-react'
 import { format } from 'date-fns'
@@ -19,7 +19,7 @@ function formatElapsed(totalSeconds: number) {
 
 function pointChips(point: LessonPoint) {
   if (point.qaidaLesson) {
-    return [`Noorani Qaida — Lesson ${point.qaidaLesson}`]
+    return [`Noorani Qaida â€” Lesson ${point.qaidaLesson}`]
   }
   const chips: string[] = []
   if (point.juz) chips.push(`Juz ${point.juz}`)
@@ -315,9 +315,9 @@ export function TeacherSessionLesson() {
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-ink">Today's lesson — {session.studentName}</h1>
+          <h1 className="font-display text-2xl font-semibold text-ink">Today's lesson â€” {session.studentName}</h1>
           <p className="mt-1 text-sm text-ink/55">
-            {session.className} • {session.lessonTitle} • {session.duration} min session
+            {session.className} â€¢ {session.lessonTitle} â€¢ {session.duration} min session
           </p>
         </div>
         <Button onClick={openMeet}>
@@ -340,7 +340,7 @@ export function TeacherSessionLesson() {
             <span className="text-sm text-ink/55">
               {endedAt
                 ? `Session ended at ${format(new Date(endedAt), 'h:mm a')}`
-                : `Class in progress${startedAt ? ` — started at ${format(new Date(startedAt), 'h:mm a')}` : ''}`}
+                : `Class in progress${startedAt ? ` â€” started at ${format(new Date(startedAt), 'h:mm a')}` : ''}`}
             </span>
           </div>
 
@@ -350,11 +350,11 @@ export function TeacherSessionLesson() {
               <>
                 {attendance.status === 'present' ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">
-                    Present • marked at {format(new Date(attendance.markedAt), 'h:mm a')}
+                    Present â€¢ marked at {format(new Date(attendance.markedAt), 'h:mm a')}
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-clay-100 px-3 py-1 text-sm font-medium text-clay-700">
-                    Absent • marked at {format(new Date(attendance.markedAt), 'h:mm a')}
+                    Absent â€¢ marked at {format(new Date(attendance.markedAt), 'h:mm a')}
                   </span>
                 )}
                 <Button
@@ -396,31 +396,31 @@ export function TeacherSessionLesson() {
         <Card className="border-clay-200">
           <CardTitle className="mb-3">Session summary</CardTitle>
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-md border border-line p-3">
+            <div className="rounded-xl border border-line p-3">
               <div className="text-xs text-ink/50">Total duration</div>
               <div className="font-display text-lg font-semibold tabular-nums text-ink">{formatElapsed(elapsed)}</div>
             </div>
-            <div className="rounded-md border border-line p-3">
+            <div className="rounded-xl border border-line p-3">
               <div className="text-xs text-ink/50">Started</div>
               <div className="text-sm font-medium text-ink">{format(new Date(startedAt), 'h:mm a')}</div>
             </div>
-            <div className="rounded-md border border-line p-3">
+            <div className="rounded-xl border border-line p-3">
               <div className="text-xs text-ink/50">Ended</div>
               <div className="text-sm font-medium text-ink">{format(new Date(endedAt), 'h:mm a')}</div>
             </div>
           </div>
 
-          {/* PRD 7.1 — marked mistakes flow into the daily report */}
+          {/* PRD 7.1 â€” marked mistakes flow into the daily report */}
           <div className="mt-4 border-t border-line pt-3">
-            <h3 className="text-sm font-semibold text-ink">Today's mistakes — included in the daily report</h3>
+            <h3 className="text-sm font-semibold text-ink">Today's mistakes â€” included in the daily report</h3>
             {mistakes.length === 0 ? (
               <p className="mt-2 text-sm text-ink/55">No mistakes were marked during this session.</p>
             ) : (
               <div className="mt-2 space-y-2">
                 {mistakes.map((m, i) => (
-                  <div key={m.id} className="rounded-md border border-clay-200 bg-clay-100/30 p-3 text-sm">
+                  <div key={m.id} className="rounded-xl border border-clay-200 bg-clay-100/30 p-3 text-sm">
                     <div className="font-medium text-ink">
-                      Mistake #{i + 1} — Surah {m.surahName}, Ayah {m.ayah}
+                      Mistake #{i + 1} â€” Surah {m.surahName}, Ayah {m.ayah}
                     </div>
                     <div className="mt-1 font-arabic text-lg text-ink" dir="rtl">
                       {m.wordText}
@@ -434,23 +434,23 @@ export function TeacherSessionLesson() {
           </div>
 
           {score && (
-            <p className="mt-3 rounded-md border border-line bg-paper-dim px-3 py-2 text-sm text-ink">
+            <p className="mt-3 rounded-xl border border-line bg-paper-dim px-3 py-2 text-sm text-ink">
               Score submitted: <span className="font-semibold">{score.total}/100 ({score.grade})</span>{' '}
-              {score.passed ? '— marked complete' : '— needs improvement'} • at{' '}
+              {score.passed ? 'â€” marked complete' : 'â€” needs improvement'} â€¢ at{' '}
               {format(new Date(score.submittedAt), 'h:mm a')}
             </p>
           )}
 
           {endpoint && (
-            <p className="mt-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
-              Next session resumes from Surah {endpoint.surahName}, Ayah {endpoint.ayah} (page {endpoint.page}) —
+            <p className="mt-3 rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+              Next session resumes from Surah {endpoint.surahName}, Ayah {endpoint.ayah} (page {endpoint.page}) â€”
               saved as the new starting point.
             </p>
           )}
 
           {!attendance && (
             <p className="mt-3 rounded-md bg-gold-100 px-3 py-2 text-sm text-gold-800">
-              Attendance wasn't marked for this session — use the buttons above before you leave.
+              Attendance wasn't marked for this session â€” use the buttons above before you leave.
             </p>
           )}
         </Card>
@@ -474,7 +474,7 @@ export function TeacherSessionLesson() {
               ))}
             </div>
             <p className="text-sm text-ink/60">
-              This is exactly where {session.studentName.split(' ')[0]} stopped in the last session — begin reading
+              This is exactly where {session.studentName.split(' ')[0]} stopped in the last session â€” begin reading
               from this point.
             </p>
             <p className="rounded-md bg-paper-dim p-3 text-xs text-ink/60">{detail.notes}</p>
@@ -509,13 +509,13 @@ export function TeacherSessionLesson() {
       </div>
 
       {/* ==================== Lesson content ==================== */}
-      {/* Mistake marking form — appears above the Mushaf page */}
+      {/* Mistake marking form â€” appears above the Mushaf page */}
       {selectedWord && !detail.resumeFrom.qaidaLesson && (
         <div ref={formRef}>
           <Card className="border-gold-300">
             <CardTitle className="mb-3 flex items-center gap-2">
               <PenLine className="h-5 w-5 text-gold-700" />
-              Mark mistake — Surah {detail.resumeFrom.surahName} {selectedWord.verseKey}
+              Mark mistake â€” Surah {detail.resumeFrom.surahName} {selectedWord.verseKey}
             </CardTitle>
             <CardContent className="space-y-3">
               <div className="flex flex-wrap items-center gap-3">
@@ -527,7 +527,7 @@ export function TeacherSessionLesson() {
                 </span>
                 {mistakeAt(selectedWord.verseKey, selectedWord.wordPosition) && (
                   <span className="rounded-full bg-clay-100 px-2.5 py-0.5 text-xs font-medium text-clay-700">
-                    Already marked — edit or remove below
+                    Already marked â€” edit or remove below
                   </span>
                 )}
               </div>
@@ -538,7 +538,7 @@ export function TeacherSessionLesson() {
                   <select
                     value={mistakeType}
                     onChange={(e) => setMistakeType(e.target.value as MistakeType)}
-                    className="h-10 w-full rounded-md border border-line bg-white px-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                    className="h-10 w-full rounded-xl border border-line bg-white px-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
                   >
                     {(Object.keys(MISTAKE_TYPE_LABELS) as MistakeType[]).map((t) => (
                       <option key={t} value={t}>
@@ -552,8 +552,8 @@ export function TeacherSessionLesson() {
                   <input
                     value={mistakeNote}
                     onChange={(e) => setMistakeNote(e.target.value)}
-                    placeholder='e.g. "Ghar not clear — repeat from deep in the throat"'
-                    className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                    placeholder='e.g. "Ghar not clear â€” repeat from deep in the throat"'
+                    className="h-10 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
                   />
                 </label>
               </div>
@@ -578,9 +578,9 @@ export function TeacherSessionLesson() {
       )}
       {detail.resumeFrom.qaidaLesson ? (
         <Card>
-          <CardTitle className="mb-3">Lesson content — Noorani Qaida, Lesson {detail.resumeFrom.qaidaLesson}</CardTitle>
+          <CardTitle className="mb-3">Lesson content â€” Noorani Qaida, Lesson {detail.resumeFrom.qaidaLesson}</CardTitle>
           <CardContent className="space-y-4">
-            <div className="rounded-md border border-line bg-paper p-5 text-center">
+            <div className="rounded-xl border border-line bg-paper p-5 text-center">
               <p className="font-arabic text-2xl leading-loose text-ink" dir="rtl">
                 {detail.contentAr}
               </p>
@@ -592,7 +592,7 @@ export function TeacherSessionLesson() {
       ) : (
         <Card>
           <CardTitle className="mb-1 flex flex-wrap items-center justify-between gap-2">
-            <span>Mushaf — Page {displayPage}</span>
+            <span>Mushaf â€” Page {displayPage}</span>
             <span className="flex items-center gap-2">
               {detail.resumeFrom.juz && (
                 <span className="rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-800">
@@ -608,18 +608,18 @@ export function TeacherSessionLesson() {
             </span>
           </CardTitle>
           <p className="mb-3 text-xs text-ink/50">
-            Click any word to mark a mistake and write the correction — marked words turn red and feed today's report.
-            Click a ﴿…﴾ ayah marker to mark where today's lesson ends.
+            Click any word to mark a mistake and write the correction â€” marked words turn red and feed today's report.
+            Click a ï´¿â€¦ï´¾ ayah marker to mark where today's lesson ends.
           </p>
 
           {pageLoading && (
-            <div className="rounded-md border border-line bg-paper-dim/50 p-8 text-center text-sm text-ink/55">
-              Loading Mushaf page {displayPage} from Quran.com…
+            <div className="rounded-xl border border-line bg-paper-dim/50 p-8 text-center text-sm text-ink/55">
+              Loading Mushaf page {displayPage} from Quran.comâ€¦
             </div>
           )}
 
           {pageError && (
-            <div className="rounded-md border border-line bg-paper-dim/50 p-5 text-center text-sm text-ink/60">
+            <div className="rounded-xl border border-line bg-paper-dim/50 p-5 text-center text-sm text-ink/60">
               Couldn't load the Mushaf page (offline?). Starting text for today:
               <p className="mt-3 font-arabic text-xl leading-loose text-ink" dir="rtl">
                 {detail.contentAr}
@@ -650,7 +650,7 @@ export function TeacherSessionLesson() {
                                   : 'text-gold-700 hover:bg-gold-100',
                             ].join(' ')}
                           >
-                            ﴿{item.text}﴾
+                            ï´¿{item.text}ï´¾
                           </span>
                         )
                       }
@@ -666,7 +666,7 @@ export function TeacherSessionLesson() {
                               dir="ltr"
                               className="mx-1 inline-flex translate-y-[-2px] items-center gap-1 rounded-full bg-green-600 px-2 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wide text-white"
                             >
-                              ▶ Start — Ayah {item.ayah}
+                              â–¶ Start â€” Ayah {item.ayah}
                             </span>
                           )}
                           <span
@@ -694,7 +694,7 @@ export function TeacherSessionLesson() {
           {pageVerses && (
             <>
               {endCandidate && (
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-gold-400 bg-gold-100/60 px-3 py-2">
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-gold-400 bg-gold-100/60 px-3 py-2">
                   <span className="text-sm text-ink/80">
                     End today's lesson at{' '}
                     <span className="font-semibold">
@@ -714,9 +714,9 @@ export function TeacherSessionLesson() {
               )}
 
               {endpoint && !endCandidate && (
-                <div className="mt-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+                <div className="mt-3 rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
                   End of today's lesson marked at Surah {endpoint.surahName}, Ayah {endpoint.ayah} (page{' '}
-                  {endpoint.page}) — the next session starts from this point. To change it, click another ﴿…﴾ marker.
+                  {endpoint.page}) â€” the next session starts from this point. To change it, click another ï´¿â€¦ï´¾ marker.
                 </div>
               )}
 
@@ -742,10 +742,10 @@ export function TeacherSessionLesson() {
           <CardTitle className="mb-3">Marked mistakes ({mistakes.length})</CardTitle>
           <CardContent className="space-y-2">
             {mistakes.map((m, i) => (
-              <div key={m.id} className="flex flex-wrap items-start justify-between gap-3 rounded-md border border-line p-3">
+              <div key={m.id} className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-line p-3">
                 <div className="min-w-0 text-sm">
                   <div className="font-medium text-ink">
-                    #{i + 1} — Surah {m.surahName}, Ayah {m.ayah}
+                    #{i + 1} â€” Surah {m.surahName}, Ayah {m.ayah}
                   </div>
                   <div className="mt-0.5 font-arabic text-lg text-ink" dir="rtl">
                     {m.wordText}
@@ -757,7 +757,7 @@ export function TeacherSessionLesson() {
                     <div className="mt-0.5 text-xs italic text-ink/40">No correction note written</div>
                   )}
                   <div className="mt-1 text-[11px] text-ink/40">
-                    Marked at {format(new Date(m.markedAt), 'h:mm a')} • goes into today's report
+                    Marked at {format(new Date(m.markedAt), 'h:mm a')} â€¢ goes into today's report
                   </div>
                 </div>
                 <button
@@ -778,7 +778,7 @@ export function TeacherSessionLesson() {
         <CardTitle className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <span className="flex items-center gap-2">
             <Award className="h-5 w-5 text-green-700" />
-            Scoring — {session.studentName}
+            Scoring â€” {session.studentName}
           </span>
           {score && !editingScore && (
             <span
@@ -786,7 +786,7 @@ export function TeacherSessionLesson() {
                 score.passed ? 'bg-green-50 text-green-700' : 'bg-clay-100 text-clay-700'
               }`}
             >
-              {score.total}/100 ({score.grade}) {score.passed ? '• Complete' : '• Needs improvement'}
+              {score.total}/100 ({score.grade}) {score.passed ? 'â€¢ Complete' : 'â€¢ Needs improvement'}
             </span>
           )}
         </CardTitle>
@@ -795,7 +795,7 @@ export function TeacherSessionLesson() {
           <CardContent className="space-y-3">
             <div className="grid gap-2 sm:grid-cols-2">
               {(Object.keys(SCORE_WEIGHTS) as (keyof ScoreCriteria)[]).map((k) => (
-                <div key={k} className="flex items-center justify-between rounded-md border border-line px-3 py-2 text-sm">
+                <div key={k} className="flex items-center justify-between rounded-xl border border-line px-3 py-2 text-sm">
                   <span className="text-ink/70">{SCORE_CRITERIA_LABELS[k]}</span>
                   <span className="font-semibold tabular-nums text-ink">
                     {score.criteria[k]}/{SCORE_WEIGHTS[k]}
@@ -804,7 +804,7 @@ export function TeacherSessionLesson() {
               ))}
             </div>
             {score.teacherMessage && (
-              <p className="rounded-md bg-paper-dim p-3 text-sm italic text-ink/70">“{score.teacherMessage}”</p>
+              <p className="rounded-md bg-paper-dim p-3 text-sm italic text-ink/70">â€œ{score.teacherMessage}â€</p>
             )}
             <Button size="sm" variant="outline" onClick={editScore}>
               Change score
@@ -837,11 +837,11 @@ export function TeacherSessionLesson() {
               </span>
               {draftTotal >= PASS_THRESHOLD ? (
                 <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
-                  ≥ {PASS_THRESHOLD} — will be marked complete
+                  â‰¥ {PASS_THRESHOLD} â€” will be marked complete
                 </span>
               ) : (
                 <span className="rounded-full bg-clay-100 px-3 py-1 text-xs font-medium text-clay-700">
-                  Below {PASS_THRESHOLD} — needs improvement
+                  Below {PASS_THRESHOLD} â€” needs improvement
                 </span>
               )}
             </div>
@@ -855,7 +855,7 @@ export function TeacherSessionLesson() {
                 onChange={(e) => setTeacherMessage(e.target.value)}
                 rows={2}
                 placeholder="e.g. Excellent work! Keep focus on throat clarity and you'll be perfect."
-                className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
               />
             </label>
 
@@ -877,13 +877,13 @@ export function TeacherSessionLesson() {
       <Card>
         <CardTitle className="mb-3 flex items-center gap-2">
           <FileText className="h-5 w-5 text-clay-600" />
-          Daily report — live preview of the email sent to {session.studentName} / parent
+          Daily report â€” live preview of the email sent to {session.studentName} / parent
         </CardTitle>
         <CardContent>
-          <div className="space-y-4 rounded-md border border-line bg-paper-dim/40 p-4 text-sm sm:p-5">
+          <div className="space-y-4 rounded-xl border border-line bg-paper-dim/40 p-4 text-sm sm:p-5">
             <div className="border-b border-line pb-3">
               <div className="font-display text-lg font-semibold text-ink">
-                Your Tajweed Report — {format(new Date(), 'MMM d, yyyy')}
+                Your Tajweed Report â€” {format(new Date(), 'MMM d, yyyy')}
               </div>
               <div className="text-xs text-ink/50">Sent automatically at the end of the class day</div>
             </div>
@@ -894,7 +894,7 @@ export function TeacherSessionLesson() {
               </h4>
               <div className="grid gap-1.5 sm:grid-cols-2">
                 <div>
-                  Target: <span className="font-medium text-ink">{pointChips(detail.targetEnd).join(' • ')}</span>
+                  Target: <span className="font-medium text-ink">{pointChips(detail.targetEnd).join(' â€¢ ')}</span>
                 </div>
                 <div>
                   Attendance:{' '}
@@ -921,7 +921,7 @@ export function TeacherSessionLesson() {
                 <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink/50">Today's mistakes</h4>
                 <div className="space-y-2">
                   {mistakes.map((m, i) => (
-                    <div key={m.id} className="rounded-md border border-line bg-paper p-3">
+                    <div key={m.id} className="rounded-xl border border-line bg-paper p-3">
                       <div className="font-medium text-ink">
                         Mistake #{i + 1}: Surah {m.surahName}, Ayah {m.ayah}
                       </div>
@@ -938,13 +938,13 @@ export function TeacherSessionLesson() {
 
             <div>
               <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink/50">Tomorrow's lesson</h4>
-              <div className="rounded-md border border-line bg-paper p-3">
+              <div className="rounded-xl border border-line bg-paper p-3">
                 <div className="font-medium text-ink">
                   {endpoint
                     ? `Surah ${endpoint.surahName}, Ayah ${endpoint.ayah} (page ${endpoint.page})`
-                    : pointChips(detail.targetEnd).join(' • ')}
+                    : pointChips(detail.targetEnd).join(' â€¢ ')}
                 </div>
-                <div className="mt-1 text-ink/60">Expected duration: 20–25 minutes</div>
+                <div className="mt-1 text-ink/60">Expected duration: 20â€“25 minutes</div>
               </div>
             </div>
 
@@ -973,15 +973,15 @@ export function TeacherSessionLesson() {
 
             <div>
               <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink/50">Teacher's message</h4>
-              <p className="rounded-md border border-line bg-paper p-3 italic text-ink/70">
-                {score?.teacherMessage ? `“${score.teacherMessage}”` : 'Add a message in the scoring section above.'}
+              <p className="rounded-xl border border-line bg-paper p-3 italic text-ink/70">
+                {score?.teacherMessage ? `â€œ${score.teacherMessage}â€` : 'Add a message in the scoring section above.'}
               </p>
             </div>
 
             <div className="border-t border-line pt-3 text-xs text-ink/45">
               Best regards,
               <br />
-              TILP Team — Tajweed Interactive Learning Platform
+              TILP Team â€” Tajweed Interactive Learning Platform
             </div>
           </div>
         </CardContent>
@@ -999,3 +999,4 @@ export function TeacherSessionLesson() {
     </div>
   )
 }
+
