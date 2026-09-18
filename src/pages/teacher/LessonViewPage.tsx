@@ -1,9 +1,10 @@
 ﻿import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Award, CheckCircle2, Clock, Copy, Trash2, Video } from 'lucide-react'
+import { Award, CheckCircle2, Clock, Copy, Trash2, Video } from 'lucide-react'
 import { format } from 'date-fns'
 import { Card, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { BackLink } from '@/components/ui/BackLink'
 import { AudioPlayer } from '@/components/common/AudioPlayer'
 import { MistakeLogger } from '@/components/teacher/MistakeLogger'
 import type { MistakeDraft } from '@/components/teacher/MistakeLogger'
@@ -29,7 +30,7 @@ interface MushafWord {
   position: number
   char_type_name: 'word' | 'end'
   text_uthmani: string
-  transliteration?: string
+  transliteration?: { text: string; language_name: string }
   line_number: number
 }
 
@@ -75,6 +76,16 @@ export function TeacherLessonView() {
   const { submit, loading: submitting } = useSubmitScore()
 
   const [now, setNow] = useState(() => Date.now())
+  const [verses, setVerses] = useState<MushafVerse[] | null>(null)
+  const [pageLoading, setPageLoading] = useState(false)
+  const [pageError, setPageError] = useState(false)
+  const [selectedWord, setSelectedWord] = useState<RenderWord | null>(null)
+  const [qari, setQari] = useState('ar.abdurrahmaansudais')
+  const savedRubric = sessionId ? sessionRubrics[sessionId] : undefined
+  const [criteria, setCriteria] = useState<LessonRubric>({ ...RUBRIC_MAX })
+  const [feedback, setFeedback] = useState('')
+  const [saved, setSaved] = useState(false)
+
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(timer)
@@ -83,11 +94,6 @@ export function TeacherLessonView() {
   useEffect(() => {
     if (sessionId) startSessionTimer(sessionId)
   }, [sessionId])
-
-  // --- Mushaf fetch (left panel content) ---
-  const [verses, setVerses] = useState<MushafVerse[] | null>(null)
-  const [pageLoading, setPageLoading] = useState(false)
-  const [pageError, setPageError] = useState(false)
 
   useEffect(() => {
     const page = data?.detail.resumeFrom.page ?? null
@@ -117,15 +123,6 @@ export function TeacherLessonView() {
     }
   }, [data])
 
-  // --- Mistake popup state ---
-  const [selectedWord, setSelectedWord] = useState<RenderWord | null>(null)
-
-  // --- Rubric + feedback state ---
-  const savedRubric = sessionId ? sessionRubrics[sessionId] : undefined
-  const [criteria, setCriteria] = useState<LessonRubric>({ ...RUBRIC_MAX })
-  const [feedback, setFeedback] = useState('')
-  const [saved, setSaved] = useState(false)
-
   useEffect(() => {
     if (savedRubric) {
       setCriteria(savedRubric.criteria)
@@ -138,19 +135,7 @@ export function TeacherLessonView() {
     }
   }, [sessionId, savedRubric])
 
-  // --- Audio qari state ---
-  const [qari, setQari] = useState('ar.abdurrahmaansudais')
-
   const mistakes = sessionId ? sessionMistakes[sessionId] ?? [] : []
-
-  // Reverse-maps a stored mistake back into the popup's draft shape
-  const guessType = (type: MistakeType, subtype?: string): LessonMistakeType => {
-    if (type === 'makhraj') return 'makhraj'
-    if (subtype?.includes(LESSON_MISTAKE_TYPE_LABELS.ghunnah)) return 'ghunnah'
-    if (subtype?.includes(LESSON_MISTAKE_TYPE_LABELS.tafkheem)) return 'tafkheem'
-    if (type === 'tajweed') return 'tajweed_rule'
-    return 'other'
-  }
 
   const existingDraft = useMemo<MistakeDraft | null>(() => {
     if (!selectedWord) return null
@@ -158,6 +143,13 @@ export function TeacherLessonView() {
       (m) => m.verseKey === selectedWord.verseKey && m.wordPosition === selectedWord.position
     )
     if (!found) return null
+    const guessType = (type: MistakeType, subtype?: string): LessonMistakeType => {
+      if (type === 'makhraj') return 'makhraj'
+      if (subtype?.includes(LESSON_MISTAKE_TYPE_LABELS.ghunnah)) return 'ghunnah'
+      if (subtype?.includes(LESSON_MISTAKE_TYPE_LABELS.tafkheem)) return 'tafkheem'
+      if (type === 'tajweed') return 'tajweed_rule'
+      return 'other'
+    }
     const type = guessType(found.type, found.subtype)
     const subtypePart = found.subtype?.split(':')[0].trim() ?? ''
     return {
@@ -172,10 +164,20 @@ export function TeacherLessonView() {
     }
   }, [selectedWord, mistakes])
 
+  // Audio segments for the lesson's ayah range
+  const audioSegments = useMemo(() => {
+    if (!data?.detail.audioRange) return []
+    const segs = []
+    for (let a = data.detail.audioRange.startAyah; a <= Math.min(data.detail.audioRange.endAyah, data.detail.audioRange.startAyah + 14); a++) {
+      segs.push({ label: `${data.detail.audioRange.surah}:${a}`, url: ayahAudioUrl(data.detail.audioRange.surah, a, qari) })
+    }
+    return segs
+  }, [data, qari])
+
   if (loading) {
     return (
       <div className="rounded-lg border border-line bg-white p-10 text-center text-sm text-ink/55">
-        Loading session lessonâ€¦
+        Loading session lesson…
       </div>
     )
   }
@@ -213,21 +215,11 @@ export function TeacherLessonView() {
             ayah: v.verse_number,
             position: w.position,
             text: w.text_uthmani,
-            transliteration: w.transliteration,
+            transliteration: w.transliteration?.text,
           }))
       )
 
   const translitLine = words.map((w) => w.transliteration).filter(Boolean).join(' ')
-
-  // Audio segments for the lesson's ayah range
-  const audioSegments = useMemo(() => {
-    if (!detail.audioRange) return []
-    const segs = []
-    for (let a = detail.audioRange.startAyah; a <= Math.min(detail.audioRange.endAyah, detail.audioRange.startAyah + 14); a++) {
-      segs.push({ label: `${detail.audioRange.surah}:${a}`, url: ayahAudioUrl(detail.audioRange.surah, a, qari) })
-    }
-    return segs
-  }, [detail.audioRange, qari])
 
   const mistakeAt = (verseKey: string, position: number) =>
     mistakes.find((m) => m.verseKey === verseKey && m.wordPosition === position)
@@ -274,13 +266,7 @@ export function TeacherLessonView() {
 
   return (
     <div className="space-y-5">
-      <button
-        onClick={() => navigate('/teacher/schedule')}
-        className="inline-flex items-center gap-1 text-sm font-medium text-green-700 hover:text-green-800"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to schedule
-      </button>
+      <BackLink to="/teacher/schedule" label="Back to schedule" />
 
       {/* ---------- Header ---------- */}
       <div className="flex flex-wrap items-center justify-between gap-4">

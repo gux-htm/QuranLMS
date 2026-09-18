@@ -1,5 +1,7 @@
 import { Flame, Medal, TrendingUp, Trophy } from 'lucide-react'
 import { Card, CardTitle, CardContent } from '@/components/ui/Card'
+import { StatCards } from '@/components/ui/StatCards'
+import { initialsOf } from '@/lib/utils'
 import { CURRENT_STUDENT } from '@/lib/mockData'
 
 const rows: { name: string; points: number; streak: number; progress: number; status: string }[] = [
@@ -47,26 +49,7 @@ export function StudentLeaderboard() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon
-          return (
-            <Card key={stat.label} className="group relative overflow-hidden p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-              <CardContent className="space-y-0">
-                <div className="flex items-start justify-between">
-                  <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${stat.tone}`}>
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <TrendingUp className="h-4 w-4 text-ink/15 transition-colors group-hover:text-green-500" />
-                </div>
-                <div className="mt-5 font-display text-3xl font-semibold tracking-tight text-ink">{stat.value}</div>
-                <div className="mt-1 text-sm font-semibold text-ink">{stat.label}</div>
-                <div className="mt-1 text-xs text-ink/45">{stat.detail}</div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
+      <StatCards stats={stats} />
 
       {/* Podium */}
       <Card className="p-6">
@@ -86,7 +69,7 @@ export function StudentLeaderboard() {
               2
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 font-display text-sm font-semibold text-green-800">
-              {top3[1]?.name.split(' ').map((p) => p[0]).join('') ?? '?'}
+              {initialsOf(top3[1]?.name ?? '') || '?'}
             </div>
             <div className="text-center">
               <div className="text-xs font-semibold text-ink">{top3[1]?.name.split(' ')[0]}</div>
@@ -100,7 +83,7 @@ export function StudentLeaderboard() {
               1
             </div>
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gold-100 font-display text-base font-bold text-gold-800">
-              {top3[0]?.name.split(' ').map((p) => p[0]).join('') ?? '?'}
+              {initialsOf(top3[0]?.name ?? '') || '?'}
             </div>
             <div className="text-center">
               <div className="text-sm font-bold text-ink">{top3[0]?.name.split(' ')[0]}</div>
@@ -114,7 +97,7 @@ export function StudentLeaderboard() {
               3
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 font-display text-sm font-semibold text-green-800">
-              {top3[2]?.name.split(' ').map((p) => p[0]).join('') ?? '?'}
+              {initialsOf(top3[2]?.name ?? '') || '?'}
             </div>
             <div className="text-center">
               <div className="text-xs font-semibold text-ink">{top3[2]?.name.split(' ')[0]}</div>
@@ -152,7 +135,7 @@ export function StudentLeaderboard() {
                   {i + 1}
                 </span>
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-green-100 font-display text-xs font-semibold text-green-800">
-                  {row.name.split(' ').map((p) => p[0]).join('')}
+                  {initialsOf(row.name)}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">

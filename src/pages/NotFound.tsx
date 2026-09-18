@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
-import { BookOpenText, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { LogoLink } from '@/components/ui/Logo'
 
 export function NotFound() {
   const navigate = useNavigate()
@@ -12,11 +13,8 @@ export function NotFound() {
 
       <div className="relative">
         {/* Logo */}
-        <div className="mb-8 flex items-center justify-center gap-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-800 text-paper shadow-card">
-            <BookOpenText className="h-6 w-6" />
-          </span>
-          <span className="font-display text-2xl font-semibold text-green-900">TILP</span>
+        <div className="mb-8 flex justify-center">
+          <LogoLink />
         </div>
 
         {/* 404 number */}

@@ -1,9 +1,10 @@
 import { useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Flame } from 'lucide-react'
+import { Flame } from 'lucide-react'
 import { format } from 'date-fns'
 import { Card, CardContent, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { BackLink } from '@/components/ui/BackLink'
 import { generateStudentCalendar } from '@/lib/mockData'
 import { useAppStore } from '@/lib/store'
 import { TeacherStudentReports } from '@/pages/teacher/StudentReportsPage'
@@ -39,7 +40,7 @@ export function TeacherStudentReportOverview() {
 
   return (
     <div className="space-y-6">
-      <button onClick={() => navigate(`/teacher/students/${student.id}`)} className="inline-flex items-center gap-1 text-sm font-medium text-green-700 hover:text-green-800"><ArrowLeft className="h-4 w-4" />Back to {student.name}</button>
+      <BackLink to={`/teacher/students/${student.id}`} label={`Back to ${student.name}`} />
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div><h1 className="font-display text-2xl font-semibold text-ink">Student report — {student.name}</h1><p className="mt-1 text-sm text-ink/55">Historical performance, weak areas, and daily report previews.</p></div>
         <div className="flex items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 text-sm font-semibold text-green-800"><Flame className="h-4 w-4 text-clay-600" />{student.streak}-day streak</div>

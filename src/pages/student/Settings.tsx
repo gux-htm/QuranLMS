@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardTitle } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { useToast } from '@/components/ui/Toaster'
+import { initialsOf } from '@/lib/utils'
 import { CURRENT_STUDENT } from '@/lib/mockData'
 
 export function StudentSettings() {
@@ -33,7 +34,7 @@ export function StudentSettings() {
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4 rounded-2xl border border-line bg-paper/60 p-4">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-green-100 font-display text-lg font-semibold text-green-800">
-              {CURRENT_STUDENT.name.split(' ').map((p) => p[0]).slice(0, 2).join('')}
+              {initialsOf(CURRENT_STUDENT.name)}
             </div>
             <div>
               <div className="text-base font-semibold text-ink">{CURRENT_STUDENT.name}</div>

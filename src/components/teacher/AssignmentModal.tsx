@@ -19,6 +19,7 @@ export function AssignmentModal({ item, mode, onClose, onAssigned }: AssignmentM
   const { classes, getEnrolledStudents, students } = useAppStore()
   const { assign, loading } = useAssignCurriculum()
 
+  const [assignmentName, setAssignmentName] = useState('')
   const [classId, setClassId] = useState('')
   const [specificOnly, setSpecificOnly] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
@@ -31,6 +32,8 @@ export function AssignmentModal({ item, mode, onClose, onAssigned }: AssignmentM
 
   useEffect(() => {
     if (item) {
+      // Auto-fill assignment name with curriculum title (teacher can customize)
+      setAssignmentName(item.title)
       setClassId(mode === 'class' ? classes[0]?.id ?? '' : '')
       setSpecificOnly(false)
       setSelected([])
@@ -43,7 +46,7 @@ export function AssignmentModal({ item, mode, onClose, onAssigned }: AssignmentM
   if (!item) return null
 
   const targetIds = specificOnly ? selected : pool.map((s) => s.id)
-  const canAssign = targetIds.length > 0 && (mode === 'student' ? true : classId !== '')
+  const canAssign = targetIds.length > 0 && assignmentName.trim() !== '' && (mode === 'student' ? true : classId !== '')
 
   const toggleStudent = (id: string) =>
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
@@ -51,6 +54,7 @@ export function AssignmentModal({ item, mode, onClose, onAssigned }: AssignmentM
   const handleAssign = async () => {
     const klass = classes.find((c) => c.id === classId)
     await assign({
+      assignmentName: assignmentName.trim(),
       curriculumId: item.id,
       curriculumTitle: item.title,
       classId: mode === 'student' ? '' : classId,
@@ -78,6 +82,21 @@ export function AssignmentModal({ item, mode, onClose, onAssigned }: AssignmentM
       }
     >
       <div className="space-y-4">
+        {/* Assignment name - teacher can customize */}
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-ink">
+            Assignment name <span className="text-rose-600">*</span>
+          </span>
+          <input
+            type="text"
+            value={assignmentName}
+            onChange={(e) => setAssignmentName(e.target.value)}
+            placeholder='e.g. "Week 1 - Introduction to Tajweed"'
+            className="h-10 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-green-600/40"
+          />
+          <p className="mt-1 text-xs text-ink/50">This name will appear on students' assignment page</p>
+        </label>
+
         {mode === 'class' && (
           <label className="block">
             <span className="mb-1.5 block text-sm font-medium text-ink">Class</span>

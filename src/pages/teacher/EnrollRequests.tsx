@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import { Card, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useAppStore } from '@/lib/store'
-import { initialsOf } from '@/pages/teacher/Students'
+import { initialsOf } from '@/lib/utils'
 
 function startPointLabel(startTrack: 'qaida' | 'juz', startJuz: number | null) {
   return startTrack === 'qaida' ? 'Noorani Qaida' : `Start from Juz ${startJuz ?? 1}`

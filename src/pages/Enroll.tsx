@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { ArrowRight, BookOpenText, CheckCircle2, ClipboardList, UserCheck } from 'lucide-react'
+import { ArrowRight, CheckCircle2, ClipboardList, UserCheck } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
+import { AuthBrandPanel, AuthMobileLogo } from '@/components/common/AuthBrandPanel'
 
 const TIME_SLOTS = [
   'Weekdays after Fajr (6:00–7:00 AM)',
@@ -60,63 +61,20 @@ export function Enroll() {
 
   return (
     <div className="flex min-h-screen">
-      {/* ── Left brand panel ────────────────────────────────── */}
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-green-900 px-10 py-12 lg:flex lg:w-[42%]">
-        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full border border-white/10" />
-        <div className="pointer-events-none absolute -bottom-16 -left-16 h-64 w-64 rounded-full border border-white/10" />
-
-        <button onClick={() => navigate('/')} className="relative flex items-center gap-3 text-left">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15 text-paper">
-            <BookOpenText className="h-5 w-5" />
-          </span>
-          <span>
-            <span className="block font-display text-xl font-semibold text-paper">TILP</span>
-            <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-paper/50">
-              Student enrollment
-            </span>
-          </span>
-        </button>
-
-        <div className="relative">
-          <p className="font-arabic text-4xl leading-relaxed text-paper/90">
-            طَلَبُ الْعِلْمِ فَرِيضَةٌ
-          </p>
-          <p className="mt-3 text-sm leading-6 text-paper/55">
-            "Seeking knowledge is an obligation." — Hadith
-          </p>
-          <div className="mt-8 space-y-3 text-sm text-paper/60">
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-gold-300" />
-              Track your daily recitation
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-gold-300" />
-              See your Quran completion journey
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-gold-300" />
-              Receive reports from your teacher
-            </div>
-          </div>
-        </div>
-
-        <p className="relative text-xs text-paper/35">
-          © {new Date().getFullYear()} TILP. Your journey starts here.
-        </p>
-      </div>
+      <AuthBrandPanel
+        arabic="طَلَبُ الْعِلْمِ فَرِيضَةٌ"
+        translation='"Seeking knowledge is an obligation." — Hadith'
+        features={[
+          'Track your daily recitation',
+          'See your Quran completion journey',
+          'Receive reports from your teacher',
+        ]}
+        footer={`© ${new Date().getFullYear()} TILP. Your journey starts here.`}
+      />
 
       {/* ── Right form panel ────────────────────────────────── */}
       <div className="flex flex-1 flex-col items-center justify-center bg-paper px-5 py-12 sm:px-10">
-        {/* Mobile logo */}
-        <button
-          onClick={() => navigate('/')}
-          className="mb-8 flex items-center gap-2 lg:hidden"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-800 text-paper">
-            <BookOpenText className="h-4 w-4" />
-          </span>
-          <span className="font-display text-lg font-semibold text-green-900">TILP</span>
-        </button>
+        <AuthMobileLogo />
 
         <div className="w-full max-w-sm">
           {/* ── Step indicator ── */}

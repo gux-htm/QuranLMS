@@ -18,6 +18,7 @@ const statusStyles: Record<SessionStatus, { label: string; className: string }> 
 }
 
 export function TeacherSchedule() {
+  console.log('[TeacherSchedule] Component rendering...')
   const navigate = useNavigate()
   const { scheduledSessions } = useAppStore()
   const [view, setView] = useState<'today' | 'week'>('today')
@@ -33,8 +34,10 @@ export function TeacherSchedule() {
   const todaysSchedule = allSessions.filter((s) => s.date === format(today, 'yyyy-MM-dd')).sort((a, b) => a.time.localeCompare(b.time)).map(withStatus)
   const nextSessionId = todaysSchedule.find((s) => s.status === 'upcoming')?.id
   const joinSession = (session: ScheduleEntry) => {
-    if (session.meetUrl) window.open(session.meetUrl, '_blank')
-    navigate(`/teacher/schedule/${session.id}`)
+    // Navigate FIRST to the lesson page, THEN user can click "Join Meet" from there
+    // This prevents React state corruption from window.open breaking navigation
+    const isTeacher = TEACHER_SCHEDULE.some((item) => item.id === session.id)
+    navigate(isTeacher ? `/teacher/sessions/${session.id}/lesson` : `/teacher/schedule/${session.id}`)
   }
   const SessionCard = ({ session }: { session: ReturnType<typeof withStatus> }) => {
     const status = statusStyles[session.status]
@@ -59,9 +62,8 @@ export function TeacherSchedule() {
             {status.label}
           </span>
           <div className="flex flex-wrap gap-2">
-            {session.status !== 'completed' && <Button size="sm" onClick={() => joinSession(session)}>Join</Button>}
-            {isTeacherSession && <Button size="sm" variant="outline" onClick={() => navigate(`/teacher/schedule/${session.id}`)}>Attendance</Button>}
-            {isTeacherSession && <Button size="sm" variant="outline" onClick={() => navigate(`/teacher/sessions/${session.id}/lesson`)}>Lesson view</Button>}
+            {session.status !== 'completed' && <Button size="sm" onClick={() => joinSession(session)}>Join class</Button>}
+            {session.status === 'completed' && isTeacherSession && <Button size="sm" variant="outline" onClick={() => navigate(`/teacher/sessions/${session.id}/lesson`)}>Lesson view</Button>}
           </div>
         </div>
       </Card>

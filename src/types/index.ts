@@ -41,6 +41,7 @@ export interface CurriculumItem {
 
 export interface LessonAssignment {
   id: string
+  assignmentName: string // Custom name given by teacher (e.g. "Week 1 - Introduction to Tajweed")
   curriculumId: string
   curriculumTitle: string
   classId: string

@@ -1,5 +1,6 @@
-import { BarChart3, FileText, TrendingUp, Users } from 'lucide-react'
+import { BarChart3, FileText, Users } from 'lucide-react'
 import { Card, CardTitle } from '@/components/ui/Card'
+import { StatCards } from '@/components/ui/StatCards'
 import { Button } from '@/components/ui/Button'
 import { useAppStore } from '@/lib/store'
 import { useNavigate } from 'react-router-dom'
@@ -25,22 +26,7 @@ export function TeacherReportsIndex() {
         <p className="mt-1 text-sm text-ink/55">Review class performance and open detailed student reports.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        {stats.map((stat) => {
-          const Icon = stat.icon
-          return (
-            <Card key={stat.label} className="group p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-              <div className="flex items-start justify-between">
-                <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${stat.tone}`}><Icon className="h-5 w-5" /></span>
-                <TrendingUp className="h-4 w-4 text-ink/15 transition-colors group-hover:text-green-500" />
-              </div>
-              <div className="mt-5 font-display text-3xl font-semibold tracking-tight text-ink">{stat.value}</div>
-              <div className="mt-1 text-sm font-semibold text-ink">{stat.label}</div>
-              <div className="mt-1 text-xs text-ink/45">{stat.detail}</div>
-            </Card>
-          )
-        })}
-      </div>
+      <StatCards stats={stats} cols={3} />
 
       <Card className="p-6">
         <div className="mb-5 flex items-start justify-between gap-4">

@@ -1,37 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ArrowRight, Award, BarChart3, BookOpen, BookOpenText,
+  ArrowRight, Award, BarChart3, BookOpen,
   CalendarDays, CheckCircle2, Flame, GraduationCap,
   Sparkles, UsersRound,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-
-/* ── tiny helpers ──────────────────────────────────────────────── */
-function useScrollY() {
-  const [y, setY] = useState(0)
-  useEffect(() => {
-    const fn = () => setY(window.scrollY)
-    window.addEventListener('scroll', fn, { passive: true })
-    return () => window.removeEventListener('scroll', fn)
-  }, [])
-  return y
-}
-
-function useInView(ref: React.RefObject<HTMLDivElement | HTMLElement | null>, threshold = 0.15) {
-  const [visible, setVisible] = useState(false)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect() } },
-      { threshold }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [ref, threshold])
-  return visible
-}
+import { LogoLink } from '@/components/ui/Logo'
+import { useScrollY, useInView } from '@/lib/utils'
 
 /* ── data ──────────────────────────────────────────────────────── */
 const FLOAT_CARDS = [
@@ -82,15 +58,7 @@ export function Landing() {
           : 'bg-transparent'
       }`}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-          <button onClick={() => navigate('/')} className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-green-800 text-paper shadow-card">
-              <BookOpenText className="h-5 w-5" />
-            </span>
-            <span>
-              <span className="block font-display text-xl font-semibold leading-none text-green-900">TILP</span>
-              <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.18em] text-ink/40">Quran learning</span>
-            </span>
-          </button>
+          <LogoLink />
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={() => navigate('/login')}>Sign in</Button>
             <Button onClick={() => navigate('/signup')} className="hidden sm:inline-flex">
@@ -380,15 +348,7 @@ export function Landing() {
       {/* ── FOOTER ──────────────────────────────────────────── */}
       <footer className="border-t border-line bg-white/60">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-5 py-8 sm:flex-row sm:px-8">
-          <button onClick={() => navigate('/')} className="flex items-center gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-green-800 text-paper">
-              <BookOpenText className="h-4 w-4" />
-            </span>
-            <span>
-              <span className="block font-display text-base font-semibold leading-none text-green-900">TILP</span>
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-ink/35">Quran learning</span>
-            </span>
-          </button>
+          <LogoLink size="sm" />
           <p className="text-center text-sm text-ink/40">Making Quranic learning collaborative, transparent, and achievable.</p>
           <div className="flex items-center gap-4 text-sm text-ink/45">
             {([['Sign in', '/login'], ['Get started', '/signup'], ['Enroll', '/enroll']] as const).map(([label, path]) => (

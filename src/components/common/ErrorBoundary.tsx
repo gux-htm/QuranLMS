@@ -14,7 +14,14 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     const isLocalDevelopment = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname)
-    if (isLocalDevelopment) console.error('TILP page section error', error, info)
+    if (isLocalDevelopment) {
+      console.error('TILP page section error:', error)
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        componentStack: info.componentStack
+      })
+    }
   }
 
   private reload = () => window.location.reload()

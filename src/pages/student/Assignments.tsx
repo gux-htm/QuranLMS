@@ -1,24 +1,25 @@
 import { useMemo, useState } from 'react'
-import { BookOpen, ClipboardList, TrendingUp } from 'lucide-react'
+import { BookOpen, ClipboardList } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { format } from 'date-fns'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardTitle } from '@/components/ui/Card'
+import { StatCards } from '@/components/ui/StatCards'
+import { useAppStore } from '@/lib/store'
+import { CURRENT_STUDENT as STUDENT } from '@/lib/mockData'
 
 type AssignmentStatus = 'pending' | 'in_progress' | 'completed'
+
 type Assignment = {
   id: string
-  title: string
-  assigned: string
-  deadline: string
+  name: string // Custom assignment name from teacher
+  curriculumTitle: string // Original curriculum title
+  assignedDate: string
+  deadline: string | null
   status: AssignmentStatus
   score?: number
+  notes: string
 }
-
-const assignments: Assignment[] = [
-  { id: '1', title: 'Juz 1 · Pages 7–9', assigned: 'Today', deadline: 'Tomorrow', status: 'pending' },
-  { id: '2', title: 'Juz 1 · Pages 4–6', assigned: 'Aug 20', deadline: 'Aug 27', status: 'completed', score: 92 },
-  { id: '3', title: 'Noorani Qaida · Lesson 12', assigned: 'Aug 12', deadline: 'Aug 19', status: 'in_progress' },
-]
 
 const STATUS_CONFIG: Record<AssignmentStatus, { label: string; classes: string }> = {
   pending: { label: 'Pending', classes: 'bg-gold-100 text-gold-800' },
@@ -32,20 +33,43 @@ type Tab = (typeof tabs)[number]
 export function StudentAssignments() {
   const [tab, setTab] = useState<Tab>('Pending')
   const navigate = useNavigate()
+  const { lessonAssignments, lessonProgress } = useAppStore()
+
+  // Get assignments for current student
+  const studentId = STUDENT.id
+  const myAssignments = useMemo<Assignment[]>(() => {
+    return lessonAssignments
+      .filter((a) => a.studentIds.includes(studentId))
+      .map((a) => {
+        const progress = lessonProgress[a.id]
+        const isCompleted = progress === 100
+        const isPending = !progress || progress === 0
+        return {
+          id: a.id,
+          name: a.assignmentName,
+          curriculumTitle: a.curriculumTitle,
+          assignedDate: format(new Date(a.assignedAt), 'MMM d'),
+          deadline: a.deadline ? format(new Date(a.deadline), 'MMM d') : null,
+          status: (isCompleted ? 'completed' : isPending ? 'pending' : 'in_progress') as AssignmentStatus,
+          notes: a.notes,
+          score: undefined, // TODO: link to session scores when available
+        }
+      })
+  }, [lessonAssignments, lessonProgress, studentId])
 
   const list = useMemo(() => {
-    if (tab === 'All') return assignments
-    if (tab === 'Pending') return assignments.filter((a) => a.status !== 'completed')
-    return assignments.filter((a) => a.status === 'completed')
-  }, [tab])
+    if (tab === 'All') return myAssignments
+    if (tab === 'Pending') return myAssignments.filter((a) => a.status !== 'completed')
+    return myAssignments.filter((a) => a.status === 'completed')
+  }, [tab, myAssignments])
 
   const actionLabel = (status: AssignmentStatus) =>
     status === 'pending' ? 'Start lesson' : status === 'in_progress' ? 'Continue' : 'Review'
 
   const counts = {
-    Pending: assignments.filter((a) => a.status !== 'completed').length,
-    Completed: assignments.filter((a) => a.status === 'completed').length,
-    All: assignments.length,
+    Pending: myAssignments.filter((a) => a.status !== 'completed').length,
+    Completed: myAssignments.filter((a) => a.status === 'completed').length,
+    All: myAssignments.length,
   }
 
   return (
@@ -57,27 +81,11 @@ export function StudentAssignments() {
       </div>
 
       {/* Summary stat cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        {[
-          { label: 'Pending', value: counts.Pending, tone: 'bg-gold-100 text-gold-700', detail: 'Awaiting your completion' },
-          { label: 'In progress', value: assignments.filter((a) => a.status === 'in_progress').length, tone: 'bg-sky-100 text-sky-600', detail: 'Started but not finished' },
-          { label: 'Completed', value: counts.Completed, tone: 'bg-green-50 text-green-700', detail: 'Finished assignments' },
-        ].map((stat) => (
-          <Card key={stat.label} className="group relative overflow-hidden p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-            <CardContent className="space-y-0">
-              <div className="flex items-start justify-between">
-                <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${stat.tone}`}>
-                  <ClipboardList className="h-5 w-5" />
-                </span>
-                <TrendingUp className="h-4 w-4 text-ink/15 transition-colors group-hover:text-green-500" />
-              </div>
-              <div className="mt-5 font-display text-3xl font-semibold tracking-tight text-ink">{stat.value}</div>
-              <div className="mt-1 text-sm font-semibold text-ink">{stat.label}</div>
-              <div className="mt-1 text-xs text-ink/45">{stat.detail}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <StatCards stats={[
+        { icon: ClipboardList, label: 'Pending', value: counts.Pending, tone: 'bg-gold-100 text-gold-700', detail: 'Awaiting your completion' },
+        { icon: ClipboardList, label: 'In progress', value: myAssignments.filter((a) => a.status === 'in_progress').length, tone: 'bg-sky-100 text-sky-600', detail: 'Started but not finished' },
+        { icon: ClipboardList, label: 'Completed', value: counts.Completed, tone: 'bg-green-50 text-green-700', detail: 'Finished assignments' },
+      ]} cols={3} />
 
       {/* Assignment list */}
       <Card className="p-6">
@@ -125,11 +133,18 @@ export function StudentAssignments() {
                     <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${status.classes}`}>
                       <BookOpen className="h-4 w-4" />
                     </span>
-                    <div>
-                      <div className="text-sm font-semibold text-ink">{a.title}</div>
-                      <div className="mt-0.5 text-xs text-ink/50">
-                        Assigned {a.assigned} · Due {a.deadline}
+                    <div className="flex-1">
+                      <div className="text-sm font-semibold text-ink">{a.name}</div>
+                      <div className="mt-0.5 text-xs text-ink/40">{a.curriculumTitle}</div>
+                      <div className="mt-1 text-xs text-ink/50">
+                        Assigned {a.assignedDate}
+                        {a.deadline && ` · Due ${a.deadline}`}
                       </div>
+                      {a.notes && (
+                        <div className="mt-1.5 text-xs italic text-ink/60">
+                          "{a.notes}"
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">

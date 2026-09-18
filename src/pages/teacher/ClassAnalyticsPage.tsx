@@ -1,9 +1,10 @@
 ﻿import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Award, BarChart3, Download, FileText, Mail, Minus, Printer, TrendingDown, TrendingUp } from 'lucide-react'
+import { Award, BarChart3, Download, FileText, Mail, Minus, Printer, TrendingDown, TrendingUp } from 'lucide-react'
 import { Card, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
+import { BackLink } from '@/components/ui/BackLink'
 import { TrendChart } from '@/components/charts/TrendChart'
 import { useToast } from '@/components/ui/Toaster'
 import { useClassAnalytics } from '@/hooks/useClassAnalytics'
@@ -148,13 +149,7 @@ export function TeacherClassAnalytics() {
 
   return (
     <div className="space-y-6">
-      <button
-        onClick={() => navigate(`/teacher/classes/${klass.id}`)}
-        className="inline-flex items-center gap-1 text-sm font-medium text-green-700 hover:text-green-800"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to {klass.name}
-      </button>
+      <BackLink to={`/teacher/classes/${klass.id}`} label={`Back to ${klass.name}`} />
 
       {/* ---------- Header + filters ---------- */}
       <div className="flex flex-wrap items-end justify-between gap-4">

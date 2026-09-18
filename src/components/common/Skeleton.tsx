@@ -1,5 +1,4 @@
 import { ReactNode } from 'react'
-import { Button } from '@/components/ui/Button'
 
 interface SkeletonProps { width?: string; height?: string; borderRadius?: string }
 export function Skeleton({ width = '100%', height = '1rem', borderRadius = '0.375rem' }: SkeletonProps) {
@@ -13,4 +12,4 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
 
 export function PageLoader() { return <div className="flex min-h-[50vh] items-center justify-center"><div className="h-9 w-9 animate-spin rounded-full border-4 border-paper-dim border-t-green-600" aria-label="Loading" /></div> }
 
-export function ErrorFallback() { return <EmptyState icon={<span>!</span>} title="Something went wrong" description="Please try again. If the problem continues, return to your dashboard." action={<Button onClick={() => window.location.reload()}>Try again</Button>} /> }
+

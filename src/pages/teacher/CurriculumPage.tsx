@@ -1,7 +1,8 @@
 ﻿import { Fragment, useMemo, useState } from 'react'
-import { ArrowLeft, BookOpen, BookOpenText, Clock, GraduationCap, Languages, Moon, PauseCircle, ScrollText, Search, Volume2, X } from 'lucide-react'
+import { BookOpen, BookOpenText, Clock, GraduationCap, Languages, Moon, PauseCircle, ScrollText, Search, Volume2, X } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { BackLink } from '@/components/ui/BackLink'
 import { AudioPlayer } from '@/components/common/AudioPlayer'
 import { CurriculumCard, TRACK_FILTER_LABELS } from '@/components/teacher/CurriculumCard'
 import { AssignmentModal } from '@/components/teacher/AssignmentModal'
@@ -215,14 +216,7 @@ function QuranTilesView({ onBack, onOpenItem }: {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-1.5 text-sm text-ink/65 hover:bg-paper-dim"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Curriculum
-          </button>
-          <h1 className="font-display text-2xl font-semibold text-ink">The Holy Quran</h1>
+          <BackLink onClick={onBack} label="Curriculum" variant="pill" />
         </div>
 
         {/* Para / Surah switch */}
@@ -371,13 +365,7 @@ function QuranReadingView({ item, onBack, onAssign }: {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-1.5 text-sm text-ink/65 hover:bg-paper-dim"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            The Holy Quran
-          </button>
+          <BackLink onClick={onBack} label="The Holy Quran" variant="pill" />
           <div>
             <h1 className="font-display text-2xl font-semibold text-ink">{item.title}</h1>
             <p className="text-xs text-ink/50">{item.description}</p>
@@ -524,13 +512,7 @@ function CategoryView({ track, onBack, onOpenItem }: {
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-3">
-        <button
-          onClick={onBack}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-1.5 text-sm text-ink/65 hover:bg-paper-dim"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Curriculum
-        </button>
+        <BackLink onClick={onBack} label="Curriculum" variant="pill" />
         <div>
           <h1 className="font-display text-2xl font-semibold text-ink">{cat.title}</h1>
           <p className="text-sm text-ink/55">{cat.subtitle}</p>
@@ -589,13 +571,7 @@ function ContentItemView({ item, onBack, onAssign }: {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-3 py-1.5 text-sm text-ink/65 hover:bg-paper-dim"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {TRACK_FILTER_LABELS[item.track]}
-          </button>
+          <BackLink onClick={onBack} label={TRACK_FILTER_LABELS[item.track]} variant="pill" />
           <div>
             <div className="mb-1 flex flex-wrap gap-2">
               <span className="rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700">

@@ -1,9 +1,9 @@
 import { ReactNode, useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import {
-  BookOpenText,
   LayoutGrid,
   Calendar,
+  CalendarClock,
   BarChart3,
   Award,
   LogOut,
@@ -16,6 +16,8 @@ import {
 } from 'lucide-react'
 import { CURRENT_STUDENT } from '@/lib/mockData'
 import { NotificationsPanel } from '@/components/common/NotificationsPanel'
+import { LogoLink } from '@/components/ui/Logo'
+import { initialsOf } from '@/lib/utils'
 
 interface StudentLayoutProps { children?: ReactNode }
 
@@ -26,7 +28,8 @@ export function StudentLayout({ children }: StudentLayoutProps) {
 
   const navItems = [
     { path: '/student', icon: LayoutGrid, label: 'Dashboard' },
-    { path: '/student/lesson', icon: BookOpen, label: "Today's lesson" },
+    { path: '/student/lesson', icon: BookOpen, label: 'Lesson' },
+    { path: '/student/schedule', icon: CalendarClock, label: 'Schedule' },
     { path: '/student/assignments', icon: ClipboardList, label: 'Assignments' },
     { path: '/student/calendar', icon: Calendar, label: 'Calendar' },
     { path: '/student/reports', icon: BarChart3, label: 'Reports' },
@@ -57,20 +60,7 @@ export function StudentLayout({ children }: StudentLayoutProps) {
       >
         {/* Logo */}
         <div className="flex items-center justify-between px-2 pb-6 pt-1">
-          <button
-            onClick={() => navigate('/student')}
-            className="flex items-center gap-3 text-left"
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-green-800 text-paper">
-              <BookOpenText className="h-5 w-5" />
-            </span>
-            <span>
-              <span className="block font-display text-xl font-semibold text-green-900">TILP</span>
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-ink/40">
-                Student workspace
-              </span>
-            </span>
-          </button>
+          <LogoLink />
           <button
             onClick={() => setSidebarOpen(false)}
             className="rounded-lg p-2 text-ink/40 hover:bg-paper md:hidden"
@@ -159,7 +149,7 @@ export function StudentLayout({ children }: StudentLayoutProps) {
               <NotificationsPanel role="student" />
               <div className="flex items-center gap-3 rounded-2xl border border-line bg-white py-1.5 pl-1.5 pr-3 shadow-sm">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-100 font-display text-sm font-semibold text-green-800">
-                  {CURRENT_STUDENT.name.split(' ').map((p) => p[0]).slice(0, 2).join('')}
+                  {initialsOf(CURRENT_STUDENT.name)}
                 </span>
                 <div className="hidden sm:block">
                   <div className="text-sm font-semibold text-ink">{CURRENT_STUDENT.name}</div>

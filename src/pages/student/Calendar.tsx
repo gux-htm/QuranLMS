@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { addMonths, eachDayOfInterval, endOfMonth, format, getDay, startOfDay, startOfMonth } from 'date-fns'
-import { CalendarCheck, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, ClipboardCheck, Flame, TrendingUp } from 'lucide-react'
+import { CalendarCheck, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, ClipboardCheck, Flame } from 'lucide-react'
 import { Card, CardTitle, CardContent } from '@/components/ui/Card'
+import { StatCards } from '@/components/ui/StatCards'
 import { CURRENT_STUDENT, generateCalendarData, today } from '@/lib/mockData'
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -61,26 +62,7 @@ export function StudentCalendar() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon
-          return (
-            <Card key={stat.label} className="group relative overflow-hidden p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-              <CardContent className="space-y-0">
-                <div className="flex items-start justify-between">
-                  <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${stat.tone}`}>
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <TrendingUp className="h-4 w-4 text-ink/15 transition-colors group-hover:text-green-500" />
-                </div>
-                <div className="mt-5 font-display text-3xl font-semibold tracking-tight text-ink">{stat.value}</div>
-                <div className="mt-1 text-sm font-semibold text-ink">{stat.label}</div>
-                <div className="mt-1 text-xs text-ink/45">{stat.detail}</div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
+      <StatCards stats={stats} />
 
       {/* Calendar + day details */}
       <div className="grid gap-5 lg:grid-cols-3">

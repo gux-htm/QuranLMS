@@ -6,10 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useAppStore } from '@/lib/store'
 import { useToast } from '@/components/ui/Toaster'
-
-export function initialsOf(name: string) {
-  return name.split(' ').map((part) => part[0]).slice(0, 2).join('')
-}
+import { initialsOf } from '@/lib/utils'
 
 export function TeacherStudents() {
   const navigate = useNavigate(); const { students, classes, getClass } = useAppStore(); const { push } = useToast()
