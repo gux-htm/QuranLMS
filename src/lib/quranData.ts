@@ -207,3 +207,65 @@ export const JUZ_LIST: JuzMeta[] = RAW_JUZ.map(([name, startSurah, startAyah], i
 export function getJuz(n: number): JuzMeta | undefined {
   return JUZ_LIST[n - 1]
 }
+
+/**
+ * Maps a page range to Quran content (surah and ayah ranges).
+ * Uses the standard Madani mushaf page numbering (604 pages total).
+ * 
+ * This is a simplified mapping that divides pages evenly across surahs.
+ * For production, this should use an actual page-to-ayah lookup table.
+ */
+export interface PageToQuranMapping {
+  startSurah: number
+  startAyah: number
+  endSurah: number
+  endAyah: number
+  label: string
+  startSurahName: string
+  endSurahName: string
+}
+
+export function mapPageRangeToQuran(startPage: number, endPage: number): PageToQuranMapping {
+  // Simplified mapping: each page contains approximately 10.3 ayahs (6236 / 604)
+  const AYAHS_PER_PAGE = 6236 / 604
+  
+  const startGlobalAyah = Math.ceil((startPage - 1) * AYAHS_PER_PAGE) + 1
+  const endGlobalAyah = Math.min(Math.ceil(endPage * AYAHS_PER_PAGE), 6236)
+  
+  // Find which surahs these global ayah numbers belong to
+  const startSurah = surahOfGlobalAyah(startGlobalAyah)
+  const endSurah = surahOfGlobalAyah(endGlobalAyah)
+  
+  // Calculate ayah number within the surah
+  let startAyahInSurah = 1
+  let accumulatedAyahs = 0
+  for (let i = 0; i < startSurah.n - 1; i++) {
+    accumulatedAyahs += SURAHS[i].ayahs
+  }
+  startAyahInSurah = Math.max(1, startGlobalAyah - accumulatedAyahs)
+  
+  let endAyahInSurah = 1
+  accumulatedAyahs = 0
+  for (let i = 0; i < endSurah.n - 1; i++) {
+    accumulatedAyahs += SURAHS[i].ayahs
+  }
+  endAyahInSurah = Math.min(endSurah.ayahs, endGlobalAyah - accumulatedAyahs)
+  
+  // Generate label
+  let label = ''
+  if (startSurah.n === endSurah.n) {
+    // Same surah
+    label = `Surah ${startSurah.name}, Ayah ${startAyahInSurah}–${endAyahInSurah}`
+  } else {
+    // Multiple surahs
+    label = `Surah ${startSurah.name} (${startAyahInSurah}–${startSurah.ayahs}) to Surah ${endSurah.name} (1–${endAyahInSurah})`
+  }
+  
+  return {
+    startSurah: startSurah.n,
+    startAyah: startAyahInSurah,
+    endSurah: endSurah.n,
+    endAyah: endAyahInSurah,
+    label,
+  }
+}

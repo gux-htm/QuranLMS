@@ -8,21 +8,9 @@ import { AudioPlayer } from '@/components/common/AudioPlayer'
 import { WordByWordMode } from '@/components/student/WordByWordMode'
 import { CURRENT_STUDENT, today } from '@/lib/mockData'
 import { useAppStore } from '@/lib/store'
-import { format } from 'date-fns'
+import { calculateLessonLibrary } from '@/lib/lessonCalculator'
+import { format, parseISO } from 'date-fns'
 import { useToast } from '@/components/ui/Toaster'
-
-const FALLBACK_ASSIGNMENT = {
-  id: 'current-student-lesson',
-  curriculumTitle: 'Juz 1 · Pages 4–6',
-  deadline: format(today, 'yyyy-MM-dd'),
-  notes: 'Continue with a calm, steady pace.',
-}
-
-const ASSIGNMENT_TITLES: Record<string, string> = {
-  '1': 'Juz 1 · Pages 7–9',
-  '2': 'Juz 1 · Pages 4–6',
-  '3': 'Noorani Qaida · Lesson 12',
-}
 
 const QARIS = [
   { label: 'Abdur-Rahman As-Sudais', id: 'ar.abdurrahmaansudais' },
@@ -37,39 +25,47 @@ const GLOBAL_AYAHS = [1, 2, 3, 4, 5, 6, 7]
 export function StudentLessonPage() {
   const navigate = useNavigate()
   const { id } = useParams()
-  const { lessonAssignments, lessonProgress, saveLessonProgress, completeLesson } = useAppStore()
+  const { lessonProgress, saveLessonProgress, completeLesson } = useAppStore()
   const { push } = useToast()
   const [qari, setQari] = useState('ar.alafasy')
   const [mode, setMode] = useState<'full' | 'word'>('full')
 
-  const assignment = useMemo(() => {
-    if (id) {
-      const stored = lessonAssignments.find(
-        (item) => item.id === id && item.studentIds.includes(CURRENT_STUDENT.id)
-      )
-      if (stored) return stored
-      if (ASSIGNMENT_TITLES[id]) return { id, curriculumTitle: ASSIGNMENT_TITLES[id], deadline: format(today, 'yyyy-MM-dd'), notes: '' }
-      return null
-    }
-    return lessonAssignments.find((item) => item.studentIds.includes(CURRENT_STUDENT.id)) ?? FALLBACK_ASSIGNMENT
-  }, [id, lessonAssignments])
+  // Calculate lesson library to find the specific lesson
+  const { lessons } = useMemo(() => {
+    return calculateLessonLibrary({
+      studentId: CURRENT_STUDENT.id,
+      currentDate: today,
+      pace: CURRENT_STUDENT.pace,
+      unitsCompleted: CURRENT_STUDENT.unitsCompleted,
+      totalUnits: CURRENT_STUDENT.totalUnits,
+      completedLessons: lessonProgress,
+    })
+  }, [lessonProgress])
 
-  const saved = assignment ? lessonProgress[assignment.id] ?? 0 : 0
+  // Find the lesson by ID or date
+  const lesson = useMemo(() => {
+    if (!id) return lessons[0] // Default to first pending lesson
+    
+    // ID format is either "lesson-YYYY-MM-DD" or just "YYYY-MM-DD"
+    const lessonId = id.startsWith('lesson-') ? id : `lesson-${id}`
+    return lessons.find(l => l.id === lessonId)
+  }, [id, lessons])
+
+  const saved = lesson ? lesson.actualQuantity : 0
   const [lines, setLines] = useState(saved)
-  const [quantity, setQuantity] = useState(Math.max(CURRENT_STUDENT.pace.quantity, 0.1))
   const [validation, setValidation] = useState('')
   const [saving, setSaving] = useState(false)
   const [completing, setCompleting] = useState(false)
 
   const completionUnit = CURRENT_STUDENT.pace.unit
-  const targetQuantity = 1
+  const targetQuantity = lesson?.targetQuantity || 1
 
   const segments = useMemo(
     () => GLOBAL_AYAHS.map((ayah) => ({ label: `1:${ayah}`, url: `https://cdn.islamic.network/quran/audio/128/${qari}/${ayah}.mp3` })),
     [qari]
   )
 
-  if (!assignment) {
+  if (!lesson) {
     return (
       <Card className="p-6">
         <CardContent className="py-12 text-center">
@@ -77,20 +73,20 @@ export function StudentLessonPage() {
             <BookOpen className="h-6 w-6 text-green-700" />
           </div>
           <p className="mt-4 font-semibold text-ink">This lesson isn't available yet.</p>
-          <p className="mt-1 text-sm text-ink/50">Your teacher hasn't assigned it yet.</p>
+          <p className="mt-1 text-sm text-ink/50">Check your lesson library for available lessons.</p>
           <button
-            onClick={() => navigate('/student/assignments')}
+            onClick={() => navigate('/student/lessons')}
             className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-green-700 hover:text-green-900"
           >
-            <ArrowLeft className="h-4 w-4" /> Back to assignments
+            <ArrowLeft className="h-4 w-4" /> Back to lesson library
           </button>
         </CardContent>
       </Card>
     )
   }
 
-  const progress = Math.round((Math.min(lines, 16) / 16) * 100)
-  const status = lines >= 16 ? 'Completed' : lines > 0 ? 'In progress' : 'Pending'
+  const progress = Math.round((Math.min(saved, targetQuantity) / targetQuantity) * 100)
+  const status = lesson.status === 'completed' ? 'Completed' : saved > 0 ? 'In progress' : 'Pending'
   const statusClass =
     status === 'Completed'
       ? 'bg-green-50 text-green-700'
@@ -108,44 +104,41 @@ export function StudentLessonPage() {
   }
 
   const save = async () => {
-    if (!validate(quantity)) return
+    if (!validate(lines)) return
     setSaving(true)
     await new Promise((r) => setTimeout(r, 500))
-    saveLessonProgress(
-      assignment.id,
-      Math.min(16, Math.round((quantity * 16) / Math.max(1, CURRENT_STUDENT.pace.quantity)))
-    )
+    saveLessonProgress(lesson.id, lines)
     push('Progress saved')
     setSaving(false)
   }
 
   const complete = async () => {
-    if (!validate(quantity)) return
+    if (!validate(lines)) return
     setCompleting(true)
     await new Promise((r) => setTimeout(r, 500))
-    completeLesson(assignment.id)
+    saveLessonProgress(lesson.id, lines)
+    completeLesson(lesson.id)
     push('Lesson marked complete!')
     setCompleting(false)
-    navigate('/student')
+    navigate('/student/lessons')
   }
 
   return (
     <div className="space-y-6 pb-24 md:pb-0">
       {/* Back nav */}
       <button
-        onClick={() => navigate('/student/assignments')}
+        onClick={() => navigate('/student/lessons')}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-green-700 hover:text-green-900"
       >
-        <ArrowLeft className="h-4 w-4" /> Assignments
+        <ArrowLeft className="h-4 w-4" /> Lesson library
       </button>
 
       {/* Page header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-ink">{assignment.curriculumTitle}</h1>
+          <h1 className="font-display text-2xl font-semibold text-ink">{lesson.label}</h1>
           <p className="mt-1 text-sm text-ink/55">
-            Assigned by {CURRENT_STUDENT.teacherName} · Due{' '}
-            {format(new Date(`${assignment.deadline ?? format(today, 'yyyy-MM-dd')}T12:00:00`), 'MMM d, yyyy')}
+            {format(parseISO(lesson.date), 'EEEE, MMMM d, yyyy')}
           </p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClass}`}>{status}</span>
@@ -255,7 +248,7 @@ export function StudentLessonPage() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <div className="text-sm font-semibold text-ink">1 page (16 lines)</div>
+                  <div className="text-sm font-semibold text-ink">{targetQuantity} {targetQuantity === 1 ? completionUnit : completionUnit + 's'}</div>
                   <div className="mt-0.5 text-xs text-ink/50">Today's target</div>
                 </div>
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-4 border-green-100 text-sm font-bold text-green-700">
@@ -263,12 +256,12 @@ export function StudentLessonPage() {
                 </div>
               </div>
               <Input
-                label="Lines completed today"
+                label={`${completionUnit === 'line' ? 'Lines' : completionUnit === 'page' ? 'Pages' : 'Units'} completed today`}
                 type="number"
                 min={0}
-                max={16}
+                max={targetQuantity}
                 value={lines}
-                onChange={(e) => setLines(Math.max(0, Math.min(16, Number(e.target.value))))}
+                onChange={(e) => setLines(Math.max(0, Math.min(targetQuantity, Number(e.target.value))))}
               />
             </CardContent>
           </Card>
@@ -283,15 +276,8 @@ export function StudentLessonPage() {
             </CardContent>
           </Card>
 
-          {/* Assignment notes */}
-          {assignment.notes && (
-            <Card className="p-6">
-              <CardTitle className="mb-3">Teacher's note</CardTitle>
-              <CardContent>
-                <p className="text-sm leading-6 text-ink/60">{assignment.notes}</p>
-              </CardContent>
-            </Card>
-          )}
+          {/* Teacher's note - only show if has notes */}
+          {/* Removed as lesson doesn't have notes property from calculator */}
         </div>
       </div>
 
@@ -313,15 +299,15 @@ export function StudentLessonPage() {
                   type="number"
                   min={0}
                   max={targetQuantity * 2}
-                  step="0.1"
-                  value={quantity}
+                  step="1"
+                  value={lines}
                   onChange={(e) => {
-                    setQuantity(Number(e.target.value))
+                    setLines(Number(e.target.value))
                     setValidation('')
                   }}
                   className="h-10 w-28 rounded-xl border border-line bg-white px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-green-600/30"
                 />
-                <span className="text-sm text-ink/55">{completionUnit}</span>
+                <span className="text-sm text-ink/55">{lines === 1 ? completionUnit : completionUnit + 's'}</span>
               </div>
               {validation && <p className="mt-1 text-xs text-clay-700">{validation}</p>}
             </div>
@@ -329,7 +315,7 @@ export function StudentLessonPage() {
               <CheckCircle2 className="mr-1.5 h-4 w-4" />
               {completing ? 'Completing…' : 'Mark complete'}
             </Button>
-            <Button variant="ghost" onClick={() => navigate('/student/assignments')}>
+            <Button variant="ghost" onClick={() => navigate('/student/lessons')}>
               Save for later
             </Button>
           </div>

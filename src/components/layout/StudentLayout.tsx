@@ -28,7 +28,7 @@ export function StudentLayout({ children }: StudentLayoutProps) {
 
   const navItems = [
     { path: '/student', icon: LayoutGrid, label: 'Dashboard' },
-    { path: '/student/lesson', icon: BookOpen, label: 'Lesson' },
+    { path: '/student/lessons', icon: BookOpen, label: 'Lessons' },
     { path: '/student/schedule', icon: CalendarClock, label: 'Schedule' },
     { path: '/student/assignments', icon: ClipboardList, label: 'Assignments' },
     { path: '/student/calendar', icon: Calendar, label: 'Calendar' },

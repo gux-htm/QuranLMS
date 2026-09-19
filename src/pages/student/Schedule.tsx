@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   CalendarDays,
@@ -10,8 +10,9 @@ import {
   ChevronRight,
   Award,
   BookOpen,
+  Play,
 } from 'lucide-react'
-import { format } from 'date-fns'
+import { format, parseISO, differenceInSeconds, addMinutes } from 'date-fns'
 import { Card, CardContent, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useAppStore } from '@/lib/store'
@@ -22,6 +23,10 @@ import {
   MISTAKE_TYPE_LABELS,
   today,
 } from '@/lib/mockData'
+import { calculateLessonLibrary } from '@/lib/lessonCalculator'
+import { AudioPlayer } from '@/components/common/AudioPlayer'
+import { mapPageRangeToQuran, getSurah } from '@/lib/quranData'
+import { useQuranText } from '@/hooks/useQuranText'
 
 /* ── constants ───────────────────────────────────────────── */
 
@@ -51,14 +56,102 @@ export function StudentSchedule() {
     sessionMistakes,
     sessionScores,
     sessionRubrics,
+    lessonProgress,
   } = useAppStore()
 
   const defaultSession =
     MY_SESSIONS.find((s) => s.date === format(today, 'yyyy-MM-dd')) ?? MY_SESSIONS[0]
   const [selectedId, setSelectedId] = useState<string | undefined>(defaultSession?.id)
+  const [countdown, setCountdown] = useState<number>(0)
 
   const selected = MY_SESSIONS.find((s) => s.id === selectedId)
   const detail   = selectedId ? SESSION_DETAILS[selectedId] : undefined
+
+  // Find today's session for countdown
+  const todaysSession = useMemo(() => 
+    MY_SESSIONS.find((s) => s.date === format(today, 'yyyy-MM-dd')),
+    []
+  )
+
+  // Calculate countdown timer
+  useEffect(() => {
+    if (!todaysSession) return
+
+    const updateCountdown = () => {
+      const [hours, minutes] = todaysSession.time.split(':').map(Number)
+      const sessionTime = new Date(today)
+      sessionTime.setHours(hours, minutes, 0, 0)
+      
+      const now = new Date()
+      const diff = differenceInSeconds(sessionTime, now)
+      
+      setCountdown(Math.max(0, diff))
+    }
+
+    updateCountdown()
+    const interval = setInterval(updateCountdown, 1000)
+    
+    return () => clearInterval(interval)
+  }, [todaysSession])
+
+  const formatCountdown = (seconds: number) => {
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
+    const s = seconds % 60
+    
+    if (h > 0) {
+      return `${h}h ${m}m ${s}s`
+    }
+    return `${m}m ${s}s`
+  }
+
+  // Fetch lesson from library based on selected session date
+  const { lessons } = useMemo(() => {
+    const result = calculateLessonLibrary({
+      studentId: CURRENT_STUDENT.id,
+      currentDate: today,
+      pace: CURRENT_STUDENT.pace,
+      unitsCompleted: CURRENT_STUDENT.unitsCompleted,
+      totalUnits: CURRENT_STUDENT.totalUnits,
+      completedLessons: lessonProgress,
+    })
+    console.log('Generated lessons:', result.lessons)
+    return result
+  }, [lessonProgress])
+
+  // Find the lesson for the selected session date
+  const todaysLesson = useMemo(() => {
+    if (!selected) return null
+    const lessonId = `lesson-${selected.date}`
+    console.log('Looking for lesson:', lessonId, 'in', lessons.length, 'lessons')
+    const found = lessons.find(l => l.id === lessonId)
+    console.log('Found lesson:', found)
+    return found
+  }, [selected, lessons])
+
+  // Map lesson page range to Quran content
+  const quranMapping = useMemo(() => {
+    if (!todaysLesson || CURRENT_STUDENT.pace.unit !== 'pages') return null
+    return mapPageRangeToQuran(todaysLesson.startUnit, todaysLesson.endUnit)
+  }, [todaysLesson])
+
+  // Fetch actual Quran text for the mapped range
+  const { ayahs: quranAyahs, loading: quranLoading, error: quranError } = useQuranText(
+    'surah',
+    quranMapping?.startSurah ?? null
+  )
+
+  // Filter ayahs to only show the range for this lesson
+  const lessonAyahs = useMemo(() => {
+    if (!quranMapping || !quranAyahs.length) return []
+    
+    // If lesson spans multiple surahs, we need to fetch all of them
+    // For now, just show the first surah's ayahs in the range
+    return quranAyahs.filter(ayah => 
+      ayah.numInSurah >= quranMapping.startAyah && 
+      ayah.numInSurah <= (quranMapping.endSurah === quranMapping.startSurah ? quranMapping.endAyah : ayah.numInSurah)
+    )
+  }, [quranAyahs, quranMapping])
 
   const attendance = selectedId
     ? (sessionAttendance[`${selectedId}:${CURRENT_STUDENT.id}`] ?? sessionAttendance[selectedId])
@@ -75,8 +168,18 @@ export function StudentSchedule() {
   const isPast  = selected ? selected.date < format(today, 'yyyy-MM-dd') : false
 
   const joinClass = () => {
-    if (selected?.meetUrl) window.open(selected.meetUrl, '_blank')
-    navigate('/student/lesson')
+    if (selected?.meetUrl) {
+      // Open Google Meet in new tab
+      window.open(selected.meetUrl, '_blank')
+      // Navigate to session lesson in current tab
+      navigate(`/student/sessions/${selected.id}/lesson`)
+    }
+  }
+
+  const openLessonPractice = () => {
+    if (todaysLesson) {
+      navigate(`/student/lesson/${todaysLesson.id.replace('lesson-', '')}`)
+    }
   }
 
   return (
@@ -88,6 +191,88 @@ export function StudentSchedule() {
           Your sessions, teacher feedback, and attendance — all in one place.
         </p>
       </div>
+
+      {/* Today's session countdown card */}
+      {todaysSession && (() => {
+        const todayDetail = SESSION_DETAILS[todaysSession.id]
+        const todayLesson = lessons.find(l => l.id === `lesson-${todaysSession.date}`)
+        const todayMapping = todayLesson && CURRENT_STUDENT.pace.unit === 'pages' 
+          ? mapPageRangeToQuran(todayLesson.startUnit, todayLesson.endUnit)
+          : null
+
+        return (
+          <Card className="overflow-hidden border-2 border-green-600 bg-gradient-to-br from-green-50 to-green-100/50">
+            <div className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-green-600 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
+                    Today
+                  </span>
+                  {countdown > 0 && (
+                    <span className="flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 font-mono text-sm font-semibold text-green-700">
+                      <Clock className="h-3.5 w-3.5" />
+                      {formatCountdown(countdown)}
+                    </span>
+                  )}
+                  {countdown === 0 && (
+                    <span className="flex items-center gap-1.5 rounded-full bg-green-600 px-3 py-1 text-xs font-bold text-white animate-pulse">
+                      <Video className="h-3.5 w-3.5" />
+                      Class is starting!
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {/* Juz and pages info */}
+                {todayMapping && (
+                  <div className="text-2xl font-bold text-green-900">
+                    {todayMapping.label}
+                  </div>
+                )}
+                
+                {/* Session details */}
+                <div className="text-lg font-semibold text-ink">
+                  {todaysSession.className} · {format(new Date(todaysSession.date + 'T00:00:00'), 'EEEE, MMMM d')} · {todaysSession.time}
+                </div>
+
+                {/* Surah and Ayah range */}
+                {todayMapping && (
+                  <div className="text-base text-green-800">
+                    {todayMapping.startSurah === todayMapping.endSurah 
+                      ? `Surah ${todayMapping.startSurahName}, Ayah ${todayMapping.startAyah}–${todayMapping.endAyah}`
+                      : `${todayMapping.startSurahName} ${todayMapping.startAyah} – ${todayMapping.endSurahName} ${todayMapping.endAyah}`
+                    }
+                  </div>
+                )}
+
+                {/* Tajweed focus */}
+                {todayDetail?.tajweedRules && todayDetail.tajweedRules.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {todayDetail.tajweedRules.map((rule) => (
+                      <span key={rule} className="rounded-full bg-white/60 px-3 py-1 text-xs font-medium text-green-900">
+                        {rule}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Join button */}
+                <div className="pt-2">
+                  <Button 
+                    size="lg" 
+                    onClick={joinClass}
+                    className="w-full bg-green-700 hover:bg-green-800 text-white shadow-lg"
+                  >
+                    <Video className="mr-2 h-5 w-5" />
+                    Join Class Now
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )
+      })()}
 
       <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
 
@@ -181,13 +366,24 @@ export function StudentSchedule() {
                     <p className="mt-1 text-sm text-paper/65">
                       {selected.className} · {format(new Date(selected.date + 'T00:00:00'), 'EEEE, MMMM d')} · {selected.time}
                     </p>
+                    {quranMapping && (
+                      <p className="mt-1 text-sm font-medium text-paper/90">
+                        {quranMapping.label}
+                      </p>
+                    )}
                   </div>
-                  {isToday && (
-                    <Button size="sm" variant="secondary" onClick={joinClass}>
-                      <Video className="mr-1.5 h-4 w-4" />
-                      Join class
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => navigate(`/student/sessions/${selected.id}/lesson`)}>
+                      <BookOpen className="mr-1.5 h-4 w-4" />
+                      View lesson
                     </Button>
-                  )}
+                    {isToday && (
+                      <Button size="sm" variant="secondary" onClick={joinClass}>
+                        <Video className="mr-1.5 h-4 w-4" />
+                        Join class
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -235,90 +431,222 @@ export function StudentSchedule() {
               </div>
             </Card>
 
-            {/* Mistakes + score */}
-            <div className="grid gap-5 lg:grid-cols-2">
+            {/* Main content grid: lesson content + session info */}
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
 
-              {/* Mistakes panel */}
-              <Card className="p-6">
-                <CardTitle className="mb-4 flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5 text-clay-600" />
-                  Mistakes marked by teacher
-                  {mistakes.length > 0 && (
-                    <span className="ml-auto rounded-full bg-clay-100 px-2 py-0.5 text-xs font-bold text-clay-700">
-                      {mistakes.length}
-                    </span>
-                  )}
-                </CardTitle>
-                <CardContent className="space-y-0">
-                  {/* Tajweed focus chips (from session detail) */}
-                  {detail?.tajweedRules.length ? (
-                    <div className="mb-4">
-                      <div className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink/40">
-                        Tajweed in focus
+              {/* Left: Lesson content from library (read-only) */}
+              <div className="space-y-5">
+                {todaysLesson ? (
+                  <>
+                    {/* Lesson text card */}
+                    <Card className="p-6">
+                      <div className="mb-4 flex items-start justify-between gap-4">
+                        <CardTitle className="text-green-900">Today's lesson content</CardTitle>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-50 text-green-700">
+                          <BookOpen className="h-4 w-4" />
+                        </span>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {detail.tajweedRules.map((rule) => (
-                          <span key={rule} className="rounded-full bg-paper-dim px-3 py-1 text-xs font-medium text-ink/70">
-                            {rule}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-
-                  {mistakes.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-line bg-paper/60 py-8 text-center">
-                      <CheckCircle2 className="mx-auto h-6 w-6 text-green-600" />
-                      <p className="mt-2 font-medium text-ink">No mistakes recorded</p>
-                      <p className="mt-1 text-xs text-ink/45">
-                        {isToday
-                          ? 'Session is in progress — mistakes will appear here as the teacher marks them.'
-                          : 'Clean session!'}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {mistakes.map((m) => (
-                        <div key={m.id} className="flex items-start gap-3 rounded-2xl border border-line bg-white p-3.5">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-clay-50">
-                            <AlertCircle className="h-4 w-4 text-clay-600" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="font-arabic text-base text-ink">{m.wordText}</span>
-                              <span className="text-xs text-ink/45">{m.surahName} {m.ayah}:{m.wordPosition}</span>
-                              <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${MISTAKE_TYPE_COLOUR[m.type] ?? MISTAKE_TYPE_COLOUR.other}`}>
-                                {MISTAKE_TYPE_LABELS[m.type]}
-                              </span>
+                      <CardContent className="space-y-4">
+                        {/* Lesson info */}
+                        <div className="flex items-center justify-between rounded-xl bg-paper p-3">
+                          <div>
+                            <div className="text-xs text-ink/50">Content range</div>
+                            <div className="mt-0.5 font-semibold text-ink">
+                              {quranMapping ? quranMapping.label : todaysLesson.label}
                             </div>
-                            {m.note && <p className="mt-1 text-xs leading-5 text-ink/60">{m.note}</p>}
+                          </div>
+                          <div className="text-right">
+                            <div className="text-xs text-ink/50">Target</div>
+                            <div className="mt-0.5 font-semibold text-ink">
+                              {todaysLesson.targetQuantity} {todaysLesson.targetQuantity === 1 ? CURRENT_STUDENT.pace.unit.slice(0, -1) : CURRENT_STUDENT.pace.unit}
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
 
-                  {/* Teacher note */}
-                  {detail?.notes && (
-                    <div className="mt-4 rounded-2xl border border-gold-200 bg-gold-100/40 p-4">
-                      <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-gold-700/70">
-                        Teacher's note
+                        {/* Arabic text (fetched from library, read-only during session) */}
+                        {quranLoading ? (
+                          <div className="rounded-2xl border border-line bg-paper/60 p-8 text-center">
+                            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-green-200 border-t-green-700" />
+                            <p className="mt-3 text-sm text-ink/50">Loading Quran text...</p>
+                          </div>
+                        ) : quranError ? (
+                          <div className="rounded-2xl border border-clay-200 bg-clay-50 p-5 text-center">
+                            <AlertCircle className="mx-auto h-6 w-6 text-clay-600" />
+                            <p className="mt-2 text-sm text-clay-700">{quranError}</p>
+                          </div>
+                        ) : lessonAyahs.length > 0 ? (
+                          <>
+                            <div
+                              dir="rtl"
+                              className="rounded-2xl border border-line bg-paper/60 p-5 text-right font-[Noto_Naskh_Arabic] text-3xl leading-[2.2] text-ink sm:text-4xl"
+                            >
+                              {lessonAyahs.map((ayah, idx) => (
+                                <span key={ayah.global}>
+                                  {ayah.ar}
+                                  {idx < lessonAyahs.length - 1 && ' ۝ '}
+                                </span>
+                              ))}
+                            </div>
+                            <div className="border-t border-line pt-4">
+                              <p className="text-sm leading-7 text-ink/60">
+                                {lessonAyahs.map(a => a.translit).join(' · ')}
+                              </p>
+                              <p className="mt-2 text-xs leading-6 text-ink/45">
+                                {lessonAyahs.map(a => a.en).join(' · ')}
+                              </p>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="rounded-2xl border border-line bg-paper/60 p-8 text-center">
+                            <BookOpen className="mx-auto h-8 w-8 text-ink/20" />
+                            <p className="mt-3 text-sm text-ink/50">No Quran text available for this lesson range</p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Audio player for reference */}
+                    {lessonAyahs.length > 0 && (
+                      <Card className="p-6">
+                        <CardTitle className="mb-4 flex items-center gap-2">
+                          <Play className="h-4 w-4 text-green-700" />
+                          Listen during class
+                        </CardTitle>
+                        <CardContent className="space-y-3">
+                          <p className="text-sm text-ink/60">
+                            Audio recitation available for reference. For full word-by-word practice, use the Practice button below.
+                          </p>
+                          <AudioPlayer 
+                            segments={lessonAyahs.map(ayah => ({
+                              label: `${ayah.surahNum}:${ayah.numInSurah}`,
+                              url: `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayah.global}.mp3`
+                            }))}
+                            emptyHint="Audio not available"
+                          />
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Open in practice mode */}
+                    <Card className="border-green-200 bg-green-50/30 p-5">
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <div className="font-semibold text-ink">Practice this lesson</div>
+                          <div className="mt-0.5 text-xs text-ink/50">
+                            Open full lesson view with word-by-word recitation and progress tracking
+                          </div>
+                        </div>
+                        <Button size="sm" onClick={openLessonPractice}>
+                          <BookOpen className="mr-1.5 h-4 w-4" />
+                          Practice
+                        </Button>
                       </div>
-                      <p className="text-sm leading-5 text-ink/70">{detail.notes}</p>
+                    </Card>
+                  </>
+                ) : (
+                  <Card className="p-8 text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-ink/5">
+                      <BookOpen className="h-6 w-6 text-ink/40" />
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                    <p className="mt-4 font-semibold text-ink">No lesson content available</p>
+                    <p className="mt-1 text-sm text-ink/50">
+                      This session date doesn't have a corresponding lesson in your library yet.
+                    </p>
+                    {selected && (
+                      <div className="mt-3 rounded-xl bg-paper p-3 text-left text-xs text-ink/60">
+                        <div>Session date: {selected.date}</div>
+                        <div>Looking for lesson ID: lesson-{selected.date}</div>
+                        <div>Total lessons in library: {lessons.length}</div>
+                        {lessons.length > 0 && (
+                          <div className="mt-2">
+                            First lesson: {lessons[0]?.id} ({lessons[0]?.label})
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Card>
+                )}
+              </div>
 
-              {/* Score + lesson CTA */}
+              {/* Right: Session info sidebar */}
               <div className="space-y-5">
+
+                {/* Mistakes panel */}
+                <Card className="p-6">
+                  <CardTitle className="mb-4 flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-clay-600" />
+                    Mistakes
+                    {mistakes.length > 0 && (
+                      <span className="ml-auto rounded-full bg-clay-100 px-2 py-0.5 text-xs font-bold text-clay-700">
+                        {mistakes.length}
+                      </span>
+                    )}
+                  </CardTitle>
+                  <CardContent className="space-y-0">
+                    {/* Tajweed focus chips (from session detail) */}
+                    {detail?.tajweedRules.length ? (
+                      <div className="mb-4">
+                        <div className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink/40">
+                          Tajweed in focus
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {detail.tajweedRules.map((rule) => (
+                            <span key={rule} className="rounded-full bg-paper-dim px-3 py-1 text-xs font-medium text-ink/70">
+                              {rule}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {mistakes.length === 0 ? (
+                      <div className="rounded-2xl border border-dashed border-line bg-paper/60 py-6 text-center">
+                        <CheckCircle2 className="mx-auto h-6 w-6 text-green-600" />
+                        <p className="mt-2 text-sm font-medium text-ink">No mistakes</p>
+                        <p className="mt-1 text-xs text-ink/45">
+                          {isToday ? 'Session in progress' : 'Clean session!'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {mistakes.map((m) => (
+                          <div key={m.id} className="flex items-start gap-3 rounded-2xl border border-line bg-white p-3">
+                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-clay-50">
+                              <AlertCircle className="h-3.5 w-3.5 text-clay-600" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-arabic text-sm text-ink">{m.wordText}</span>
+                                <span className="text-xs text-ink/45">{m.surahName} {m.ayah}:{m.wordPosition}</span>
+                              </div>
+                              <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${MISTAKE_TYPE_COLOUR[m.type] ?? MISTAKE_TYPE_COLOUR.other}`}>
+                                {MISTAKE_TYPE_LABELS[m.type]}
+                              </span>
+                              {m.note && <p className="mt-1 text-xs leading-5 text-ink/60">{m.note}</p>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Teacher note */}
+                    {detail?.notes && (
+                      <div className="mt-4 rounded-2xl border border-gold-200 bg-gold-100/40 p-3">
+                        <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-gold-700/70">
+                          Teacher's note
+                        </div>
+                        <p className="text-xs leading-5 text-ink/70">{detail.notes}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
 
                 {/* Score breakdown (if submitted) */}
                 {(score || rubric) && (
                   <Card className="p-6">
                     <CardTitle className="mb-4 flex items-center gap-2">
                       <Award className="h-5 w-5 text-gold-700" />
-                      Session score
+                      Score
                     </CardTitle>
                     <CardContent className="space-y-0">
                       <div className="mb-4 flex items-end gap-3">
@@ -332,15 +660,6 @@ export function StudentSchedule() {
                         }`}>
                           {finalGrade}
                         </span>
-                        {(finalTotal ?? 0) >= 70 ? (
-                          <span className="mb-1 flex items-center gap-1 text-sm font-semibold text-green-700">
-                            <CheckCircle2 className="h-4 w-4" /> Passed
-                          </span>
-                        ) : (
-                          <span className="mb-1 flex items-center gap-1 text-sm font-semibold text-clay-700">
-                            <XCircle className="h-4 w-4" /> Needs work
-                          </span>
-                        )}
                       </div>
 
                       {(rubric?.criteria ?? score?.criteria) && (() => {
@@ -373,7 +692,7 @@ export function StudentSchedule() {
                       })()}
 
                       {finalMsg && (
-                        <div className="mt-4 rounded-2xl bg-paper p-3.5 text-sm leading-6 text-ink/70">
+                        <div className="mt-4 rounded-2xl bg-paper p-3 text-sm leading-6 text-ink/70">
                           <span className="font-semibold text-ink">Teacher: </span>
                           {finalMsg}
                         </div>
@@ -382,21 +701,6 @@ export function StudentSchedule() {
                   </Card>
                 )}
 
-                {/* Open lesson CTA */}
-                <Card className="p-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <div className="font-semibold text-ink">Review this lesson</div>
-                      <div className="mt-0.5 text-xs text-ink/50">
-                        Open the full lesson text and your progress
-                      </div>
-                    </div>
-                    <Button size="sm" onClick={() => navigate('/student/lesson')}>
-                      <BookOpen className="mr-1.5 h-4 w-4" />
-                      Open lesson
-                    </Button>
-                  </div>
-                </Card>
               </div>
             </div>
 
