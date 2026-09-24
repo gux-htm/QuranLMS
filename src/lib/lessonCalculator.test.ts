@@ -4,8 +4,8 @@ import { format, addDays, parseISO } from 'date-fns'
 // Test data
 const baseInput = {
   studentId: 'student-1',
-  currentDate: '2026-01-20',
-  pace: { quantity: 1, unit: 'page' as const },
+  currentDate: new Date(),
+  pace: { quantity: 1, unit: 'pages' as const },
   unitsCompleted: 10,
   totalUnits: 604, // Full Quran pages
   completedLessons: {},
@@ -112,7 +112,7 @@ describe('Lesson Calculator', () => {
       // Student completes 0.5 pages instead of 1
       const input = {
         ...baseInput,
-        pace: { quantity: 2, unit: 'page' as const },
+        pace: { quantity: 2, unit: 'pages' as const },
         completedLessons: {
           'lesson-2026-01-20': 1, // Target was 2, actual is 1
         },
@@ -140,7 +140,7 @@ describe('Lesson Calculator', () => {
     it('should clear deficit when student meets or exceeds adjusted target', () => {
       const input = {
         ...baseInput,
-        pace: { quantity: 2, unit: 'page' as const },
+        pace: { quantity: 2, unit: 'pages' as const },
         completedLessons: {
           'lesson-2026-01-20': 1, // Deficit of 1
           'lesson-2026-01-21': 3, // Meets adjusted target of 3
@@ -160,7 +160,7 @@ describe('Lesson Calculator', () => {
     it('should not propagate deficit to lessons after pending', () => {
       const input = {
         ...baseInput,
-        pace: { quantity: 2, unit: 'page' as const },
+        pace: { quantity: 2, unit: 'pages' as const },
         completedLessons: {
           'lesson-2026-01-20': 1, // Deficit of 1
           // 2026-01-21 is pending (absorbs deficit)
@@ -182,12 +182,12 @@ describe('Lesson Calculator', () => {
     it('should recalculate pending lessons when pace changes', () => {
       const input = {
         ...baseInput,
-        pace: { quantity: 2, unit: 'page' as const }, // Changed from 1 to 2
+        pace: { quantity: 2, unit: 'pages' as const }, // Changed from 1 to 2
         completedLessons: {
           'lesson-2026-01-20': 1, // Completed at old pace
           'lesson-2026-01-21': 1, // Completed at old pace
         },
-        paceChangeDate: '2026-01-22',
+        paceChangeDate: new Date().toISOString(),
       }
       
       const result = calculateLessonLibrary(input)
@@ -211,11 +211,11 @@ describe('Lesson Calculator', () => {
     it('should recalculate from actual endpoint of last completed lesson', () => {
       const input = {
         ...baseInput,
-        pace: { quantity: 2, unit: 'page' as const },
+        pace: { quantity: 2, unit: 'pages' as const },
         completedLessons: {
           'lesson-2026-01-20': 3, // Over-completed: actual endpoint is page 13
         },
-        paceChangeDate: '2026-01-21',
+        paceChangeDate: new Date().toISOString(),
       }
       
       const result = calculateLessonLibrary(input)
@@ -231,9 +231,9 @@ describe('Lesson Calculator', () => {
     it('should handle pace change with no completed lessons', () => {
       const input = {
         ...baseInput,
-        pace: { quantity: 2, unit: 'page' as const },
+        pace: { quantity: 2, unit: 'pages' as const },
         completedLessons: {},
-        paceChangeDate: '2026-01-20',
+        paceChangeDate: new Date().toISOString(),
       }
       
       const result = calculateLessonLibrary(input)
@@ -250,7 +250,7 @@ describe('Lesson Calculator', () => {
         ...baseInput,
         unitsCompleted: 603,
         totalUnits: 604,
-        pace: { quantity: 1, unit: 'page' as const },
+        pace: { quantity: 1, unit: 'pages' as const },
       }
       
       const result = calculateLessonLibrary(input)
@@ -292,7 +292,7 @@ describe('Lesson Calculator', () => {
     it('should handle varying pace units (lines, pages, juz)', () => {
       const inputLines = {
         ...baseInput,
-        pace: { quantity: 5, unit: 'line' as const },
+        pace: { quantity: 5, unit: 'verses' as const },
       }
       
       const result = calculateLessonLibrary(inputLines)
@@ -307,7 +307,7 @@ describe('Lesson Calculator', () => {
     it('should handle over-completion + under-completion sequence', () => {
       const input = {
         ...baseInput,
-        pace: { quantity: 2, unit: 'page' as const },
+        pace: { quantity: 2, unit: 'pages' as const },
         completedLessons: {
           'lesson-2026-01-20': 3, // Over: +1
           'lesson-2026-01-21': 1, // Under: -1 (starts at 14, target 2, actual 1)
@@ -331,12 +331,12 @@ describe('Lesson Calculator', () => {
     it('should handle pace change after mixed completion', () => {
       const input = {
         ...baseInput,
-        pace: { quantity: 3, unit: 'page' as const },
+        pace: { quantity: 3, unit: 'pages' as const },
         completedLessons: {
           'lesson-2026-01-20': 2, // Over at old pace (1)
           'lesson-2026-01-21': 1, // Under at old pace (1)
         },
-        paceChangeDate: '2026-01-22',
+        paceChangeDate: new Date().toISOString(),
       }
       
       const result = calculateLessonLibrary(input)
@@ -380,7 +380,7 @@ export function runManualTests() {
       name: 'Rule 2: Under-Completion',
       input: {
         ...baseInput,
-        pace: { quantity: 2, unit: 'page' as const },
+        pace: { quantity: 2, unit: 'pages' as const },
         completedLessons: { 'lesson-2026-01-20': 1 },
       },
       verify: (result: any) => {
@@ -392,9 +392,9 @@ export function runManualTests() {
       name: 'Rule 3: Pace Change',
       input: {
         ...baseInput,
-        pace: { quantity: 2, unit: 'page' as const },
+        pace: { quantity: 2, unit: 'pages' as const },
         completedLessons: { 'lesson-2026-01-20': 1 },
-        paceChangeDate: '2026-01-21',
+        paceChangeDate: new Date().toISOString(),
       },
       verify: (result: any) => {
         const recalculated = result.lessons[1].targetQuantity === 2

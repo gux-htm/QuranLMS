@@ -1,3 +1,4 @@
+import { useState, useEffect, useMemo } from 'react'
 import {
   Flame,
   Trophy,
@@ -10,6 +11,7 @@ import {
   BarChart3,
   Star,
   Award,
+  Clock,
 } from 'lucide-react'
 import { Card, CardTitle, CardContent } from '@/components/ui/Card'
 import { StatCards } from '@/components/ui/StatCards'
@@ -21,13 +23,34 @@ import {
   MILESTONES,
   SESSIONS,
   ACHIEVEMENTS,
+  TEACHER_SCHEDULE,
+  SESSION_DETAILS,
   today,
 } from '@/lib/mockData'
-import { format, subDays } from 'date-fns'
+import { format, subDays, differenceInSeconds } from 'date-fns'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '@/lib/store'
 import { LookAhead } from '@/components/student/LookAhead'
+
+/* ── helpers ─────────────────────────────────────────────── */
+
+const MY_SESSIONS = TEACHER_SCHEDULE.filter(
+  (s) => s.studentName === CURRENT_STUDENT.name,
+)
+
+function DigitBox({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/15 bg-white/10 font-mono text-xl font-bold text-paper backdrop-blur-sm sm:h-14 sm:w-14 sm:text-2xl">
+        {value}
+      </div>
+      <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-paper/45">
+        {label}
+      </span>
+    </div>
+  )
+}
 
 export function StudentDashboard() {
   const navigate = useNavigate()
@@ -44,6 +67,46 @@ export function StudentDashboard() {
     lessonAssignments.find((a) => a.studentIds.includes(CURRENT_STUDENT.id))?.id ??
     'current-student-lesson'
 
+  /* ── countdown state ─────────────────────────────────── */
+  const [countdown, setCountdown] = useState<number>(0)
+
+  const todaysSession = useMemo(
+    () => MY_SESSIONS.find((s) => s.date === format(today, 'yyyy-MM-dd')),
+    [],
+  )
+  const todayDetail = todaysSession ? SESSION_DETAILS[todaysSession.id] : undefined
+
+  useEffect(() => {
+    if (!todaysSession) return
+    const update = () => {
+      const [h, m] = todaysSession.time.split(':').map(Number)
+      const sessionTime = new Date(today)
+      sessionTime.setHours(h, m, 0, 0)
+      setCountdown(Math.max(0, differenceInSeconds(sessionTime, new Date())))
+    }
+    update()
+    const id = setInterval(update, 1000)
+    return () => clearInterval(id)
+  }, [todaysSession])
+
+  const digits = useMemo(() => {
+    const h = Math.floor(countdown / 3600)
+    const m = Math.floor((countdown % 3600) / 60)
+    const s = countdown % 60
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return { h: pad(h), m: pad(m), s: pad(s), hasHours: h > 0 }
+  }, [countdown])
+
+  const classIsLive = todaysSession && countdown === 0
+
+  const joinClass = () => {
+    if (todaysSession?.meetUrl) {
+      window.open(todaysSession.meetUrl, '_blank')
+      navigate(`/student/sessions/${todaysSession.id}/lesson`)
+    }
+  }
+
+  /* ── stats ───────────────────────────────────────────── */
   const stats = [
     {
       icon: BarChart3,
@@ -81,10 +144,21 @@ export function StudentDashboard() {
       <section className="relative overflow-hidden rounded-3xl border border-green-100 bg-gradient-to-br from-green-900 via-green-800 to-green-700 px-6 py-7 text-paper shadow-card sm:px-8 sm:py-9">
         <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full border border-white/10" />
         <div className="pointer-events-none absolute right-16 top-8 h-40 w-40 rounded-full border border-white/10" />
+        <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full border border-white/[0.06]" />
+
         <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-paper/80">
-              <Sparkles className="h-3.5 w-3.5" /> Student workspace
+          {/* Left: greeting + session info */}
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-paper/80">
+                <Sparkles className="h-3.5 w-3.5" /> Student workspace
+              </span>
+              {todaysSession && classIsLive && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-clay-600 px-3 py-1.5 text-xs font-bold text-paper animate-pulse shadow-lg">
+                  <span className="h-2 w-2 rounded-full bg-paper" />
+                  LIVE
+                </span>
+              )}
             </div>
             <h1 className="mt-4 font-display text-3xl font-semibold sm:text-4xl">
               Assalamu alaikum, {CURRENT_STUDENT.name}
@@ -93,14 +167,68 @@ export function StudentDashboard() {
               {CURRENT_STUDENT.className} · {CURRENT_STUDENT.teacherName} · Keep your daily streak
               going.
             </p>
+
+            {/* Today's session info */}
+            {todaysSession && (
+              <div className="mt-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm text-paper/65">
+                  <Clock className="h-4 w-4 shrink-0" />
+                  <span className="font-medium text-paper/90">{todaysSession.lessonTitle}</span>
+                  <span>·</span>
+                  <span>{todaysSession.time}</span>
+                  <span>·</span>
+                  <span>{todaysSession.duration} min</span>
+                </div>
+
+                {/* Tajweed focus chips */}
+                {todayDetail?.tajweedRules && todayDetail.tajweedRules.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {todayDetail.tajweedRules.map((rule) => (
+                      <span
+                        key={rule}
+                        className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-medium text-paper/75"
+                      >
+                        {rule}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Button variant="secondary" onClick={() => navigate('/student/calendar')}>
-              <CalendarDays className="mr-2 h-4 w-4" /> My calendar
-            </Button>
-            <Button onClick={() => navigate(`/student/lesson/${todaysAssignmentId}`)}>
-              <BookOpen className="mr-2 h-4 w-4" /> Start today's lesson
-            </Button>
+
+          {/* Right: countdown + buttons */}
+          <div className="flex flex-col items-start gap-5 lg:items-end">
+            {/* Countdown digits */}
+            {todaysSession && !classIsLive && (
+              <div className="flex items-center gap-2">
+                {digits.hasHours && (
+                  <>
+                    <DigitBox value={digits.h} label="Hrs" />
+                    <span className="mt-[-14px] font-mono text-xl font-bold text-paper/25">:</span>
+                  </>
+                )}
+                <DigitBox value={digits.m} label="Min" />
+                <span className="mt-[-14px] font-mono text-xl font-bold text-paper/25">:</span>
+                <DigitBox value={digits.s} label="Sec" />
+              </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex flex-wrap gap-3">
+              <Button variant="secondary" onClick={() => navigate('/student/calendar')}>
+                <CalendarDays className="mr-2 h-4 w-4" /> My calendar
+              </Button>
+              {todaysSession && (classIsLive || countdown < 600) ? (
+                <Button onClick={joinClass} className="bg-paper text-green-900 hover:bg-paper-dim">
+                  <Video className="mr-2 h-4 w-4" /> Join Class Now
+                </Button>
+              ) : (
+                <Button onClick={() => navigate(`/student/lesson/${todaysAssignmentId}`)}>
+                  <BookOpen className="mr-2 h-4 w-4" /> Start today's lesson
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </section>

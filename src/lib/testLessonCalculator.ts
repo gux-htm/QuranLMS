@@ -12,8 +12,8 @@ export const testScenarios = {
     console.log('\n📋 Test 1: Base Distribution')
     const result = calculateLessonLibrary({
       studentId: 'student-1',
-      currentDate: '2026-01-20',
-      pace: { quantity: 1, unit: 'page' },
+      currentDate: new Date(),
+      pace: { quantity: 1, unit: 'pages' },
       unitsCompleted: 10,
       totalUnits: 604,
       completedLessons: {},
@@ -38,8 +38,8 @@ export const testScenarios = {
     console.log('\n📋 Test 2: Over-Completion (Rule 1)')
     const result = calculateLessonLibrary({
       studentId: 'student-1',
-      currentDate: '2026-01-20',
-      pace: { quantity: 1, unit: 'page' },
+      currentDate: new Date(),
+      pace: { quantity: 1, unit: 'pages' },
       unitsCompleted: 10,
       totalUnits: 604,
       completedLessons: {
@@ -65,8 +65,8 @@ export const testScenarios = {
     console.log('\n📋 Test 3: Under-Completion (Rule 2)')
     const result = calculateLessonLibrary({
       studentId: 'student-1',
-      currentDate: '2026-01-20',
-      pace: { quantity: 2, unit: 'page' },
+      currentDate: new Date(),
+      pace: { quantity: 2, unit: 'pages' },
       unitsCompleted: 10,
       totalUnits: 604,
       completedLessons: {
@@ -92,15 +92,15 @@ export const testScenarios = {
     console.log('\n📋 Test 4: Pace Change (Rule 3)')
     const result = calculateLessonLibrary({
       studentId: 'student-1',
-      currentDate: '2026-01-20',
-      pace: { quantity: 2, unit: 'page' }, // New pace: 2 pages
+      currentDate: new Date(),
+      pace: { quantity: 2, unit: 'pages' }, // New pace: 2 pages
       unitsCompleted: 10,
       totalUnits: 604,
       completedLessons: {
         'lesson-2026-01-20': 1, // Completed at old pace (1 page)
         'lesson-2026-01-21': 1, // Completed at old pace (1 page)
       },
-      paceChangeDate: '2026-01-22',
+      paceChangeDate: new Date().toISOString(),
     })
     
     console.log('Completed lessons (preserved):')
@@ -123,15 +123,15 @@ export const testScenarios = {
     console.log('\n📋 Test 5: Combined Scenario')
     const result = calculateLessonLibrary({
       studentId: 'student-1',
-      currentDate: '2026-01-20',
-      pace: { quantity: 3, unit: 'page' }, // New pace
+      currentDate: new Date(),
+      pace: { quantity: 3, unit: 'pages' }, // New pace
       unitsCompleted: 10,
       totalUnits: 604,
       completedLessons: {
         'lesson-2026-01-20': 2, // Over-completed at old pace (target was 1)
         'lesson-2026-01-21': 1, // Under-completed at old pace (target was 1)
       },
-      paceChangeDate: '2026-01-22',
+      paceChangeDate: new Date().toISOString(),
     })
     
     console.log('Day 1 (over): pages 11-11, actual 11-12')
@@ -153,8 +153,8 @@ export const testScenarios = {
     console.log('\n📋 Test 6: Near Completion')
     const result = calculateLessonLibrary({
       studentId: 'student-1',
-      currentDate: '2026-01-20',
-      pace: { quantity: 1, unit: 'page' },
+      currentDate: new Date(),
+      pace: { quantity: 1, unit: 'pages' },
       unitsCompleted: 603,
       totalUnits: 604,
       completedLessons: {},
@@ -206,7 +206,7 @@ export function verifyWithStoreData(store: any) {
   
   const result = calculateLessonLibrary({
     studentId: student.id,
-    currentDate: new Date().toISOString().split('T')[0],
+    currentDate: new Date(),
     pace: student.pace,
     unitsCompleted: student.unitsCompleted,
     totalUnits: student.totalUnits,

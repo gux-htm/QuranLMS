@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import {
@@ -100,7 +100,7 @@ export function MistakeLogger({ word, existing, onClose, onAdd }: MistakeLoggerP
     >
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-gold-200 bg-paper p-3">
-          <span className="font-arabic text-3xl text-ink" dir="rtl">
+          <span className="font-arabic text-3xl text-ink" dir="rtl" lang="ar">
             {word.wordText}
           </span>
           <div className="text-xs text-ink/55">

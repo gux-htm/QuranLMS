@@ -5,9 +5,7 @@ import { format } from 'date-fns'
 import { Card, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { BackLink } from '@/components/ui/BackLink'
-import { AudioPlayer } from '@/components/common/AudioPlayer'
 import { useAppStore } from '@/lib/store'
-import { QARI_OPTIONS, ayahAudioUrl } from '@/lib/curriculumData'
 import { CURRENT_STUDENT, TEACHER_SCHEDULE, SESSION_DETAILS, MISTAKE_TYPE_LABELS, today } from '@/lib/mockData'
 import { calculateLessonLibrary } from '@/lib/lessonCalculator'
 import { mapPageRangeToQuran } from '@/lib/quranData'
@@ -25,7 +23,6 @@ interface MushafWord {
   position: number
   char_type_name: 'word' | 'end'
   text_uthmani: string
-  transliteration?: { text: string; language_name: string }
   line_number: number
 }
 
@@ -40,7 +37,6 @@ type RenderWord = {
   ayah: number
   position: number
   text: string
-  transliteration?: string
 }
 
 const MISTAKE_TYPE_COLOUR: Record<string, string> = {
@@ -74,7 +70,6 @@ export function StudentSessionLesson() {
   const [pageLoading, setPageLoading] = useState(false)
   const [pageError, setPageError] = useState(false)
   const [selectedWord, setSelectedWord] = useState<RenderWord | null>(null)
-  const [qari, setQari] = useState('ar.abdurrahmaansudais')
 
   const session = TEACHER_SCHEDULE.find((s) => s.id === sessionId && s.studentName === CURRENT_STUDENT.name)
   const detail = sessionId ? SESSION_DETAILS[sessionId] : undefined
@@ -133,7 +128,7 @@ export function StudentSessionLesson() {
     setPageLoading(true)
     setPageError(false)
     fetch(
-      `https://api.quran.com/api/v4/verses/by_page/${page}?words=true&word_fields=text_uthmani,transliteration&fields=verse_key`
+      `https://api.quran.com/api/v4/verses/by_page/${page}?words=true&word_fields=text_uthmani&fields=verse_key`
     )
       .then((res) => {
         if (!res.ok) throw new Error('fetch failed')
@@ -181,30 +176,11 @@ export function StudentSessionLesson() {
             ayah: v.verse_number,
             position: w.position,
             text: w.text_uthmani,
-            transliteration: w.transliteration?.text,
           }))
       )
 
-  const translitLine = words.map((w) => w.transliteration).filter(Boolean).join(' ')
-
   const mistakeAt = (verseKey: string, position: number) =>
     mistakes.find((m) => m.verseKey === verseKey && m.wordPosition === position)
-
-  // Audio segments
-  const audioSegments = useMemo(() => {
-    if (lessonAyahs.length > 0) {
-      return lessonAyahs.slice(0, 15).map(ayah => ({
-        label: `${ayah.surahNum}:${ayah.numInSurah}`,
-        url: `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayah.global}.mp3`
-      }))
-    }
-    if (!detail?.audioRange) return []
-    const segs = []
-    for (let a = detail.audioRange.startAyah; a <= Math.min(detail.audioRange.endAyah, detail.audioRange.startAyah + 14); a++) {
-      segs.push({ label: `${detail.audioRange.surah}:${a}`, url: ayahAudioUrl(detail.audioRange.surah, a, qari) })
-    }
-    return segs
-  }, [detail, qari, lessonAyahs])
 
   const copyMeetLink = async () => {
     if (!session) return
@@ -226,7 +202,7 @@ export function StudentSessionLesson() {
     return (
       <div className="space-y-4">
         <h1 className="font-display text-2xl font-semibold text-ink">Session not found</h1>
-        <Button variant="outline" onClick={() => navigate('/student/schedule')}>
+        <Button variant="outline" onClick={() => navigate('/student/dashboard')}>
           Back to schedule
         </Button>
       </div>
@@ -235,7 +211,7 @@ export function StudentSessionLesson() {
 
   return (
     <div className="space-y-5">
-      <BackLink to="/student/schedule" label="Back to schedule" />
+      <BackLink to="/student/dashboard" label="Back to schedule" />
 
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -281,12 +257,10 @@ export function StudentSessionLesson() {
             {isQaida ? (
               <div className="space-y-3">
                 <div className="rounded-xl border border-line bg-paper p-5 text-center">
-                  <p className="font-arabic text-3xl leading-loose text-ink" dir="rtl">
+                  <p className="font-arabic text-3xl leading-[2.5] text-ink" dir="rtl" lang="ar">
                     {detail?.contentAr}
                   </p>
                 </div>
-                <p className="text-sm italic text-ink/60">{detail?.contentTranslit}</p>
-                <p className="text-sm text-ink/70">{detail?.contentEn}</p>
               </div>
             ) : (
               <>
@@ -308,111 +282,65 @@ export function StudentSessionLesson() {
                 {pageError && !lessonAyahs.length && detail && (
                   <div className="rounded-xl border border-line bg-paper-dim/50 p-5 text-center text-sm text-ink/60">
                     Couldn't load the Mushaf page.
-                    <p className="mt-3 font-arabic text-2xl leading-loose text-ink" dir="rtl">
+                    <p className="mt-3 font-arabic text-2xl leading-[2.5] text-ink" dir="rtl" lang="ar">
                       {detail.contentAr}
                     </p>
                   </div>
                 )}
                 {lessonAyahs.length > 0 && (
-                  <>
-                    <div
-                      dir="rtl"
-                      className="rounded-2xl border-2 border-gold-300 bg-paper p-5 text-right font-[Noto_Naskh_Arabic] text-3xl leading-[2.2] text-ink sm:text-4xl"
-                    >
-                      {lessonAyahs.map((ayah, idx) => (
-                        <span key={ayah.global}>
-                          {ayah.ar}
-                          {idx < lessonAyahs.length - 1 && ' ۝ '}
-                        </span>
-                      ))}
+                  <div className="mx-auto max-w-2xl">
+                    <div className="relative overflow-hidden rounded-xl border border-[#D4C3A3] bg-[#FDFBF7] shadow-inner">
+                      {/* Decorative header */}
+                      <div className="h-8 w-full border-b border-[#D4C3A3]/30 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat opacity-40"></div>
+                      <div className="p-8 sm:p-10">
+                        <div
+                          dir="rtl"
+                          lang="ar"
+                          className="text-center font-arabic text-3xl leading-[2.6] sm:text-4xl text-[#1f2937]"
+                        >
+                          {lessonAyahs.map((ayah, idx) => (
+                            <span key={ayah.global}>
+                              {ayah.ar}
+                              {idx < lessonAyahs.length - 1 && ' ۝ '}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="h-8 w-full border-t border-[#D4C3A3]/30 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat opacity-40"></div>
                     </div>
-                    <div className="mt-3 border-t border-line pt-4">
-                      <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-ink/50">
-                        Transliteration
-                      </h4>
-                      <p className="text-sm leading-7 italic text-ink/60">
-                        {lessonAyahs.map(a => a.translit).join(' · ')}
-                      </p>
-                    </div>
-                    <div className="mt-3">
-                      <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-ink/50">
-                        English translation
-                      </h4>
-                      <p className="text-xs leading-6 text-ink/45">
-                        {lessonAyahs.map(a => a.en).join(' · ')}
-                      </p>
-                    </div>
-                  </>
+                  </div>
                 )}
                 {verses && lessonAyahs.length === 0 && (
-                  <>
-                    <div className="rounded-lg border-2 border-gold-300 bg-paper p-4">
-                      <p className="text-justify font-arabic text-[26px] leading-[2.2] text-ink" dir="rtl">
-                        {words.map((w, i) => {
-                          const marked = mistakeAt(w.verseKey, w.position)
-                          return (
-                            <span key={i}>
-                              <span
-                                onClick={() => setSelectedWord(w)}
-                                title={marked ? 'Mistake logged here' : 'Word'}
-                                className={`cursor-pointer rounded-sm px-0.5 transition hover:bg-gold-100 ${
-                                  marked ? 'bg-clay-200 text-clay-900 ring-1 ring-clay-400' : ''
-                                }`}
-                              >
-                                {w.text}
-                              </span>{' '}
-                            </span>
-                          )
-                        })}
-                      </p>
+                  <div className="mx-auto max-w-2xl">
+                    <div className="relative overflow-hidden rounded-xl border border-[#D4C3A3] bg-[#FDFBF7] shadow-inner">
+                      {/* Decorative header */}
+                      <div className="h-8 w-full border-b border-[#D4C3A3]/30 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat opacity-40"></div>
+                      <div className="p-8 sm:p-10">
+                        <p className="text-justify font-arabic text-[26px] leading-[2.6] sm:text-[32px] text-[#1f2937]" dir="rtl" lang="ar">
+                          {words.map((w, i) => {
+                            const marked = mistakeAt(w.verseKey, w.position)
+                            return (
+                              <span key={i}>
+                                <span
+                                  onClick={() => setSelectedWord(w)}
+                                  title={marked ? 'Mistake logged here' : 'Word'}
+                                  className={`cursor-pointer rounded-sm px-1 transition hover:bg-[#D4C3A3]/40 ${
+                                    marked ? 'bg-red-100 text-red-900 ring-1 ring-red-300' : ''
+                                  }`}
+                                >
+                                  {w.text}
+                                </span>{' '}
+                              </span>
+                            )
+                          })}
+                        </p>
+                      </div>
+                      <div className="h-8 w-full border-t border-[#D4C3A3]/30 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat opacity-40"></div>
                     </div>
-
-                    {translitLine && (
-                      <div className="mt-3">
-                        <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-ink/50">
-                          Transliteration
-                        </h4>
-                        <p className="text-sm italic text-ink/60">{translitLine}</p>
-                      </div>
-                    )}
-
-                    {detail && (
-                      <div className="mt-3">
-                        <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-ink/50">
-                          English translation
-                        </h4>
-                        <p className="text-sm text-ink/70">{detail.contentEn}</p>
-                      </div>
-                    )}
-                  </>
+                  </div>
                 )}
               </>
             )}
-          </Card>
-
-          {/* Audio player */}
-          <Card>
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <CardTitle>Recitation audio</CardTitle>
-              <label className="flex items-center gap-2 text-xs text-ink/60">
-                Qari
-                <select
-                  value={qari}
-                  onChange={(e) => setQari(e.target.value)}
-                  className="h-8 rounded-xl border border-line bg-white px-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
-                >
-                  {QARI_OPTIONS.map((q) => (
-                    <option key={q.id} value={q.id}>
-                      {q.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <AudioPlayer
-              segments={audioSegments}
-              emptyHint="No audio available for this lesson"
-            />
           </Card>
 
           {/* Practice button */}
@@ -563,7 +491,7 @@ export function StudentSessionLesson() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-arabic text-sm text-ink">{m.wordText}</span>
+                          <span className="font-arabic text-sm text-ink" dir="rtl" lang="ar">{m.wordText}</span>
                           <span className="text-xs text-ink/45">{m.surahName} {m.ayah}:{m.wordPosition}</span>
                         </div>
                         <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${MISTAKE_TYPE_COLOUR[m.type] ?? MISTAKE_TYPE_COLOUR.other}`}>
@@ -599,11 +527,8 @@ export function StudentSessionLesson() {
             </div>
             <div className="space-y-2">
               <div className="rounded-xl border border-line bg-paper p-3 text-center">
-                <p className="font-arabic text-3xl text-ink" dir="rtl">{selectedWord.text}</p>
+                <p className="font-arabic text-3xl text-ink" dir="rtl" lang="ar">{selectedWord.text}</p>
               </div>
-              {selectedWord.transliteration && (
-                <p className="text-center text-sm italic text-ink/60">{selectedWord.transliteration}</p>
-              )}
               <p className="text-center text-xs text-ink/50">{selectedWord.verseKey}</p>
             </div>
             {mistakeAt(selectedWord.verseKey, selectedWord.position) && (

@@ -1,23 +1,21 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Award, CheckCircle2, Clock, Copy, Trash2, Video } from 'lucide-react'
 import { format } from 'date-fns'
 import { Card, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { BackLink } from '@/components/ui/BackLink'
-import { AudioPlayer } from '@/components/common/AudioPlayer'
+import { useAppStore } from '@/lib/store'
+import { LESSON_MISTAKE_TYPE_LABELS, RUBRIC_MAX } from '@/types'
+import type { LessonMistakeType, LessonRubric } from '@/types'
+import { gradeFor } from '@/lib/mockData'
+import type { MistakeType } from '@/lib/mockData'
+import { useToast } from '@/components/ui/Toaster'
 import { MistakeLogger } from '@/components/teacher/MistakeLogger'
 import type { MistakeDraft } from '@/components/teacher/MistakeLogger'
 import { ScoringRubric } from '@/components/teacher/ScoringRubric'
 import { useSessionLesson } from '@/hooks/useSessionLesson'
 import { useSubmitScore } from '@/hooks/useSubmitScore'
-import { useToast } from '@/components/ui/Toaster'
-import { useAppStore } from '@/lib/store'
-import { QARI_OPTIONS, ayahAudioUrl } from '@/lib/curriculumData'
-import { LESSON_MISTAKE_TYPE_LABELS, RUBRIC_MAX } from '@/types'
-import type { LessonMistakeType, LessonRubric } from '@/types'
-import { gradeFor } from '@/lib/mockData'
-import type { MistakeType } from '@/lib/mockData'
 
 function formatElapsed(totalSeconds: number) {
   const m = Math.floor(totalSeconds / 60)
@@ -25,12 +23,11 @@ function formatElapsed(totalSeconds: number) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
-// Quran.com word-level shape (with transliteration for the word popup)
+// Quran.com word-level shape
 interface MushafWord {
   position: number
   char_type_name: 'word' | 'end'
   text_uthmani: string
-  transliteration?: { text: string; language_name: string }
   line_number: number
 }
 
@@ -45,7 +42,6 @@ type RenderWord = {
   ayah: number
   position: number
   text: string
-  transliteration?: string
 }
 
 // Maps the popup's mistake taxonomy onto the store's SessionMistake type
@@ -80,7 +76,6 @@ export function TeacherLessonView() {
   const [pageLoading, setPageLoading] = useState(false)
   const [pageError, setPageError] = useState(false)
   const [selectedWord, setSelectedWord] = useState<RenderWord | null>(null)
-  const [qari, setQari] = useState('ar.abdurrahmaansudais')
   const savedRubric = sessionId ? sessionRubrics[sessionId] : undefined
   const [criteria, setCriteria] = useState<LessonRubric>({ ...RUBRIC_MAX })
   const [feedback, setFeedback] = useState('')
@@ -103,7 +98,7 @@ export function TeacherLessonView() {
     setPageLoading(true)
     setPageError(false)
     fetch(
-      `https://api.quran.com/api/v4/verses/by_page/${page}?words=true&word_fields=text_uthmani,transliteration&fields=verse_key`
+      `https://api.quran.com/api/v4/verses/by_page/${page}?words=true&word_fields=text_uthmani&fields=verse_key`
     )
       .then((res) => {
         if (!res.ok) throw new Error('fetch failed')
@@ -164,16 +159,6 @@ export function TeacherLessonView() {
     }
   }, [selectedWord, mistakes])
 
-  // Audio segments for the lesson's ayah range
-  const audioSegments = useMemo(() => {
-    if (!data?.detail.audioRange) return []
-    const segs = []
-    for (let a = data.detail.audioRange.startAyah; a <= Math.min(data.detail.audioRange.endAyah, data.detail.audioRange.startAyah + 14); a++) {
-      segs.push({ label: `${data.detail.audioRange.surah}:${a}`, url: ayahAudioUrl(data.detail.audioRange.surah, a, qari) })
-    }
-    return segs
-  }, [data, qari])
-
   if (loading) {
     return (
       <div className="rounded-lg border border-line bg-white p-10 text-center text-sm text-ink/55">
@@ -215,11 +200,8 @@ export function TeacherLessonView() {
             ayah: v.verse_number,
             position: w.position,
             text: w.text_uthmani,
-            transliteration: w.transliteration?.text,
           }))
       )
-
-  const translitLine = words.map((w) => w.transliteration).filter(Boolean).join(' ')
 
   const mistakeAt = (verseKey: string, position: number) =>
     mistakes.find((m) => m.verseKey === verseKey && m.wordPosition === position)
@@ -303,12 +285,10 @@ export function TeacherLessonView() {
             {isQaida ? (
               <div className="space-y-3">
                 <div className="rounded-xl border border-line bg-paper p-5 text-center">
-                  <p className="font-arabic text-3xl leading-loose text-ink" dir="rtl">
+                  <p className="font-arabic text-3xl leading-[2.5] text-ink" dir="rtl" lang="ar">
                     {detail.contentAr}
                   </p>
                 </div>
-                <p className="text-sm italic text-ink/60">{detail.contentTranslit}</p>
-                <p className="text-sm text-ink/70">{detail.contentEn}</p>
               </div>
             ) : (
               <>
@@ -320,78 +300,42 @@ export function TeacherLessonView() {
                 {pageError && (
                   <div className="rounded-xl border border-line bg-paper-dim/50 p-5 text-center text-sm text-ink/60">
                     Couldn't load the Mushaf page (offline?). Lesson text:
-                    <p className="mt-3 font-arabic text-2xl leading-loose text-ink" dir="rtl">
+                    <p className="mt-3 font-arabic text-2xl leading-[2.5] text-ink" dir="rtl" lang="ar">
                       {detail.contentAr}
                     </p>
                   </div>
                 )}
                 {verses && (
-                  <>
-                    <div className="rounded-lg border-2 border-gold-300 bg-paper p-4">
-                      <p className="text-justify font-arabic text-[26px] leading-[2.2] text-ink" dir="rtl">
-                        {words.map((w, i) => {
-                          const marked = mistakeAt(w.verseKey, w.position)
-                          return (
-                            <span key={i}>
-                              <span
-                                onClick={() => setSelectedWord(w)}
-                                title="Click to log a mistake"
-                                className={`cursor-pointer rounded-sm px-0.5 transition hover:bg-gold-100 ${
-                                  marked ? 'bg-clay-200 text-clay-900 ring-1 ring-clay-400' : ''
-                                }`}
-                              >
-                                {w.text}
-                              </span>{' '}
-                            </span>
-                          )
-                        })}
-                      </p>
-                    </div>
-
-                    {translitLine && (
-                      <div className="mt-3">
-                        <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-ink/50">
-                          Transliteration
-                        </h4>
-                        <p className="text-sm italic text-ink/60">{translitLine}</p>
+                  <div className="mx-auto max-w-2xl">
+                    <div className="relative overflow-hidden rounded-xl border border-[#D4C3A3] bg-[#FDFBF7] shadow-inner">
+                      {/* Decorative header */}
+                      <div className="h-8 w-full border-b border-[#D4C3A3]/30 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat opacity-40"></div>
+                      <div className="p-8 sm:p-10">
+                        <p className="text-justify font-arabic text-3xl leading-[2.6] sm:text-4xl text-[#1f2937]" dir="rtl" lang="ar">
+                          {words.map((w, i) => {
+                            const marked = mistakeAt(w.verseKey, w.position)
+                            return (
+                              <span key={i}>
+                                <span
+                                  onClick={() => setSelectedWord(w)}
+                                  title="Click to log a mistake"
+                                  className={`cursor-pointer rounded-sm px-1 transition hover:bg-[#D4C3A3]/40 ${
+                                    marked ? 'bg-red-100 text-red-900 ring-1 ring-red-300' : ''
+                                  }`}
+                                >
+                                  {w.text}
+                                </span>{' '}
+                              </span>
+                            )
+                          })}
+                        </p>
                       </div>
-                    )}
-
-                    <div className="mt-3">
-                      <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-ink/50">
-                        English translation
-                      </h4>
-                      <p className="text-sm text-ink/70">{detail.contentEn}</p>
+                      <div className="h-8 w-full border-t border-[#D4C3A3]/30 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat opacity-40"></div>
                     </div>
-                  </>
+                  </div>
                 )}
               </>
             )}
-          </Card>
-
-          {/* Audio player */}
-          <Card>
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <CardTitle>Recitation audio</CardTitle>
-              <label className="flex items-center gap-2 text-xs text-ink/60">
-                Qari
-                <select
-                  value={qari}
-                  onChange={(e) => setQari(e.target.value)}
-                  className="h-8 rounded-xl border border-line bg-white px-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-green-600/40"
-                >
-                  {QARI_OPTIONS.map((q) => (
-                    <option key={q.id} value={q.id}>
-                      {q.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <AudioPlayer
-              segments={audioSegments}
-              emptyHint="No pre-recorded audio for this lesson â€” recite live with the student."
-            />
           </Card>
         </div>
 
@@ -508,7 +452,7 @@ export function TeacherLessonView() {
                     <tbody>
                       {mistakes.map((m) => (
                         <tr key={m.id} className="border-t border-line">
-                          <td className="px-3 py-2 font-arabic text-base text-ink" dir="rtl">
+                          <td className="px-3 py-2 font-arabic text-base text-ink" dir="rtl" lang="ar">
                             {m.wordText}
                           </td>
                           <td className="px-3 py-2 tabular-nums text-ink/60">{m.verseKey}</td>
@@ -557,7 +501,6 @@ export function TeacherLessonView() {
                 ayah: selectedWord.ayah,
                 wordText: selectedWord.text,
                 wordPosition: selectedWord.position,
-                transliteration: selectedWord.transliteration,
               }
             : null
         }

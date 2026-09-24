@@ -1,4 +1,4 @@
-﻿import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { BookOpen, BookOpenText, Clock, GraduationCap, Languages, Moon, PauseCircle, ScrollText, Search, Volume2, X } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -318,7 +318,7 @@ function QuranTilesView({ onBack, onOpenItem }: {
                     {surah.revelation} â€¢ {surah.ayahs} ayahs
                   </span>
                 </span>
-                <span className="font-arabic shrink-0 text-xl text-ink/70" dir="rtl">
+                <span className="font-arabic shrink-0 text-xl text-ink/70" dir="rtl" lang="ar">
                   {surah.arabic}
                 </span>
               </button>
@@ -467,7 +467,7 @@ function QuranReadingView({ item, onBack, onAssign }: {
                 <Card>
                   <div className="space-y-2.5">
                     <div className="flex items-start justify-between gap-3">
-                      <p className="flex-1 font-arabic text-2xl leading-loose text-ink" dir="rtl">
+                      <p className="flex-1 font-arabic text-2xl leading-[2.5] text-ink" dir="rtl" lang="ar">
                         {a.ar} <span className="text-gold-800">ï´¿{a.numInSurah}ï´¾</span>
                       </p>
                     </div>
@@ -605,7 +605,7 @@ function ContentItemView({ item, onBack, onAssign }: {
       <div className="mx-auto max-w-3xl space-y-5">
         {/* Arabic content */}
         <div className="rounded-lg border border-gold-200 bg-paper p-6">
-          <p className="text-center font-arabic text-2xl leading-loose text-ink" dir="rtl">
+          <p className="text-center font-arabic text-2xl leading-[2.5] text-ink" dir="rtl" lang="ar">
             {item.contentAr}
           </p>
         </div>

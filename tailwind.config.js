@@ -56,7 +56,7 @@ export default {
       },
       fontFamily: {
         display: ['"Source Serif 4"', 'Georgia', 'serif'],
-        arabic: ['"Noto Naskh Arabic"', '"Traditional Arabic"', 'serif'],
+        arabic: ['UthmanicHafs', '"Noto Naskh Arabic"', '"Traditional Arabic"', 'serif'],
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       boxShadow: {

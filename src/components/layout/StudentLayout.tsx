@@ -3,7 +3,6 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import {
   LayoutGrid,
   Calendar,
-  CalendarClock,
   BarChart3,
   Award,
   LogOut,
@@ -24,12 +23,12 @@ interface StudentLayoutProps { children?: ReactNode }
 export function StudentLayout({ children }: StudentLayoutProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false)
 
   const navItems = [
     { path: '/student', icon: LayoutGrid, label: 'Dashboard' },
     { path: '/student/lessons', icon: BookOpen, label: 'Lessons' },
-    { path: '/student/schedule', icon: CalendarClock, label: 'Schedule' },
     { path: '/student/assignments', icon: ClipboardList, label: 'Assignments' },
     { path: '/student/calendar', icon: Calendar, label: 'Calendar' },
     { path: '/student/reports', icon: BarChart3, label: 'Reports' },
@@ -44,25 +43,25 @@ export function StudentLayout({ children }: StudentLayoutProps) {
   return (
     <div className="min-h-screen bg-paper text-ink">
       {/* Mobile overlay */}
-      {sidebarOpen && (
+      {isMobileOpen && (
         <button
           className="fixed inset-0 z-30 bg-ink/20 backdrop-blur-[1px] md:hidden"
           aria-label="Close navigation"
-          onClick={() => setSidebarOpen(false)}
+          onClick={() => setIsMobileOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[272px] flex-col border-r border-line bg-white px-3 py-4 transition-transform duration-200 md:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-40 flex w-[272px] flex-col border-r border-line bg-white px-3 py-4 transition-transform duration-300 md:transition-all ${
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+        } ${isDesktopCollapsed ? 'md:-translate-x-full' : 'md:translate-x-0'}`}
       >
         {/* Logo */}
         <div className="flex items-center justify-between px-2 pb-6 pt-1">
           <LogoLink />
           <button
-            onClick={() => setSidebarOpen(false)}
+            onClick={() => setIsMobileOpen(false)}
             className="rounded-lg p-2 text-ink/40 hover:bg-paper md:hidden"
             aria-label="Close navigation"
           >
@@ -81,7 +80,7 @@ export function StudentLayout({ children }: StudentLayoutProps) {
             return (
               <button
                 key={item.path}
-                onClick={() => { navigate(item.path); setSidebarOpen(false) }}
+                onClick={() => { navigate(item.path); setIsMobileOpen(false) }}
                 className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
                   active
                     ? 'bg-green-800 text-paper shadow-sm'
@@ -102,7 +101,7 @@ export function StudentLayout({ children }: StudentLayoutProps) {
         {/* Bottom actions */}
         <div className="mt-auto space-y-1 border-t border-line pt-4">
           <button
-            onClick={() => { navigate('/student/settings'); setSidebarOpen(false) }}
+            onClick={() => { navigate('/student/settings'); setIsMobileOpen(false) }}
             className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
               isActive('/student/settings')
                 ? 'bg-green-800 text-paper shadow-sm'
@@ -127,15 +126,22 @@ export function StudentLayout({ children }: StudentLayoutProps) {
       </aside>
 
       {/* Main area */}
-      <div className="min-h-screen md:pl-[272px]">
+      <div className={`min-h-screen transition-all duration-300 ${isDesktopCollapsed ? 'md:pl-0' : 'md:pl-[272px]'}`}>
         {/* Header */}
         <header className="sticky top-0 z-20 border-b border-line/80 bg-paper/90 backdrop-blur-xl">
           <div className="flex h-[72px] items-center justify-between gap-4 px-4 sm:px-7">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setSidebarOpen(true)}
+                onClick={() => setIsMobileOpen(true)}
                 className="rounded-xl p-2 text-ink/60 hover:bg-white md:hidden"
                 aria-label="Open navigation"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setIsDesktopCollapsed(!isDesktopCollapsed)}
+                className="hidden rounded-xl p-2 text-ink/60 hover:bg-white md:block"
+                aria-label="Toggle navigation"
               >
                 <Menu className="h-5 w-5" />
               </button>

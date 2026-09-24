@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Check, Eye, Save } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardTitle } from '@/components/ui/Card'
@@ -113,8 +113,8 @@ export function TeacherLessonCreate() {
                 value={arabic}
                 onChange={(e) => setArabic(e.target.value)}
                 rows={7}
-                placeholder="بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
-                className="w-full rounded-xl border border-line bg-white px-3 py-3 text-right font-[Noto_Naskh_Arabic] text-2xl leading-relaxed text-ink outline-none focus:ring-2 focus:ring-green-600/30"
+                lang="ar"
+                className="w-full rounded-xl border border-line bg-white px-3 py-3 text-right font-arabic text-2xl leading-[2.5] text-ink outline-none focus:ring-2 focus:ring-green-600/30"
               />
             </label>
 
@@ -268,7 +268,7 @@ export function TeacherLessonCreate() {
                 {LESSON_TYPES.find(([v]) => v === lessonType)?.[1]}
               </div>
               <h2 className="mt-2 font-display text-xl font-semibold text-ink">{preview.title}</h2>
-              <div dir="rtl" className="mt-5 text-right font-[Noto_Naskh_Arabic] text-3xl leading-[2.15] text-ink">
+              <div dir="rtl" lang="ar" className="mt-5 text-right font-arabic text-3xl leading-[2.5] text-ink">
                 {preview.arabic}
               </div>
               {transliteration && <p className="mt-4 text-sm leading-7 text-ink/60">{transliteration}</p>}

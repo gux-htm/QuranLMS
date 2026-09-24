@@ -57,7 +57,7 @@ export function StudentLessonPage() {
   const [saving, setSaving] = useState(false)
   const [completing, setCompleting] = useState(false)
 
-  const completionUnit = CURRENT_STUDENT.pace.unit
+  const completionUnit = CURRENT_STUDENT.pace.unit as string
   const targetQuantity = lesson?.targetQuantity || 1
 
   const segments = useMemo(
@@ -159,7 +159,8 @@ export function StudentLessonPage() {
             <CardContent className="space-y-4">
               <div
                 dir="rtl"
-                className="rounded-2xl border border-line bg-paper/60 p-5 text-right font-[Noto_Naskh_Arabic] text-3xl leading-[2.2] text-ink sm:text-4xl"
+                lang="ar"
+                className="rounded-2xl border border-line bg-paper/60 p-5 text-right font-arabic text-3xl leading-[2.5] text-ink sm:text-4xl"
               >
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ۝ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ۝ الرَّحْمَٰنِ
                 الرَّحِيمِ ۝ مَالِكِ يَوْمِ الدِّينِ ۝ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ۝ اهْدِنَا
@@ -256,7 +257,7 @@ export function StudentLessonPage() {
                 </div>
               </div>
               <Input
-                label={`${completionUnit === 'line' ? 'Lines' : completionUnit === 'page' ? 'Pages' : 'Units'} completed today`}
+                label={`${completionUnit === 'verses' ? 'Verses' : completionUnit === 'pages' ? 'Pages' : 'Units'} completed today`}
                 type="number"
                 min={0}
                 max={targetQuantity}

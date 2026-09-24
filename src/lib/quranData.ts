@@ -263,8 +263,10 @@ export function mapPageRangeToQuran(startPage: number, endPage: number): PageToQ
   
   return {
     startSurah: startSurah.n,
+    startSurahName: startSurah.name,
     startAyah: startAyahInSurah,
     endSurah: endSurah.n,
+    endSurahName: endSurah.name,
     endAyah: endAyahInSurah,
     label,
   }

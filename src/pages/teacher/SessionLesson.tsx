@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertCircle,
@@ -522,7 +522,7 @@ export function TeacherSessionLesson() {
             </CardTitle>
             <CardContent className="space-y-4">
               <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-2xl bg-paper-dim px-3 py-1.5 font-arabic text-xl text-ink" dir="rtl">
+                <span className="rounded-2xl bg-paper-dim px-3 py-1.5 font-arabic text-xl text-ink" dir="rtl" lang="ar">
                   {selectedWord.wordText}
                 </span>
                 <span className="text-xs text-ink/50">
@@ -576,11 +576,9 @@ export function TeacherSessionLesson() {
         <Card className="p-6">
           <CardTitle className="mb-4">Lesson content — Noorani Qaida, Lesson {detail.resumeFrom.qaidaLesson}</CardTitle>
           <CardContent className="space-y-4">
-            <div className="rounded-2xl border border-line bg-paper p-5 text-center">
-              <p className="font-arabic text-2xl leading-loose text-ink" dir="rtl">{detail.contentAr}</p>
-            </div>
-            <p className="text-sm text-ink/70">{detail.contentEn}</p>
-            <p className="text-xs text-ink/50">Qaida audio comes from teacher uploads / the Qaida library.</p>
+            <div className="relative overflow-hidden rounded-xl border border-[#D4C3A3] bg-[#FDFBF7] shadow-inner"><div className="h-8 w-full border-b border-[#D4C3A3]/30 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat opacity-40"></div><div className="p-8">
+              <p className="font-arabic text-2xl leading-[2.5] text-ink" dir="rtl" lang="ar">{detail.contentAr}</p>
+            </div><div className="h-8 w-full border-t border-[#D4C3A3]/30 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat opacity-40"></div></div>
           </CardContent>
         </Card>
       ) : (
@@ -613,15 +611,18 @@ export function TeacherSessionLesson() {
           {pageError && (
             <div className="rounded-2xl border border-line bg-paper-dim/50 p-5 text-center text-sm text-ink/60">
               Couldn't load the Mushaf page (offline?). Starting text for today:
-              <p className="mt-3 font-arabic text-xl leading-loose text-ink" dir="rtl">{detail.contentAr}</p>
+              <p className="mt-3 font-arabic text-xl leading-[2.6] text-[#1f2937]" dir="rtl" lang="ar">{detail.contentAr}</p>
             </div>
           )}
           {pageVerses && (
             <>
-              <div className="rounded-2xl border-2 border-gold-300 bg-paper p-4 shadow-card sm:p-6">
+              <div className="relative overflow-hidden rounded-xl border border-[#D4C3A3] bg-[#FDFBF7] shadow-inner">
+                {/* Decorative header */}
+                <div className="h-8 w-full border-b border-[#D4C3A3]/30 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat opacity-40"></div>
+                <div className="p-6 sm:p-8">
                 <div dir="rtl" className="space-y-1">
                   {lines.map((line, li) => (
-                    <p key={li} className="font-arabic text-[21px] leading-[2.35] text-justify text-ink">
+                    <p key={li} className="font-arabic text-[24px] leading-[2.6] text-justify text-[#1f2937]" dir="rtl" lang="ar">
                       {line.map((item, ii) => {
                         if (item.kind === 'end') {
                           const isMarkedEnd  = endpoint?.verseKey === item.verseKey
@@ -658,9 +659,9 @@ export function TeacherSessionLesson() {
                               title="Click to mark a mistake on this word"
                               className={[
                                 'cursor-pointer rounded-sm px-0.5 transition',
-                                state === 'today' ? 'hover:bg-gold-100' : 'text-ink/35 hover:bg-gold-100/60',
+                                state === 'today' ? 'hover:bg-[#D4C3A3]/40' : 'text-ink/35 hover:bg-[#D4C3A3]/40',
                                 item.ayah === startAyah && state === 'today' ? 'bg-green-100/70' : '',
-                                mistake   ? 'bg-clay-200 text-clay-900 ring-1 ring-clay-400' : '',
+                                mistake   ? 'bg-red-100 text-red-900 ring-1 ring-red-300' : '',
                                 isSelected ? 'bg-gold-200 ring-2 ring-gold-500' : '',
                               ].join(' ')}
                             >
@@ -672,6 +673,8 @@ export function TeacherSessionLesson() {
                     </p>
                   ))}
                 </div>
+                </div>
+                <div className="h-8 w-full border-t border-[#D4C3A3]/30 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] bg-repeat opacity-40"></div>
               </div>
 
               {endCandidate && (
@@ -736,7 +739,7 @@ export function TeacherSessionLesson() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-arabic text-base text-ink">{m.wordText}</span>
+                        <span className="font-arabic text-base text-ink" dir="rtl" lang="ar">{m.wordText}</span>
                         <span className="text-xs text-ink/45">Surah {m.surahName} {m.ayah}</span>
                         <span className="rounded-full bg-clay-100 px-2 py-0.5 text-[10px] font-semibold text-clay-700">
                           {MISTAKE_TYPE_LABELS[m.type]}

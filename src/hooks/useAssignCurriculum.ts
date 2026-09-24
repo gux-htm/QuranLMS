@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { useAppStore } from '@/lib/store'
 
 export interface AssignCurriculumInput {
+  assignmentName: string
   curriculumId: string
   curriculumTitle: string
   classId: string
